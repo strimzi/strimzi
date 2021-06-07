@@ -8,6 +8,7 @@ import io.fabric8.kubernetes.api.model.LabelSelector;
 import io.fabric8.kubernetes.api.model.rbac.ClusterRoleBinding;
 import io.fabric8.kubernetes.client.CustomResource;
 import io.fabric8.kubernetes.client.Watch;
+import io.fabric8.kubernetes.client.Watcher.Action;
 import io.fabric8.kubernetes.client.WatcherException;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.Tag;
@@ -38,6 +39,7 @@ import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Collections;
 import java.util.Optional;
@@ -57,7 +59,7 @@ import static io.strimzi.operator.common.Util.async;
  * <li>uses the Fabric8 kubernetes API and implements
  * {@link #reconcile(Reconciliation)} by delegating to abstract {@link #createOrUpdate(Reconciliation, CustomResource)}
  * and {@link #delete(Reconciliation)} methods for subclasses to implement.
- * 
+ *
  * <li>add support for operator-side {@linkplain #validate(CustomResource) validation}.
  *     This can be used to automatically log warnings about source resources which used deprecated part of the CR API.
  *ą
@@ -95,6 +97,7 @@ public abstract class AbstractOperator<
     private final AtomicInteger resourceCounter;
     private final Timer reconciliationsTimer;
     private final Map<String, AtomicInteger> resourcesStateCounter;
+    private final Map<String, List<Reconciliation>> reconciliations;
 
     public AbstractOperator(Vertx vertx, String kind, O resourceOperator, MetricsProvider metrics, Labels selectorLabels) {
         this.vertx = vertx;
@@ -139,6 +142,7 @@ public abstract class AbstractOperator<
                 metricTags);
 
         resourcesStateCounter = new ConcurrentHashMap<>();
+        reconciliations = new ConcurrentHashMap<>();
     }
 
     @Override
@@ -193,6 +197,7 @@ public abstract class AbstractOperator<
         String namespace = reconciliation.namespace();
         String name = reconciliation.name();
 
+        reconciliations.compute(getLockName(namespace, name), (k, v) -> addReconciliation(v, reconciliation));
         reconciliationsCounter.increment();
         Timer.Sample reconciliationTimerSample = Timer.start(metrics.meterRegistry());
 
@@ -304,11 +309,52 @@ public abstract class AbstractOperator<
 
         Promise<Void> result = Promise.promise();
         handler.onComplete(reconcileResult -> {
+            reconciliations.compute(getLockName(namespace, name), (k, v) -> removeReconciliation(v, reconciliation));
             handleResult(reconciliation, reconcileResult, reconciliationTimerSample);
             result.handle(reconcileResult);
         });
 
         return result.future();
+    }
+
+    /**
+     * Adds a newly triggered Reconciliation to the list of in-flight Reconciliations for resources of
+     * the same type and name in the same namespace. The provided list of siblings may be null or empty
+     * when no other Reconciliations for the same resource are currently running or enqueued.
+     *
+     * If the added Reconciliation was triggered by an action of DELETED, any other existing reconciliation
+     * in the list for the same resource will be marked as cancelled. This gives in-flight reconcile processing
+     * an indicator that processing need not continue.
+     *
+     * @param reconciliations list of existing/in-flight Reconciliations for the same resource, possibly null
+     * @param reconciliation newly triggered Reconciliation to add
+     * @return the list of all active Reconciliations of the same type and name as reconciliation
+     */
+    List<Reconciliation> addReconciliation(List<Reconciliation> reconciliations, Reconciliation reconciliation) {
+        if (reconciliations == null) {
+            reconciliations = new ArrayList<>(2);
+        }
+
+        if (Action.DELETED.equals(reconciliation.getAction()) && !reconciliations.isEmpty()) {
+            log.info("{}: marking in-flight reconciliations cancelled due to action DELETED", reconciliation);
+            reconciliations.forEach(value -> value.setCancelled(true));
+        }
+
+        reconciliations.add(reconciliation);
+        return reconciliations;
+    }
+
+    /**
+     * Removes a reconciliation from the list of in-flight Reconciliations for resources of the same type
+     * and name in the same namespace.
+     *
+     * @param reconciliations list of existing/in-flight Reconciliations for the same resource
+     * @param reconciliation Reconciliation to remove
+     * @return the list of remaining reconciliations (if any) or null
+     */
+    List<Reconciliation> removeReconciliation(List<Reconciliation> reconciliations, Reconciliation reconciliation) {
+        reconciliations.remove(reconciliation);
+        return reconciliations.isEmpty() ? null : reconciliations;
     }
 
     protected void addWarningsToStatus(Status status, Set<Condition> unknownAndDeprecatedConditions)   {

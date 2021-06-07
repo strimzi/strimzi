@@ -4,6 +4,8 @@
  */
 package io.strimzi.operator.common;
 
+import io.fabric8.kubernetes.client.Watcher.Action;
+
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -18,17 +20,24 @@ public class Reconciliation {
     private static final AtomicInteger IDS = new AtomicInteger();
 
     private final String trigger;
+    private final Action action;
     private final String kind;
     private final String namespace;
     private final String name;
     private final int id;
+    private volatile boolean cancelled;
 
-    public Reconciliation(String trigger, String kind, String namespace, String assemblyName) {
+    public Reconciliation(String trigger, String kind, String namespace, String assemblyName, Action action) {
         this.trigger = trigger;
         this.kind = kind;
         this.namespace = namespace;
         this.name = assemblyName;
         this.id = IDS.getAndIncrement();
+        this.action = action;
+    }
+
+    public Reconciliation(String trigger, String kind, String namespace, String assemblyName) {
+        this(trigger, kind, namespace, assemblyName, null);
     }
 
     public String kind() {
@@ -41,6 +50,18 @@ public class Reconciliation {
 
     public String name() {
         return name;
+    }
+
+    public Action getAction() {
+        return action;
+    }
+
+    public boolean isCancelled() {
+        return cancelled;
+    }
+
+    public void setCancelled(boolean cancelled) {
+        this.cancelled = cancelled;
     }
 
     public String toString() {

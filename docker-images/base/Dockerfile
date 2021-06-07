@@ -5,7 +5,7 @@ ARG TARGETPLATFORM
 USER root
 
 RUN microdnf update \
-    && microdnf install java-${JAVA_VERSION}-openjdk-headless openssl procps shadow-utils \
+    && microdnf install java-${JAVA_VERSION}-openjdk-headless java-${JAVA_VERSION}-openjdk-devel openssl procps shadow-utils \
     && microdnf clean all
 
 ENV JAVA_HOME /usr/lib/jvm/jre-11

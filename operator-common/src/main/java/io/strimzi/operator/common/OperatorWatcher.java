@@ -36,7 +36,7 @@ class OperatorWatcher<T extends HasMetadata> implements Watcher<T> {
             case ADDED:
             case DELETED:
             case MODIFIED:
-                Reconciliation reconciliation = new Reconciliation("watch", operator.kind(), namespace, name);
+                Reconciliation reconciliation = new Reconciliation("watch", operator.kind(), namespace, name, action);
                 log.info("{}: {} {} in namespace {} was {}", reconciliation, operator.kind(), name, namespace, action);
                 operator.reconcile(reconciliation);
                 break;

@@ -801,7 +801,7 @@ public class KafkaAssemblyOperator extends AbstractAssemblyOperator<KubernetesCl
 
         /**
          * Does manual rolling update of Kafka pods based on an annotation on the StatefulSet or on the Pods. Annotation
-         * on StatefulSet level triggers rolling update of all pods. Annotation on pods trigeres rolling update only of
+         * on StatefulSet level triggers rolling update of all pods. Annotation on pods triggers rolling update only of
          * the selected pods. If the annotation is present on both StatefulSet and one or more pods, only one rolling
          * update of all pods occurs.
          *
@@ -1750,7 +1750,7 @@ public class KafkaAssemblyOperator extends AbstractAssemblyOperator<KubernetesCl
 
         /**
          * Get the cluster Id of the Kafka cluster
-         * 
+         *
          * @return
          */
         Future<ReconciliationState> kafkaGetClusterId() {
@@ -1784,7 +1784,7 @@ public class KafkaAssemblyOperator extends AbstractAssemblyOperator<KubernetesCl
                     return resultPromise.future();
                 });
         }
-        
+
         Future<ReconciliationState> kafkaInternalServicesReady()   {
             for (GenericKafkaListener listener : ListenersUtils.internalListeners(kafkaCluster.getListeners())) {
                 boolean useServiceDnsDomain = (listener.getConfiguration() != null && listener.getConfiguration().getUseServiceDnsDomain() != null)

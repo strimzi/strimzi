@@ -273,7 +273,14 @@ public class KafkaRoller {
         RestartContext ctx = podToContext.computeIfAbsent(podId,
             k -> new RestartContext(backoffSupplier));
         singleExecutor.schedule(() -> {
+            if (reconciliation.isCancelled()) {
+                log.info("{}: reconciliation cancelled, no longer considering restart of pod {}", reconciliation, podId);
+                ctx.promise.complete();
+                return;
+            }
+
             log.debug("{}: Considering restart of pod {} after delay of {} {}", reconciliation, podId, delay, unit);
+
             try {
                 restartIfNecessary(podId, ctx);
                 ctx.promise.complete();
@@ -295,6 +302,9 @@ public class KafkaRoller {
                     ctx.promise.fail(e instanceof TimeoutException ?
                             new io.strimzi.operator.common.operator.resource.TimeoutException() :
                             e);
+                } else if (reconciliation.isCancelled()) {
+                    log.info("{}: Could not roll pod {} due to {}, giving up due to cancelled reconciliation", reconciliation, podId, e);
+                    ctx.promise.complete();
                 } else {
                     long delay1 = ctx.backOff.delayMs();
                     log.info("{}: Could not roll pod {} due to {}, retrying after at least {}ms",
@@ -346,7 +356,7 @@ public class KafkaRoller {
             throws Exception {
         Pod pod;
         try {
-            pod = podOperations.get(namespace, KafkaCluster.kafkaPodName(cluster, podId));
+            pod = podOperations.get(namespace, podName(podId));
         } catch (KubernetesClientException e) {
             throw new UnforceableProblem("Error getting pod " + podName(podId), e);
         }
@@ -516,10 +526,13 @@ public class KafkaRoller {
      * @return a Future which completes with the config of the given broker.
      */
     protected Config brokerConfig(int brokerId) throws ForceableProblem, InterruptedException {
-        ConfigResource resource = new ConfigResource(ConfigResource.Type.BROKER, String.valueOf(brokerId));
+        ConfigResource resource = Util.getBrokersConfig(brokerId);
         return await(Util.kafkaFutureToVertxFuture(vertx, allClient.describeConfigs(singletonList(resource)).values().get(resource)),
             30, TimeUnit.SECONDS,
-            error -> new ForceableProblem("Error getting broker config", error)
+            error -> {
+                log.debug("Error getting broker config: {}", error.getMessage(), error);
+                return new ForceableProblem("Error getting broker config", error);
+            }
         );
     }
 
@@ -532,7 +545,10 @@ public class KafkaRoller {
         ConfigResource resource = Util.getBrokersLogging(brokerId);
         return await(Util.kafkaFutureToVertxFuture(vertx, allClient.describeConfigs(singletonList(resource)).values().get(resource)),
                 30, TimeUnit.SECONDS,
-            error -> new ForceableProblem("Error getting broker logging", error)
+            error -> {
+                log.debug("Error getting broker logging: {}", error.getMessage(), error);
+                return new ForceableProblem("Error getting broker logging", error);
+            }
         );
     }
 
@@ -719,7 +735,7 @@ public class KafkaRoller {
     String podName(int podId) {
         return KafkaCluster.kafkaPodName(this.cluster, podId);
     }
-    
+
     /**
      * Return true if the given {@code podId} is the controller and there are other brokers we might yet have to consider.
      * This ensures that the controller is restarted/reconfigured last.
