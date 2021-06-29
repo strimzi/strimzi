@@ -5318,7 +5318,8 @@ spec:
                       broker.metric.sample.store.topic,capacity.config.file, self.healing.,
                       anomaly.detection., ssl. (with the exception of: ssl.cipher.suites,
                       ssl.protocol, ssl.enabled.protocols, webserver.http.cors.enabled,webserver.http.cors.origin,
-                      webserver.http.cors.exposeheaders).'
+                      webserver.http.cors.exposeheaders, webserver.security.enable,
+                      webserver.ssl.enable).'
                   metricsConfig:
                     type: object
                     properties:

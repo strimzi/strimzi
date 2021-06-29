@@ -58,7 +58,6 @@ public class KafkaRebalanceStateMachineTest {
     private static final String RESOURCE_NAME = "my-rebalance";
     private static final String CLUSTER_NAMESPACE = "cruise-control-namespace";
     private static final String CLUSTER_NAME = "kafka-cruise-control-test-cluster";
-
     private final KubernetesVersion kubernetesVersion = KubernetesVersion.V1_18;
 
     private static ClientAndServer ccServer;
@@ -134,7 +133,7 @@ public class KafkaRebalanceStateMachineTest {
                                                          KafkaRebalanceAnnotation initialAnnotation,
                                                          KafkaRebalance kcRebalance) {
 
-        CruiseControlApi client = new CruiseControlApiImpl(vertx);
+        CruiseControlApi client = new CruiseControlApiImpl(vertx, MockCruiseControl.CC_SECRET, MockCruiseControl.CO_SECRET, true, true);
         ResourceOperatorSupplier supplier = ResourceUtils.supplierWithMocks(true);
         ConfigMapOperator mockCmOps = supplier.configMapOperations;
         PlatformFeaturesAvailability pfa = new PlatformFeaturesAvailability(true, kubernetesVersion);

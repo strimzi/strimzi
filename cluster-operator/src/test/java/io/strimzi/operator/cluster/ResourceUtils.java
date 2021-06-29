@@ -205,6 +205,16 @@ public class ResourceUtils {
                 .build();
     }
 
+    public static Secret createSecret(String name, String namespace, Map<String, String> data) {
+        return new SecretBuilder()
+                .withNewMetadata()
+                    .withName(name)
+                    .withNamespace(namespace)
+                .endMetadata()
+                .withData(data)
+                .build();
+    }
+
     public static List<Secret> createKafkaInitialSecrets(String namespace, String name) {
         List<Secret> secrets = new ArrayList<>();
         secrets.add(createInitialCaCertSecret(namespace, name,
@@ -705,6 +715,8 @@ public class ResourceUtils {
                 metricsProvider(),
                 adminClientProvider());
 
+        when(supplier.secretOperations.getAsync(any(), any())).thenReturn(Future.succeededFuture());
+        
         when(supplier.serviceAccountOperations.reconcile(any(), anyString(), anyString(), any())).thenReturn(Future.succeededFuture());
         when(supplier.roleBindingOperations.reconcile(any(), anyString(), anyString(), any())).thenReturn(Future.succeededFuture());
         when(supplier.roleOperations.reconcile(any(), anyString(), anyString(), any())).thenReturn(Future.succeededFuture());

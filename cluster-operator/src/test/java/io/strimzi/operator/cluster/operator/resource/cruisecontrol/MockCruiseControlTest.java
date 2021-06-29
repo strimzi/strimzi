@@ -45,11 +45,16 @@ public class MockCruiseControlTest {
         ccServer.stop();
     }
 
+    
+    private CruiseControlApi cruiseControlClientProvider(Vertx vertx) {
+        return new CruiseControlApiImpl(vertx, MockCruiseControl.CC_SECRET, MockCruiseControl.CO_SECRET, true, true);
+    }
+
     private void runTest(Vertx vertx, VertxTestContext context, String userTaskID, int pendingCalls) throws IOException, URISyntaxException {
 
         MockCruiseControl.setupCCUserTasksResponseNoGoals(ccServer, 0, pendingCalls);
 
-        CruiseControlApi client = new CruiseControlApiImpl(vertx);
+        CruiseControlApi client = cruiseControlClientProvider(vertx);
 
         Future<CruiseControlResponse> statusFuture = client.getUserTaskStatus(HOST, PORT, userTaskID);
 
@@ -100,7 +105,7 @@ public class MockCruiseControlTest {
     @Test
     public void testMockCCServerPendingCallsOverride(Vertx vertx, VertxTestContext context) throws IOException, URISyntaxException {
 
-        CruiseControlApi client = new CruiseControlApiImpl(vertx);
+        CruiseControlApi client = cruiseControlClientProvider(vertx);
         String userTaskID = MockCruiseControl.REBALANCE_NO_GOALS_RESPONSE_UTID;
 
         int pendingCalls1 = 2;

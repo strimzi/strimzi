@@ -88,7 +88,7 @@ public class CruiseControlConfiguration extends AbstractConfiguration {
     private static final List<String> FORBIDDEN_PREFIX_EXCEPTIONS;
 
     static {
-        Map<String, String> config = new HashMap<>(8);
+        Map<String, String> config = new HashMap<>(11);
         config.put(CruiseControlConfigurationParameters.CRUISE_CONTROL_PARTITION_METRICS_WINDOW_MS_CONFIG_KEY.getValue(), Integer.toString(300_000));
         config.put(CruiseControlConfigurationParameters.CRUISE_CONTROL_PARTITION_METRICS_WINDOW_NUM_CONFIG_KEY.getValue(), "1");
         config.put(CruiseControlConfigurationParameters.CRUISE_CONTROL_BROKER_METRICS_WINDOW_MS_CONFIG_KEY.getValue(), Integer.toString(300_000));
@@ -97,6 +97,10 @@ public class CruiseControlConfiguration extends AbstractConfiguration {
         config.put(CruiseControlConfigurationParameters.CRUISE_CONTROL_GOALS_CONFIG_KEY.getValue(), CRUISE_CONTROL_GOALS);
         config.put(CruiseControlConfigurationParameters.CRUISE_CONTROL_DEFAULT_GOALS_CONFIG_KEY.getValue(), CRUISE_CONTROL_GOALS);
         config.put(CruiseControlConfigurationParameters.CRUISE_CONTROL_HARD_GOALS_CONFIG_KEY.getValue(), CRUISE_CONTROL_HARD_GOALS);
+        config.put(CruiseControlConfigurationParameters.CRUISE_CONTROL_WEBSERVER_SECURITY_ENABLE.getValue(), Boolean.toString(CruiseControl.DEFAULT_WEBSERVER_SECURITY_ENABLED));
+        config.put(CruiseControlConfigurationParameters.CRUISE_CONTROL_WEBSERVER_AUTH_CREDENTIALS_FILE.getValue(), CruiseControl.getAuthCredentialsFile());
+        config.put(CruiseControlConfigurationParameters.CRUISE_CONTROL_WEBSERVER_SSL_ENABLE.getValue(), Boolean.toString(CruiseControl.DEFAULT_WEBSERVER_SSL_ENABLED));
+
         CRUISE_CONTROL_DEFAULT_PROPERTIES_MAP = Collections.unmodifiableMap(config);
 
         FORBIDDEN_PREFIXES = AbstractConfiguration.splitPrefixesToList(CruiseControlSpec.FORBIDDEN_PREFIXES);

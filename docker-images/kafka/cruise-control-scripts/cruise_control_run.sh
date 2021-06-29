@@ -14,10 +14,10 @@ mkdir -p /tmp/cruise-control
 # Import certificates into keystore and truststore
 "$CRUISE_CONTROL_HOME"/cruise_control_tls_prepare_certificates.sh
 
-export STRIMZI_TRUSTSTORE_LOCATION=/tmp/cruise-control/replication.truststore.p12
+export STRIMZI_TRUSTSTORE_LOCATION=/tmp/cruise-control/client-server.truststore.p12
 export STRIMZI_TRUSTSTORE_PASSWORD="$CERTS_STORE_PASSWORD"
 
-export STRIMZI_KEYSTORE_LOCATION=/tmp/cruise-control/replication.keystore.p12
+export STRIMZI_KEYSTORE_LOCATION=/tmp/cruise-control/client-server.keystore.p12
 export STRIMZI_KEYSTORE_PASSWORD="$CERTS_STORE_PASSWORD"
 
 if [ -z "$KAFKA_LOG4J_OPTS" ]; then

@@ -324,7 +324,7 @@ public class EntityOperator extends AbstractModel {
         }
         Secret secret = clusterCa.entityOperatorSecret();
         return ModelUtils.buildSecret(reconciliation, clusterCa, secret, namespace, EntityOperator.secretName(cluster), name,
-                "entity-operator", labels, createOwnerReference(), isMaintenanceTimeWindowsSatisfied);
+                "entity-operator", labels, null, createOwnerReference(), isMaintenanceTimeWindowsSatisfied);
     }
 
     /**
