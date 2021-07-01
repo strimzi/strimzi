@@ -99,16 +99,12 @@ public class OperatorMetricsTest {
                     MeterRegistry registry = metrics.meterRegistry();
                     Tag selectorTag = Tag.of("selector", selectorLabels != null ? selectorLabels.toSelectorString() : "");
 
-                    assertThat(registry.get(AbstractOperator.METRICS_PREFIX + "reconciliations").meter().getId().getTags().get(1), is(selectorTag));
+                    assertThat(registry.get(AbstractOperator.METRICS_PREFIX + "reconciliations").meter().getId().getTags().get(2), is(selectorTag));
                     assertThat(registry.get(AbstractOperator.METRICS_PREFIX + "reconciliations").tag("kind", "TestResource").counter().count(), is(1.0));
-                    assertThat(registry.get(AbstractOperator.METRICS_PREFIX + "reconciliations.successful").meter().getId().getTags().get(1), is(selectorTag));
+                    assertThat(registry.get(AbstractOperator.METRICS_PREFIX + "reconciliations.successful").meter().getId().getTags().get(2), is(selectorTag));
                     assertThat(registry.get(AbstractOperator.METRICS_PREFIX + "reconciliations.successful").tag("kind", "TestResource").counter().count(), is(1.0));
-                    assertThat(registry.get(AbstractOperator.METRICS_PREFIX + "reconciliations.failed").meter().getId().getTags().get(1), is(selectorTag));
-                    assertThat(registry.get(AbstractOperator.METRICS_PREFIX + "reconciliations.failed").tag("kind", "TestResource").counter().count(), is(0.0));
-                    assertThat(registry.get(AbstractOperator.METRICS_PREFIX + "reconciliations.locked").meter().getId().getTags().get(1), is(selectorTag));
-                    assertThat(registry.get(AbstractOperator.METRICS_PREFIX + "reconciliations.locked").tag("kind", "TestResource").counter().count(), is(0.0));
 
-                    assertThat(registry.get(AbstractOperator.METRICS_PREFIX + "reconciliations.duration").meter().getId().getTags().get(1), is(selectorTag));
+                    assertThat(registry.get(AbstractOperator.METRICS_PREFIX + "reconciliations.duration").meter().getId().getTags().get(2), is(selectorTag));
                     assertThat(registry.get(AbstractOperator.METRICS_PREFIX + "reconciliations.duration").tag("kind", "TestResource").timer().count(), is(1L));
                     assertThat(registry.get(AbstractOperator.METRICS_PREFIX + "reconciliations.duration").tag("kind", "TestResource").timer().totalTime(TimeUnit.MILLISECONDS), greaterThan(0.0));
 
@@ -171,16 +167,12 @@ public class OperatorMetricsTest {
                     MeterRegistry registry = metrics.meterRegistry();
                     Tag selectorTag = Tag.of("selector", selectorLabels != null ? selectorLabels.toSelectorString() : "");
 
-                    assertThat(registry.get(AbstractOperator.METRICS_PREFIX + "reconciliations").meter().getId().getTags().get(1), is(selectorTag));
+                    assertThat(registry.get(AbstractOperator.METRICS_PREFIX + "reconciliations").meter().getId().getTags().get(2), is(selectorTag));
                     assertThat(registry.get(AbstractOperator.METRICS_PREFIX + "reconciliations").tag("kind", "TestResource").counter().count(), is(1.0));
-                    assertThat(registry.get(AbstractOperator.METRICS_PREFIX + "reconciliations.successful").meter().getId().getTags().get(1), is(selectorTag));
-                    assertThat(registry.get(AbstractOperator.METRICS_PREFIX + "reconciliations.successful").tag("kind", "TestResource").counter().count(), is(0.0));
-                    assertThat(registry.get(AbstractOperator.METRICS_PREFIX + "reconciliations.failed").meter().getId().getTags().get(1), is(selectorTag));
+                    assertThat(registry.get(AbstractOperator.METRICS_PREFIX + "reconciliations.failed").meter().getId().getTags().get(2), is(selectorTag));
                     assertThat(registry.get(AbstractOperator.METRICS_PREFIX + "reconciliations.failed").tag("kind", "TestResource").counter().count(), is(1.0));
-                    assertThat(registry.get(AbstractOperator.METRICS_PREFIX + "reconciliations.locked").meter().getId().getTags().get(1), is(selectorTag));
-                    assertThat(registry.get(AbstractOperator.METRICS_PREFIX + "reconciliations.locked").tag("kind", "TestResource").counter().count(), is(0.0));
 
-                    assertThat(registry.get(AbstractOperator.METRICS_PREFIX + "reconciliations.duration").meter().getId().getTags().get(1), is(selectorTag));
+                    assertThat(registry.get(AbstractOperator.METRICS_PREFIX + "reconciliations.duration").meter().getId().getTags().get(2), is(selectorTag));
                     assertThat(registry.get(AbstractOperator.METRICS_PREFIX + "reconciliations.duration").tag("kind", "TestResource").timer().count(), is(1L));
                     assertThat(registry.get(AbstractOperator.METRICS_PREFIX + "reconciliations.duration").tag("kind", "TestResource").timer().totalTime(TimeUnit.MILLISECONDS), greaterThan(0.0));
 
@@ -244,18 +236,14 @@ public class OperatorMetricsTest {
                     MeterRegistry registry = metrics.meterRegistry();
                     Tag selectorTag = Tag.of("selector", "");
 
-                    assertThat(registry.get(AbstractOperator.METRICS_PREFIX + "reconciliations").meter().getId().getTags().get(1), is(selectorTag));
+                    assertThat(registry.get(AbstractOperator.METRICS_PREFIX + "reconciliations").meter().getId().getTags().get(2), is(selectorTag));
                     assertThat(registry.get(AbstractOperator.METRICS_PREFIX + "reconciliations").tag("kind", "TestResource").counter().count(), is(1.0));
-                    assertThat(registry.get(AbstractOperator.METRICS_PREFIX + "reconciliations.successful").meter().getId().getTags().get(1), is(selectorTag));
+                    assertThat(registry.get(AbstractOperator.METRICS_PREFIX + "reconciliations.successful").meter().getId().getTags().get(2), is(selectorTag));
                     assertThat(registry.get(AbstractOperator.METRICS_PREFIX + "reconciliations.successful").tag("kind", "TestResource").counter().count(), is(1.0));
-                    assertThat(registry.get(AbstractOperator.METRICS_PREFIX + "reconciliations.failed").meter().getId().getTags().get(1), is(selectorTag));
-                    assertThat(registry.get(AbstractOperator.METRICS_PREFIX + "reconciliations.failed").tag("kind", "TestResource").counter().count(), is(0.0));
-                    assertThat(registry.get(AbstractOperator.METRICS_PREFIX + "reconciliations.locked").meter().getId().getTags().get(1), is(selectorTag));
-                    assertThat(registry.get(AbstractOperator.METRICS_PREFIX + "reconciliations.locked").tag("kind", "TestResource").counter().count(), is(0.0));
-                    assertThat(registry.get(AbstractOperator.METRICS_PREFIX + "resources.paused").meter().getId().getTags().get(1), is(selectorTag));
+                    assertThat(registry.get(AbstractOperator.METRICS_PREFIX + "resources.paused").meter().getId().getTags().get(2), is(selectorTag));
                     assertThat(registry.get(AbstractOperator.METRICS_PREFIX + "resources.paused").tag("kind", "TestResource").gauge().value(), is(1.0));
 
-                    assertThat(registry.get(AbstractOperator.METRICS_PREFIX + "reconciliations.duration").meter().getId().getTags().get(1), is(selectorTag));
+                    assertThat(registry.get(AbstractOperator.METRICS_PREFIX + "reconciliations.duration").meter().getId().getTags().get(2), is(selectorTag));
                     assertThat(registry.get(AbstractOperator.METRICS_PREFIX + "reconciliations.duration").tag("kind", "TestResource").timer().count(), is(1L));
                     assertThat(registry.get(AbstractOperator.METRICS_PREFIX + "reconciliations.duration").tag("kind", "TestResource").timer().totalTime(TimeUnit.MILLISECONDS), greaterThan(0.0));
 
@@ -304,19 +292,10 @@ public class OperatorMetricsTest {
                     MeterRegistry registry = metrics.meterRegistry();
                     Tag selectorTag = Tag.of("selector", "");
 
-                    assertThat(registry.get(AbstractOperator.METRICS_PREFIX + "reconciliations").meter().getId().getTags().get(1), is(selectorTag));
+                    assertThat(registry.get(AbstractOperator.METRICS_PREFIX + "reconciliations").meter().getId().getTags().get(2), is(selectorTag));
                     assertThat(registry.get(AbstractOperator.METRICS_PREFIX + "reconciliations").tag("kind", "TestResource").counter().count(), is(1.0));
-                    assertThat(registry.get(AbstractOperator.METRICS_PREFIX + "reconciliations.successful").meter().getId().getTags().get(1), is(selectorTag));
-                    assertThat(registry.get(AbstractOperator.METRICS_PREFIX + "reconciliations.successful").tag("kind", "TestResource").counter().count(), is(0.0));
-                    assertThat(registry.get(AbstractOperator.METRICS_PREFIX + "reconciliations.failed").meter().getId().getTags().get(1), is(selectorTag));
-                    assertThat(registry.get(AbstractOperator.METRICS_PREFIX + "reconciliations.failed").tag("kind", "TestResource").counter().count(), is(0.0));
-                    assertThat(registry.get(AbstractOperator.METRICS_PREFIX + "reconciliations.locked").meter().getId().getTags().get(1), is(selectorTag));
+                    assertThat(registry.get(AbstractOperator.METRICS_PREFIX + "reconciliations.locked").meter().getId().getTags().get(2), is(selectorTag));
                     assertThat(registry.get(AbstractOperator.METRICS_PREFIX + "reconciliations.locked").tag("kind", "TestResource").counter().count(), is(1.0));
-
-                    assertThat(registry.get(AbstractOperator.METRICS_PREFIX + "reconciliations.duration").meter().getId().getTags().get(1), is(selectorTag));
-                    assertThat(registry.get(AbstractOperator.METRICS_PREFIX + "reconciliations.duration").tag("kind", "TestResource").timer().count(), is(0L));
-                    assertThat(registry.get(AbstractOperator.METRICS_PREFIX + "reconciliations.duration").tag("kind", "TestResource").timer().totalTime(TimeUnit.MILLISECONDS), is(0.0));
-
                     async.flag();
                 })));
     }
@@ -371,16 +350,12 @@ public class OperatorMetricsTest {
                     MeterRegistry registry = metrics.meterRegistry();
                     Tag selectorTag = Tag.of("selector", "");
 
-                    assertThat(registry.get(AbstractOperator.METRICS_PREFIX + "reconciliations").meter().getId().getTags().get(1), is(selectorTag));
+                    assertThat(registry.get(AbstractOperator.METRICS_PREFIX + "reconciliations").meter().getId().getTags().get(2), is(selectorTag));
                     assertThat(registry.get(AbstractOperator.METRICS_PREFIX + "reconciliations").tag("kind", "TestResource").counter().count(), is(1.0));
-                    assertThat(registry.get(AbstractOperator.METRICS_PREFIX + "reconciliations.successful").meter().getId().getTags().get(1), is(selectorTag));
+                    assertThat(registry.get(AbstractOperator.METRICS_PREFIX + "reconciliations.successful").meter().getId().getTags().get(2), is(selectorTag));
                     assertThat(registry.get(AbstractOperator.METRICS_PREFIX + "reconciliations.successful").tag("kind", "TestResource").counter().count(), is(1.0));
-                    assertThat(registry.get(AbstractOperator.METRICS_PREFIX + "reconciliations.failed").meter().getId().getTags().get(1), is(selectorTag));
-                    assertThat(registry.get(AbstractOperator.METRICS_PREFIX + "reconciliations.failed").tag("kind", "TestResource").counter().count(), is(0.0));
-                    assertThat(registry.get(AbstractOperator.METRICS_PREFIX + "reconciliations.locked").meter().getId().getTags().get(1), is(selectorTag));
-                    assertThat(registry.get(AbstractOperator.METRICS_PREFIX + "reconciliations.locked").tag("kind", "TestResource").counter().count(), is(0.0));
 
-                    assertThat(registry.get(AbstractOperator.METRICS_PREFIX + "reconciliations.duration").meter().getId().getTags().get(1), is(selectorTag));
+                    assertThat(registry.get(AbstractOperator.METRICS_PREFIX + "reconciliations.duration").meter().getId().getTags().get(2), is(selectorTag));
                     assertThat(registry.get(AbstractOperator.METRICS_PREFIX + "reconciliations.duration").tag("kind", "TestResource").timer().count(), is(1L));
                     assertThat(registry.get(AbstractOperator.METRICS_PREFIX + "reconciliations.duration").tag("kind", "TestResource").timer().totalTime(TimeUnit.MILLISECONDS), greaterThan(0.0));
 
@@ -447,18 +422,14 @@ public class OperatorMetricsTest {
             MeterRegistry registry = metrics.meterRegistry();
             Tag selectorTag = Tag.of("selector", "");
 
-            assertThat(registry.get(AbstractOperator.METRICS_PREFIX + "reconciliations.periodical").meter().getId().getTags().get(1), is(selectorTag));
+            assertThat(registry.get(AbstractOperator.METRICS_PREFIX + "reconciliations.periodical").meter().getId().getTags().get(2), is(selectorTag));
             assertThat(registry.get(AbstractOperator.METRICS_PREFIX + "reconciliations.periodical").tag("kind", "TestResource").counter().count(), is(1.0));
-            assertThat(registry.get(AbstractOperator.METRICS_PREFIX + "reconciliations").meter().getId().getTags().get(1), is(selectorTag));
+            assertThat(registry.get(AbstractOperator.METRICS_PREFIX + "reconciliations").meter().getId().getTags().get(2), is(selectorTag));
             assertThat(registry.get(AbstractOperator.METRICS_PREFIX + "reconciliations").tag("kind", "TestResource").counter().count(), is(3.0));
-            assertThat(registry.get(AbstractOperator.METRICS_PREFIX + "reconciliations.successful").meter().getId().getTags().get(1), is(selectorTag));
+            assertThat(registry.get(AbstractOperator.METRICS_PREFIX + "reconciliations.successful").meter().getId().getTags().get(2), is(selectorTag));
             assertThat(registry.get(AbstractOperator.METRICS_PREFIX + "reconciliations.successful").tag("kind", "TestResource").counter().count(), is(3.0));
-            assertThat(registry.get(AbstractOperator.METRICS_PREFIX + "reconciliations.failed").meter().getId().getTags().get(1), is(selectorTag));
-            assertThat(registry.get(AbstractOperator.METRICS_PREFIX + "reconciliations.failed").tag("kind", "TestResource").counter().count(), is(0.0));
-            assertThat(registry.get(AbstractOperator.METRICS_PREFIX + "reconciliations.locked").meter().getId().getTags().get(1), is(selectorTag));
-            assertThat(registry.get(AbstractOperator.METRICS_PREFIX + "reconciliations.locked").tag("kind", "TestResource").counter().count(), is(0.0));
 
-            assertThat(registry.get(AbstractOperator.METRICS_PREFIX + "reconciliations.duration").meter().getId().getTags().get(1), is(selectorTag));
+            assertThat(registry.get(AbstractOperator.METRICS_PREFIX + "reconciliations.duration").meter().getId().getTags().get(2), is(selectorTag));
             assertThat(registry.get(AbstractOperator.METRICS_PREFIX + "reconciliations.duration").tag("kind", "TestResource").timer().count(), is(3L));
             assertThat(registry.get(AbstractOperator.METRICS_PREFIX + "reconciliations.duration").tag("kind", "TestResource").timer().totalTime(TimeUnit.MILLISECONDS), greaterThan(0.0));
 
