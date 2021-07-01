@@ -6,6 +6,10 @@ package io.strimzi.operator.common;
 
 import io.fabric8.kubernetes.api.model.LabelSelector;
 import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.Tag;
+import io.micrometer.core.instrument.Tags;
+import io.micrometer.core.instrument.Timer;
+import io.strimzi.operator.common.model.Labels;
 import io.strimzi.operator.common.model.NamespaceAndName;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.CompositeFuture;
@@ -14,6 +18,7 @@ import io.vertx.core.Handler;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -51,20 +56,20 @@ public interface Operator {
      */
     default void reconcileAll(String trigger, String namespace, Handler<AsyncResult<Void>> handler) {
         allResourceNames(namespace).onComplete(ar -> {
-            getPausedResourceCounter().set(0);
+            getPausedResourceCounter(namespace).set(0);
             if (ar.succeeded()) {
-                reconcileThese(trigger, ar.result(), handler);
-                getPeriodicReconciliationsCounter().increment();
+                reconcileThese(trigger, ar.result(), namespace, handler);
+                getPeriodicReconciliationsCounter(namespace).increment();
             } else {
                 handler.handle(ar.map((Void) null));
             }
         });
     }
 
-    default void reconcileThese(String trigger, Set<NamespaceAndName> desiredNames, Handler<AsyncResult<Void>> handler) {
+    default void reconcileThese(String trigger, Set<NamespaceAndName> desiredNames, String namespace, Handler<AsyncResult<Void>> handler) {
         if (desiredNames.size() > 0) {
             List<Future> futures = new ArrayList<>();
-            getResourceCounter().set(desiredNames.size());
+            getResourceCounter(namespace).set(desiredNames.size());
 
             for (NamespaceAndName resourceRef : desiredNames) {
                 Reconciliation reconciliation = new Reconciliation(trigger, kind(), resourceRef.getNamespace(), resourceRef.getName());
@@ -72,7 +77,7 @@ public interface Operator {
             }
             CompositeFuture.join(futures).map((Void) null).onComplete(handler);
         } else {
-            getResourceCounter().set(0);
+            getResourceCounter(namespace).set(0);
             handler.handle(Future.succeededFuture());
         }
     }
@@ -94,9 +99,45 @@ public interface Operator {
         return Optional.empty();
     }
 
-    Counter getPeriodicReconciliationsCounter();
+    Counter getPeriodicReconciliationsCounter(String namespace);
 
-    AtomicInteger getResourceCounter();
+    AtomicInteger getResourceCounter(String namespace);
 
-    AtomicInteger getPausedResourceCounter();
+    AtomicInteger getPausedResourceCounter(String namespace);
+
+    public static Counter getCounter(String namespace, String kind, MetricsProvider metrics, Labels selectorLabels, Map<String, Counter> counterMap, String metricName, String metricHelp) {
+        String selectorValue = selectorLabels != null ? selectorLabels.toSelectorString() : "";
+        Tags metricTags = Tags.of(Tag.of("kind", kind), Tag.of("namespace", namespace), Tag.of("selector", selectorValue));
+
+        Counter counter = counterMap.get(namespace + "/" + kind);
+        if (counter == null) {
+            counter = metrics.counter(metricName, metricHelp, metricTags);
+            counterMap.put(namespace + "/" + kind, counter);
+        }
+        return counter;
+    }
+
+    public static AtomicInteger getGauge(String namespace, String kind, MetricsProvider metrics, Labels selectorLabels, Map<String, AtomicInteger> gaugeMap, String metricName, String metricHelp) {
+        String selectorValue = selectorLabels != null ? selectorLabels.toSelectorString() : "";
+        Tags metricTags = Tags.of(Tag.of("kind", kind), Tag.of("namespace", namespace), Tag.of("selector", selectorValue));
+
+        AtomicInteger gauge = gaugeMap.get(namespace + "/" + kind);
+        if (gauge == null) {
+            gauge = metrics.gauge(metricName, metricHelp, metricTags);
+            gaugeMap.put(namespace + "/" + kind, gauge);
+        }
+        return gauge;
+    }
+
+    public static Timer getTimer(String namespace, String kind, MetricsProvider metrics, Labels selectorLabels, Map<String, Timer> timerMap, String metricName, String metricHelp) {
+        String selectorValue = selectorLabels != null ? selectorLabels.toSelectorString() : "";
+        Tags metricTags = Tags.of(Tag.of("kind", kind), Tag.of("namespace", namespace), Tag.of("selector", selectorValue));
+
+        Timer timer = timerMap.get(namespace + "/" + kind);
+        if (timer == null) {
+            timer = metrics.timer(metricName, metricHelp, metricTags);
+            timerMap.put(namespace + "/" + kind, timer);
+        }
+        return timer;
+    }
 }
