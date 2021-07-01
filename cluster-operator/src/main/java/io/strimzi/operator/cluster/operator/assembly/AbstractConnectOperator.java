@@ -318,9 +318,7 @@ public abstract class AbstractConnectOperator<C extends KubernetesClient, T exte
             LOGGER.debugCr(reconciliation, "Setting list of connector plugins in Kafka Connect status");
             connectStatus.setConnectorPlugins(connectorPlugins);
 
-            if (getConnectorsResourceCounter(namespace) != null)  {
-                getConnectorsResourceCounter(namespace).set(desiredConnectors.size());
-            }
+            getConnectorsResourceCounter(namespace).set(desiredConnectors.size());
 
             Set<String> deleteConnectorNames = new HashSet<>(runningConnectorNames);
             deleteConnectorNames.removeAll(desiredConnectors.stream().map(c -> c.getMetadata().getName()).collect(Collectors.toSet()));
@@ -829,31 +827,31 @@ public abstract class AbstractConnectOperator<C extends KubernetesClient, T exte
     }
 
     public Counter getConnectorsReconciliationsCounter(String namespace) {
-        return Operator.getCounter(namespace, kind(), metrics, null, connectorsReconciliationsCounterMap,
+        return Operator.getCounter(namespace, KafkaConnector.RESOURCE_KIND, metrics, null, connectorsReconciliationsCounterMap,
                 METRICS_PREFIX + "reconciliations",
                 "Number of reconciliations done by the operator for individual resources");
     }
 
     public Counter getConnectorsFailedReconciliationsCounter(String namespace) {
-        return Operator.getCounter(namespace, kind(), metrics, null, connectorsFailedReconciliationsCounterMap,
+        return Operator.getCounter(namespace, KafkaConnector.RESOURCE_KIND, metrics, null, connectorsFailedReconciliationsCounterMap,
                 METRICS_PREFIX + "reconciliations.failed",
                 "Number of reconciliations done by the operator for individual resources which failed");
     }
 
     public Counter getConnectorsSuccessfulReconciliationsCounter(String namespace) {
-        return Operator.getCounter(namespace, kind(), metrics, null, connectorsSuccessfulReconciliationsCounterMap,
+        return Operator.getCounter(namespace, KafkaConnector.RESOURCE_KIND, metrics, null, connectorsSuccessfulReconciliationsCounterMap,
                 METRICS_PREFIX + "reconciliations.successful",
                 "Number of reconciliations done by the operator for individual resources which were successful");
     }
 
     public AtomicInteger getConnectorsResourceCounter(String namespace) {
-        return Operator.getGauge(namespace, kind(), metrics, null, connectorsResourceCounterMap,
+        return Operator.getGauge(namespace, KafkaConnector.RESOURCE_KIND, metrics, null, connectorsResourceCounterMap,
                 METRICS_PREFIX + "resources",
                 "Number of custom resources the operator sees");
     }
 
     public Timer getConnectorsReconciliationsTimer(String namespace) {
-        return Operator.getTimer(namespace, kind(), metrics, null, connectorsReconciliationsTimerMap,
+        return Operator.getTimer(namespace, KafkaConnector.RESOURCE_KIND, metrics, null, connectorsReconciliationsTimerMap,
                 METRICS_PREFIX + "reconciliations.duration",
                 "The time the reconciliation takes to complete");
     }
