@@ -7,6 +7,7 @@
 * Allow a custom password to be set for SCRAM-SHA-512 users by referencing a secret in the `KafkaUser` resource
 * Add support for `tls-external` authentication to User Operator to allow management of ACLs and Quotas for TLS users with user certificates generated externally (#5249) 
 * Support for disabling the automatic generation of network policies by the Cluster Operator. Set the Cluster Operator's `STRIMZI_NETWORK_POLICY_GENERATION` environment variable to `false` to disable network policies. (#5258)
+* Annotate Cluster Operator resource metrics by a namespace label
 
 ### Changes, deprecations and removals
 
