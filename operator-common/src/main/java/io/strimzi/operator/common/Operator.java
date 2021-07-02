@@ -105,9 +105,14 @@ public interface Operator {
 
     AtomicInteger getPausedResourceCounter(String namespace);
 
-    public static Counter getCounter(String namespace, String kind, MetricsProvider metrics, Labels selectorLabels, Map<String, Counter> counterMap, String metricName, String metricHelp) {
+    static Counter getCounter(String namespace, String kind, MetricsProvider metrics, Labels selectorLabels, Map<String, Counter> counterMap, String metricName, String metricHelp) {
         String selectorValue = selectorLabels != null ? selectorLabels.toSelectorString() : "";
-        Tags metricTags = Tags.of(Tag.of("kind", kind), Tag.of("namespace", namespace), Tag.of("selector", selectorValue));
+        Tags metricTags = null;
+        if (namespace.equals("*")) {
+            metricTags = Tags.of(Tag.of("kind", kind), Tag.of("selector", selectorValue));
+        } else {
+            metricTags = Tags.of(Tag.of("kind", kind), Tag.of("namespace", namespace), Tag.of("selector", selectorValue));
+        }
 
         Counter counter = counterMap.get(namespace + "/" + kind);
         if (counter == null) {
@@ -117,9 +122,14 @@ public interface Operator {
         return counter;
     }
 
-    public static AtomicInteger getGauge(String namespace, String kind, MetricsProvider metrics, Labels selectorLabels, Map<String, AtomicInteger> gaugeMap, String metricName, String metricHelp) {
+    static AtomicInteger getGauge(String namespace, String kind, MetricsProvider metrics, Labels selectorLabels, Map<String, AtomicInteger> gaugeMap, String metricName, String metricHelp) {
         String selectorValue = selectorLabels != null ? selectorLabels.toSelectorString() : "";
-        Tags metricTags = Tags.of(Tag.of("kind", kind), Tag.of("namespace", namespace), Tag.of("selector", selectorValue));
+        Tags metricTags = null;
+        if (namespace.equals("*")) {
+            metricTags = Tags.of(Tag.of("kind", kind), Tag.of("selector", selectorValue));
+        } else {
+            metricTags = Tags.of(Tag.of("kind", kind), Tag.of("namespace", namespace), Tag.of("selector", selectorValue));
+        }
 
         AtomicInteger gauge = gaugeMap.get(namespace + "/" + kind);
         if (gauge == null) {
@@ -129,9 +139,14 @@ public interface Operator {
         return gauge;
     }
 
-    public static Timer getTimer(String namespace, String kind, MetricsProvider metrics, Labels selectorLabels, Map<String, Timer> timerMap, String metricName, String metricHelp) {
+    static Timer getTimer(String namespace, String kind, MetricsProvider metrics, Labels selectorLabels, Map<String, Timer> timerMap, String metricName, String metricHelp) {
         String selectorValue = selectorLabels != null ? selectorLabels.toSelectorString() : "";
-        Tags metricTags = Tags.of(Tag.of("kind", kind), Tag.of("namespace", namespace), Tag.of("selector", selectorValue));
+        Tags metricTags = null;
+        if (namespace.equals("*")) {
+            metricTags = Tags.of(Tag.of("kind", kind), Tag.of("selector", selectorValue));
+        } else {
+            metricTags = Tags.of(Tag.of("kind", kind), Tag.of("namespace", namespace), Tag.of("selector", selectorValue));
+        }
 
         Timer timer = timerMap.get(namespace + "/" + kind);
         if (timer == null) {
