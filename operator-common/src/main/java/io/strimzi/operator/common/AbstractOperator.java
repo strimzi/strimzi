@@ -86,15 +86,15 @@ public abstract class AbstractOperator<
     protected final MetricsProvider metrics;
 
     private final Labels selectorLabels;
-    private Map<String, AtomicInteger> resourcesStateCounter;
-    private Map<String, AtomicInteger> resourceCounterMap;
-    private Map<String, AtomicInteger> pausedResourceCounterMap;
-    private Map<String, Counter> periodicReconciliationsCounterMap;
-    private Map<String, Counter> reconciliationsCounterMap;
-    private Map<String, Counter> failedReconciliationsCounterMap;
-    private Map<String, Counter> successfulReconciliationsCounterMap;
-    private Map<String, Counter> lockedReconciliationsCounterMap;
-    private Map<String, Timer> reconciliationsTimerMap;
+    private Map<String, AtomicInteger> resourcesStateCounter = new ConcurrentHashMap<>(1);
+    private Map<String, AtomicInteger> resourceCounterMap = new ConcurrentHashMap<>(1);
+    private Map<String, AtomicInteger> pausedResourceCounterMap = new ConcurrentHashMap<>(1);
+    private Map<String, Counter> periodicReconciliationsCounterMap = new ConcurrentHashMap<>(1);
+    private Map<String, Counter> reconciliationsCounterMap = new ConcurrentHashMap<>(1);
+    private Map<String, Counter> failedReconciliationsCounterMap = new ConcurrentHashMap<>(1);
+    private Map<String, Counter> successfulReconciliationsCounterMap = new ConcurrentHashMap<>(1);
+    private Map<String, Counter> lockedReconciliationsCounterMap = new ConcurrentHashMap<>(1);
+    private Map<String, Timer> reconciliationsTimerMap = new ConcurrentHashMap<>(1);
 
     public AbstractOperator(Vertx vertx, String kind, O resourceOperator, MetricsProvider metrics, Labels selectorLabels) {
         this.vertx = vertx;
@@ -103,16 +103,6 @@ public abstract class AbstractOperator<
         this.selector = (selectorLabels == null || selectorLabels.toMap().isEmpty()) ? Optional.empty() : Optional.of(new LabelSelector(null, selectorLabels.toMap()));
         this.metrics = metrics;
         this.selectorLabels = selectorLabels;
-
-        resourceCounterMap = new ConcurrentHashMap<>(1);
-        pausedResourceCounterMap = new ConcurrentHashMap<>(1);
-        resourcesStateCounter = new ConcurrentHashMap<>(1);
-        periodicReconciliationsCounterMap = new ConcurrentHashMap<>(1);
-        reconciliationsCounterMap = new ConcurrentHashMap<>(1);
-        failedReconciliationsCounterMap = new ConcurrentHashMap<>(1);
-        successfulReconciliationsCounterMap = new ConcurrentHashMap<>(1);
-        lockedReconciliationsCounterMap = new ConcurrentHashMap<>(1);
-        reconciliationsTimerMap = new ConcurrentHashMap<>(1);
     }
 
     @Override
@@ -167,7 +157,7 @@ public abstract class AbstractOperator<
         String namespace = reconciliation.namespace();
         String name = reconciliation.name();
 
-        getReconciliationsCounter(reconciliation.namespace()).increment();
+        reconciliationsCounter(reconciliation.namespace()).increment();
         Timer.Sample reconciliationTimerSample = Timer.start(metrics.meterRegistry());
 
         Future<Void> handler = withLock(reconciliation, LOCK_TIMEOUT_MS, () -> {
@@ -199,7 +189,7 @@ public abstract class AbstractOperator<
                             createOrUpdate.fail(statusResult.cause());
                         }
                     });
-                    getPausedResourceCounter(namespace).getAndIncrement();
+                    pausedResourceCounter(namespace).getAndIncrement();
                     LOGGER.debugCr(reconciliation, "Reconciliation of {} {} is paused", kind, name);
                     return createOrUpdate.future();
                 } else if (cr.getSpec() == null) {
@@ -471,68 +461,68 @@ public abstract class AbstractOperator<
     private void handleResult(Reconciliation reconciliation, AsyncResult<Void> result, Timer.Sample reconciliationTimerSample) {
         if (result.succeeded()) {
             updateResourceState(reconciliation, true, null);
-            getSuccessfulReconciliationsCounter(reconciliation.namespace()).increment();
-            reconciliationTimerSample.stop(getReconciliationsTimer(reconciliation.namespace()));
+            successfulReconciliationsCounter(reconciliation.namespace()).increment();
+            reconciliationTimerSample.stop(reconciliationsTimer(reconciliation.namespace()));
             LOGGER.infoCr(reconciliation, "reconciled");
         } else {
             Throwable cause = result.cause();
 
             if (cause instanceof InvalidConfigParameterException) {
                 updateResourceState(reconciliation, false, cause);
-                getFailedReconciliationsCounter(reconciliation.namespace()).increment();
-                reconciliationTimerSample.stop(getReconciliationsTimer(reconciliation.namespace()));
+                failedReconciliationsCounter(reconciliation.namespace()).increment();
+                reconciliationTimerSample.stop(reconciliationsTimer(reconciliation.namespace()));
                 LOGGER.warnCr(reconciliation, "Failed to reconcile {}", cause.getMessage());
             } else if (cause instanceof UnableToAcquireLockException) {
-                getLockedReconciliationsCounter(reconciliation.namespace()).increment();
+                lockedReconciliationsCounter(reconciliation.namespace()).increment();
             } else  {
                 updateResourceState(reconciliation, false, cause);
-                getFailedReconciliationsCounter(reconciliation.namespace()).increment();
-                reconciliationTimerSample.stop(getReconciliationsTimer(reconciliation.namespace()));
+                failedReconciliationsCounter(reconciliation.namespace()).increment();
+                reconciliationTimerSample.stop(reconciliationsTimer(reconciliation.namespace()));
                 LOGGER.warnCr(reconciliation, "Failed to reconcile", cause);
             }
         }
     }
 
     @Override
-    public Counter getPeriodicReconciliationsCounter(String namespace) {
-        return Operator.getCounter(namespace, kind(), metrics, selectorLabels, periodicReconciliationsCounterMap, METRICS_PREFIX + "reconciliations.periodical",
+    public Counter periodicReconciliationsCounter(String namespace) {
+        return Operator.getCounter(namespace, kind(), METRICS_PREFIX + "reconciliations.periodical", metrics, selectorLabels, periodicReconciliationsCounterMap,
                 "Number of periodical reconciliations done by the operator");
     }
 
-    public Counter getReconciliationsCounter(String namespace) {
-        return Operator.getCounter(namespace, kind(), metrics, selectorLabels, reconciliationsCounterMap, METRICS_PREFIX + "reconciliations",
+    public Counter reconciliationsCounter(String namespace) {
+        return Operator.getCounter(namespace, kind(), METRICS_PREFIX + "reconciliations", metrics, selectorLabels, reconciliationsCounterMap,
                 "Number of reconciliations done by the operator for individual resources");
     }
 
-    public Counter getFailedReconciliationsCounter(String namespace) {
-        return Operator.getCounter(namespace, kind(), metrics, selectorLabels, failedReconciliationsCounterMap, METRICS_PREFIX + "reconciliations.failed",
+    public Counter failedReconciliationsCounter(String namespace) {
+        return Operator.getCounter(namespace, kind(), METRICS_PREFIX + "reconciliations.failed", metrics, selectorLabels, failedReconciliationsCounterMap,
                 "Number of reconciliations done by the operator for individual resources which failed");
     }
 
-    public Counter getSuccessfulReconciliationsCounter(String namespace) {
-        return Operator.getCounter(namespace, kind(), metrics, selectorLabels, successfulReconciliationsCounterMap, METRICS_PREFIX + "reconciliations.successful",
+    public Counter successfulReconciliationsCounter(String namespace) {
+        return Operator.getCounter(namespace, kind(), METRICS_PREFIX + "reconciliations.successful", metrics, selectorLabels, successfulReconciliationsCounterMap,
                 "Number of reconciliations done by the operator for individual resources which were successful");
     }
 
-    public Counter getLockedReconciliationsCounter(String namespace) {
-        return Operator.getCounter(namespace, kind(), metrics, selectorLabels, lockedReconciliationsCounterMap, METRICS_PREFIX + "reconciliations.locked",
+    public Counter lockedReconciliationsCounter(String namespace) {
+        return Operator.getCounter(namespace, kind(), METRICS_PREFIX + "reconciliations.locked", metrics, selectorLabels, lockedReconciliationsCounterMap,
                 "Number of reconciliations skipped because another reconciliation for the same resource was still running");
     }
 
     @Override
-    public AtomicInteger getResourceCounter(String namespace) {
-        return Operator.getGauge(namespace, kind(), metrics, selectorLabels, resourceCounterMap, METRICS_PREFIX + "resources",
+    public AtomicInteger resourceCounter(String namespace) {
+        return Operator.getGauge(namespace, kind(), METRICS_PREFIX + "resources", metrics, selectorLabels, resourceCounterMap,
                 "Number of custom resources the operator sees");
     }
 
     @Override
-    public AtomicInteger getPausedResourceCounter(String namespace) {
-        return Operator.getGauge(namespace, kind(), metrics, selectorLabels, pausedResourceCounterMap, METRICS_PREFIX + "resources.paused",
+    public AtomicInteger pausedResourceCounter(String namespace) {
+        return Operator.getGauge(namespace, kind(), METRICS_PREFIX + "resources.paused", metrics, selectorLabels, pausedResourceCounterMap,
                 "Number of custom resources the operator sees but does not reconcile due to paused reconciliations");
     }
 
-    public Timer getReconciliationsTimer(String namespace) {
-        return Operator.getTimer(namespace, kind(), metrics, selectorLabels, reconciliationsTimerMap, METRICS_PREFIX + "reconciliations.duration",
+    public Timer reconciliationsTimer(String namespace) {
+        return Operator.getTimer(namespace, kind(), METRICS_PREFIX + "reconciliations.duration", metrics, selectorLabels, reconciliationsTimerMap,
                 "The time the reconciliation takes to complete");
     }
 
