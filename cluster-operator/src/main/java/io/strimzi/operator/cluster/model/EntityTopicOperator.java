@@ -56,6 +56,7 @@ public class EntityTopicOperator extends AbstractModel {
     public static final String ENV_VAR_ZOOKEEPER_SESSION_TIMEOUT_MS = "STRIMZI_ZOOKEEPER_SESSION_TIMEOUT_MS";
     public static final String ENV_VAR_TOPIC_METADATA_MAX_ATTEMPTS = "STRIMZI_TOPIC_METADATA_MAX_ATTEMPTS";
     public static final String ENV_VAR_TLS_ENABLED = "STRIMZI_TLS_ENABLED";
+    public static final String ENV_VAR_TLS_AUTH_ENABLED = "STRIMZI_TLS_AUTH_ENABLED";
     public static final Probe DEFAULT_HEALTHCHECK_OPTIONS = new ProbeBuilder()
             .withInitialDelaySeconds(EntityTopicOperatorSpec.DEFAULT_HEALTHCHECK_DELAY)
             .withTimeoutSeconds(EntityTopicOperatorSpec.DEFAULT_HEALTHCHECK_TIMEOUT).build();
@@ -278,6 +279,7 @@ public class EntityTopicOperator extends AbstractModel {
         varList.add(buildEnvVar(ENV_VAR_ZOOKEEPER_SESSION_TIMEOUT_MS, Integer.toString(zookeeperSessionTimeoutMs)));
         varList.add(buildEnvVar(ENV_VAR_TOPIC_METADATA_MAX_ATTEMPTS, String.valueOf(topicMetadataMaxAttempts)));
         varList.add(buildEnvVar(ENV_VAR_TLS_ENABLED, Boolean.toString(true)));
+        varList.add(buildEnvVar(ENV_VAR_TLS_AUTH_ENABLED, Boolean.toString(true)));
         varList.add(buildEnvVar(ENV_VAR_STRIMZI_GC_LOG_ENABLED, String.valueOf(gcLoggingEnabled)));
         EntityOperator.javaOptions(varList, getJvmOptions(), javaSystemProperties);
 

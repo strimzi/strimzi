@@ -112,6 +112,7 @@ public class Config {
     public static final String TC_TOPICS_PATH = "STRIMZI_TOPICS_PATH";
 
     public static final String TC_TLS_ENABLED = "STRIMZI_TLS_ENABLED";
+    public static final String TC_TLS_AUTH_ENABLED = "STRIMZI_TLS_AUTH_ENABLED";
     public static final String TC_TLS_TRUSTSTORE_LOCATION = "STRIMZI_TRUSTSTORE_LOCATION";
     public static final String TC_TLS_TRUSTSTORE_PASSWORD = "STRIMZI_TRUSTSTORE_PASSWORD";
     public static final String TC_TLS_KEYSTORE_LOCATION = "STRIMZI_KEYSTORE_LOCATION";
@@ -169,6 +170,8 @@ public class Config {
 
     /** If the connection with Kafka has to be encrypted by TLS protocol */
     public static final Value<String> TLS_ENABLED = new Value<>(TC_TLS_ENABLED, STRING, "false");
+    /** If the connection with Kafka has to be authenticated */
+    public static final Value<String> TLS_AUTH_ENABLED = new Value<>(TC_TLS_AUTH_ENABLED, STRING, "true");
     /** The truststore with CA certificate for Kafka broker/server authentication */
     public static final Value<String> TLS_TRUSTSTORE_LOCATION = new Value<>(TC_TLS_TRUSTSTORE_LOCATION, STRING, "");
     /** The password for the truststore with CA certificate for Kafka broker/server authentication */
@@ -211,6 +214,7 @@ public class Config {
         addConfigValue(configValues, TOPIC_METADATA_MAX_ATTEMPTS);
         addConfigValue(configValues, TOPICS_PATH);
         addConfigValue(configValues, TLS_ENABLED);
+        addConfigValue(configValues, TLS_AUTH_ENABLED);
         addConfigValue(configValues, TLS_TRUSTSTORE_LOCATION);
         addConfigValue(configValues, TLS_TRUSTSTORE_PASSWORD);
         addConfigValue(configValues, TLS_KEYSTORE_LOCATION);

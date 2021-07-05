@@ -34,14 +34,16 @@ Default `20000` (20 seconds).
 Default `/strimzi/topics`.
 .. `STRIMZI_TLS_ENABLED` to enable TLS support for encrypting the communication with Kafka brokers.
 Default `true`.
+.. `STRIMZI_TLS_AUTH_ENABLED` to enable authenticated communication with Kafka brokers.
+Default `true`.
 .. `STRIMZI_TRUSTSTORE_LOCATION` to the path to the truststore containing certificates for enabling TLS based communication.
-Mandatory only if TLS is enabled through `STRIMZI_TLS_ENABLED`.
+Mandatory only if TLS and authentication are enabled through `STRIMZI_TLS_ENABLED` and `STRIMZI_TLS_AUTH_ENABLED`.
 .. `STRIMZI_TRUSTSTORE_PASSWORD` to the password for accessing the truststore defined by `STRIMZI_TRUSTSTORE_LOCATION`.
-Mandatory only if TLS is enabled through `STRIMZI_TLS_ENABLED`.
+Mandatory only if TLS and authentication are enabled through `STRIMZI_TLS_ENABLED` and `STRIMZI_TLS_AUTH_ENABLED`.
 .. `STRIMZI_KEYSTORE_LOCATION` to the path to the keystore containing private keys for enabling TLS based communication.
-Mandatory only if TLS is enabled through `STRIMZI_TLS_ENABLED`.
+Mandatory only if TLS and authentication are enabled through `STRIMZI_TLS_ENABLED` and `STRIMZI_TLS_AUTH_ENABLED`.
 .. `STRIMZI_KEYSTORE_PASSWORD` to the password for accessing the keystore defined by `STRIMZI_KEYSTORE_LOCATION`.
-Mandatory only if TLS is enabled through `STRIMZI_TLS_ENABLED`.
+Mandatory only if TLS and authentication are enabled through `STRIMZI_TLS_ENABLED` and `STRIMZI_TLS_AUTH_ENABLED`.
 .. `STRIMZI_LOG_LEVEL` to the level for printing logging messages.
 The value can be set to: `ERROR`, `WARNING`, `INFO`, `DEBUG`, and `TRACE`.
 Default `INFO`.
