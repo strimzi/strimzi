@@ -5,15 +5,22 @@
 package io.strimzi.operator.cluster.operator.resource.cruisecontrol;
 
 import io.strimzi.operator.cluster.operator.resource.HttpClientUtils;
+import io.fabric8.kubernetes.api.model.HTTPHeader;
+import io.fabric8.kubernetes.api.model.Secret;
+import io.strimzi.operator.cluster.model.CruiseControl;
+import io.strimzi.operator.common.Util;
 import io.vertx.core.Future;
 import io.vertx.core.Promise;
 import io.vertx.core.Vertx;
+import io.vertx.core.buffer.Buffer;
 import io.vertx.core.http.HttpClientOptions;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.Json;
 import io.vertx.core.json.JsonObject;
+import io.vertx.core.net.PfxOptions;
 
 import java.net.ConnectException;
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.TimeoutException;
 
 public class CruiseControlApiImpl implements CruiseControlApi {
@@ -24,14 +31,30 @@ public class CruiseControlApiImpl implements CruiseControlApi {
 
     private final Vertx vertx;
     private final long idleTimeout;
+    private Secret ccSecret;
+    private Secret coSecret;
+    private boolean apiAuthorizationEnabled;
+    private boolean apiAuthenticationEnabled;
+    private HTTPHeader authHttpHeader;
 
-    public CruiseControlApiImpl(Vertx vertx) {
-        this(vertx, HTTP_DEFAULT_IDLE_TIMEOUT_SECONDS);
+    public CruiseControlApiImpl(Vertx vertx, Secret ccSecret, Secret coSecret, Boolean apiAuthorizationEnabled, boolean apiAuthenticationEnabled) {
+        this.vertx = vertx;
+        this.idleTimeout = HTTP_DEFAULT_IDLE_TIMEOUT_SECONDS;
+        this.ccSecret = ccSecret;
+        this.coSecret = coSecret;
+        this.apiAuthorizationEnabled = apiAuthorizationEnabled;
+        this.apiAuthenticationEnabled = apiAuthenticationEnabled;
+        this.authHttpHeader = getAuthHttpHeader();
     }
 
-    public CruiseControlApiImpl(Vertx vertx, int idleTimeout) {
+    public CruiseControlApiImpl(Vertx vertx, int idleTimeout, Secret ccSecret, Secret coSecret, Boolean apiAuthorizationEnabled, boolean apiAuthenticationEnabled) {
         this.vertx = vertx;
         this.idleTimeout = idleTimeout;
+        this.ccSecret = ccSecret;
+        this.coSecret = coSecret;
+        this.apiAuthorizationEnabled = apiAuthorizationEnabled;
+        this.apiAuthenticationEnabled = apiAuthenticationEnabled;
+        this.authHttpHeader = getAuthHttpHeader();
     }
 
     @Override
@@ -39,20 +62,52 @@ public class CruiseControlApiImpl implements CruiseControlApi {
         return getCruiseControlState(host, port, verbose, null);
     }
 
+    public HttpClientOptions getHttpClientOptions() {
+        if (apiAuthenticationEnabled) {
+            return new HttpClientOptions()
+                .setLogActivity(HTTP_CLIENT_ACTIVITY_LOGGING)
+                .setSsl(true)
+                .setTrustAll(true)
+                .setVerifyHost(false)
+                .setPfxKeyCertOptions(
+                    new PfxOptions()
+                        .setPassword(new String(Util.decodeFromSecret(coSecret, "cluster-operator.password"), StandardCharsets.US_ASCII))
+                        .setValue(Buffer.buffer(Util.decodeFromSecret(coSecret, "cluster-operator.p12")))
+                    );
+        } else {
+            return new HttpClientOptions()
+                    .setLogActivity(HTTP_CLIENT_ACTIVITY_LOGGING);
+        }
+    }
+
+    public HTTPHeader getAuthHttpHeader() {
+        if (apiAuthorizationEnabled) {
+            String password = new String(Util.decodeFromSecret(ccSecret, CruiseControl.API_ADMIN_PASSWORD_KEY), StandardCharsets.US_ASCII);
+            HTTPHeader header = CruiseControl.generateAuthHttpHeader(CruiseControl.API_ADMIN_NAME, password);
+            return header;
+        } else {
+            return null;
+        }
+    }
+
     @SuppressWarnings("deprecation")
     public Future<CruiseControlResponse> getCruiseControlState(String host, int port, boolean verbose, String userTaskId) {
-
 
         String path = new PathBuilder(CruiseControlEndpoints.STATE)
                 .addParameter(CruiseControlParameters.JSON, "true")
                 .addParameter(CruiseControlParameters.VERBOSE, String.valueOf(verbose))
                 .build();
 
-        HttpClientOptions options = new HttpClientOptions().setLogActivity(HTTP_CLIENT_ACTIVITY_LOGGING);
+        HttpClientOptions options = getHttpClientOptions();
 
         return HttpClientUtils.withHttpClient(vertx, options, (httpClient, result) -> {
             httpClient.request(HttpMethod.GET, port, host, path, request -> {
                 if (request.succeeded()) {
+
+                    if (authHttpHeader != null) {
+                        request.result().putHeader(authHttpHeader.getName(), authHttpHeader.getValue());
+                    }
+
                     request.result().send(response -> {
                         if (response.succeeded()) {
                             if (response.result().statusCode() == 200 || response.result().statusCode() == 201) {
@@ -101,13 +156,12 @@ public class CruiseControlApiImpl implements CruiseControlApi {
                     new IllegalArgumentException("Either rebalance options or user task ID should be supplied, both were null"));
         }
 
-
         String path = new PathBuilder(CruiseControlEndpoints.REBALANCE)
                 .addParameter(CruiseControlParameters.JSON, "true")
                 .addRebalanceParameters(rbOptions)
                 .build();
 
-        HttpClientOptions options = new HttpClientOptions().setLogActivity(HTTP_CLIENT_ACTIVITY_LOGGING);
+        HttpClientOptions options = getHttpClientOptions();
 
         return HttpClientUtils.withHttpClient(vertx, options, (httpClient, result) -> {
             httpClient.request(HttpMethod.POST, port, host, path, request -> {
@@ -118,6 +172,10 @@ public class CruiseControlApiImpl implements CruiseControlApi {
 
                     if (userTaskId != null) {
                         request.result().putHeader(CC_REST_API_USER_ID_HEADER, userTaskId);
+                    }
+
+                    if (authHttpHeader != null) {
+                        request.result().putHeader(authHttpHeader.getName(), authHttpHeader.getValue());
                     }
 
                     request.result().send(response -> {
@@ -196,11 +254,16 @@ public class CruiseControlApiImpl implements CruiseControlApi {
 
         String path = pathBuilder.build();
 
-        HttpClientOptions options = new HttpClientOptions().setLogActivity(HTTP_CLIENT_ACTIVITY_LOGGING);
+        HttpClientOptions options = getHttpClientOptions();
 
         return HttpClientUtils.withHttpClient(vertx, options, (httpClient, result) -> {
             httpClient.request(HttpMethod.GET, port, host, path, request -> {
                 if (request.succeeded()) {
+
+                    if (authHttpHeader != null) {
+                        request.result().putHeader(authHttpHeader.getName(), authHttpHeader.getValue());
+                    }
+
                     request.result().send(response -> {
                         if (response.succeeded()) {
                             if (response.result().statusCode() == 200 || response.result().statusCode() == 201) {
@@ -288,11 +351,16 @@ public class CruiseControlApiImpl implements CruiseControlApi {
         String path = new PathBuilder(CruiseControlEndpoints.STOP)
                         .addParameter(CruiseControlParameters.JSON, "true").build();
 
-        HttpClientOptions options = new HttpClientOptions().setLogActivity(HTTP_CLIENT_ACTIVITY_LOGGING);
+        HttpClientOptions options = getHttpClientOptions();
 
         return HttpClientUtils.withHttpClient(vertx, options, (httpClient, result) -> {
             httpClient.request(HttpMethod.POST, port, host, path, request -> {
                 if (request.succeeded()) {
+
+                    if (authHttpHeader != null) {
+                        request.result().putHeader(authHttpHeader.getName(), authHttpHeader.getValue());
+                    }
+
                     request.result().send(response -> {
                         if (response.succeeded()) {
                             if (response.result().statusCode() == 200 || response.result().statusCode() == 201) {

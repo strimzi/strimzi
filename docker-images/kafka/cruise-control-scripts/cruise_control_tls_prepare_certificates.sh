@@ -22,20 +22,22 @@ function create_keystore {
    RANDFILE=/tmp/.rnd openssl pkcs12 -export -in "$3" -inkey "$4" -name "$6" -password pass:"$2" -out "$1"
 }
 
-echo "Preparing certificates for internal communication"
-STORE=/tmp/cruise-control/replication.truststore.p12
+echo "Preparing truststore for Cruise Control client and server authentication"
+STORE=/tmp/cruise-control/client-server.truststore.p12
 rm -f "$STORE"
 for CRT in /etc/tls-sidecar/cluster-ca-certs/*.crt; do
   ALIAS=$(basename "$CRT" .crt)
   echo "Adding $CRT to truststore $STORE with alias $ALIAS"
   create_truststore "$STORE" "$CERTS_STORE_PASSWORD" "$CRT" "$ALIAS"
 done
+echo "Preparing truststore for Cruise Control client and server is complete"
 
-STORE=/tmp/cruise-control/replication.keystore.p12
+echo "Preparing keystore for Cruise Control client and server"
+STORE=/tmp/cruise-control/client-server.keystore.p12
 rm -f "$STORE"
 create_keystore "$STORE" "$CERTS_STORE_PASSWORD" \
     /etc/tls-sidecar/cc-certs/cruise-control.crt \
     /etc/tls-sidecar/cc-certs/cruise-control.key \
     /etc/tls-sidecar/cluster-ca-certs/ca.crt \
     cruise-control
-echo "Preparing certificates for internal communication is complete"
+echo "Preparing keystore for Cruise Control client and server is complete"
