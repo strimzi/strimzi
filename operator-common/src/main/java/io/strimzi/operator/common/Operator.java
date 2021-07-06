@@ -111,7 +111,7 @@ public interface Operator {
         Tags metricTags = null;
         String metricKey = namespace + "/" + kind;
         if (namespace.equals("*")) {
-            metricTags = Tags.of(Tag.of("kind", kind), Tag.of("selector", selectorValue));
+            metricTags = Tags.of(Tag.of("kind", kind), Tag.of("namespace", "*"), Tag.of("selector", selectorValue));
         } else {
             metricTags = Tags.of(Tag.of("kind", kind), Tag.of("namespace", namespace), Tag.of("selector", selectorValue));
         }
