@@ -188,6 +188,10 @@ public class SetupClusterOperator {
             this.operationTimeout = operationTimeout;
             return self();
         }
+        public SetupClusterOperatorBuilder withReconciliationInterval(long reconciliationInterval) {
+            this.reconciliationInterval = reconciliationInterval;
+            return self();
+        }
 
         private SetupClusterOperatorBuilder self() {
             return this;
