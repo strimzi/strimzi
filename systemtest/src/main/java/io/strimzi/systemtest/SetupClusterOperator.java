@@ -188,10 +188,6 @@ public class SetupClusterOperator {
             this.operationTimeout = operationTimeout;
             return self();
         }
-        public SetupClusterOperatorBuilder withReconciliationInterval(long reconciliationInterval) {
-            this.reconciliationInterval = reconciliationInterval;
-            return self();
-        }
 
         private SetupClusterOperatorBuilder self() {
             return this;
@@ -225,16 +221,6 @@ public class SetupClusterOperator {
                 }
             }
         }
-    }
-
-    /**
-     * Prepare environment for cluster operator which includes creation of namespaces, custom resources and operator
-     * specific config files such as ServiceAccount, Roles and CRDs.
-     * @param clientNamespace namespace which will be created and used as default by kube client
-     * @param resources list of path to yaml files with resources specifications
-     */
-    public void prepareEnvForOperator(ExtensionContext extensionContext, String clientNamespace, String... resources) {
-        prepareEnvForOperator(extensionContext, clientNamespace, Collections.singletonList(clientNamespace), resources);
     }
 
     /**
@@ -292,9 +278,9 @@ public class SetupClusterOperator {
 
     public static void applyRoleBindings(ExtensionContext extensionContext, String namespace, String bindingsNamespace) {
         // 020-RoleBinding
-        RoleBindingResource.roleBinding(extensionContext, Constants.PATH_TO_PACKAGING_INSTALL_FILES + "/cluster-operator/020-RoleBinding-strimzi-cluster-operator.yaml", namespace, bindingsNamespace);
+        RoleBindingResource.roleBinding(Constants.PATH_TO_PACKAGING_INSTALL_FILES + "/cluster-operator/020-RoleBinding-strimzi-cluster-operator.yaml", namespace, bindingsNamespace);
         // 031-RoleBinding
-        RoleBindingResource.roleBinding(extensionContext, Constants.PATH_TO_PACKAGING_INSTALL_FILES + "/cluster-operator/031-RoleBinding-strimzi-cluster-operator-entity-operator-delegation.yaml", namespace, bindingsNamespace);
+        RoleBindingResource.roleBinding(Constants.PATH_TO_PACKAGING_INSTALL_FILES + "/cluster-operator/031-RoleBinding-strimzi-cluster-operator-entity-operator-delegation.yaml", namespace, bindingsNamespace);
     }
 
     public static void applyRoles(String namespace) {
@@ -332,15 +318,6 @@ public class SetupClusterOperator {
      */
     public static void applyBindings(ExtensionContext extensionContext, String namespace) {
         applyBindings(extensionContext, namespace, Collections.singletonList(namespace));
-    }
-
-    /**
-     * Method for apply Strimzi cluster operator specific Role and ClusterRole bindings for specific namespaces.
-     * @param namespace namespace where CO will be deployed to
-     * @param bindingsNamespaces array of namespaces where Bindings should be deployed to
-     */
-    public static void applyBindings(ExtensionContext extensionContext, String namespace, String... bindingsNamespaces) {
-        applyBindings(extensionContext, namespace, Arrays.asList(bindingsNamespaces));
     }
 
     private static void applyClusterRoleBindings(ExtensionContext extensionContext, String namespace) {

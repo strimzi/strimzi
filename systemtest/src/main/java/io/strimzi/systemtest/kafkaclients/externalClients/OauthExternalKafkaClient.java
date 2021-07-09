@@ -278,18 +278,6 @@ public class OauthExternalKafkaClient extends AbstractKafkaClient<OauthExternalK
         }
     }
 
-    public String getClientId() {
-        return clientId;
-    }
-    public String getClientSecretName() {
-        return clientSecretName;
-    }
-    public String getOauthTokenEndpointUri() {
-        return oauthTokenEndpointUri;
-    }
-    public String getIntrospectionEndpointUri() {
-        return introspectionEndpointUri;
-    }
     @Override
     public String toString() {
 

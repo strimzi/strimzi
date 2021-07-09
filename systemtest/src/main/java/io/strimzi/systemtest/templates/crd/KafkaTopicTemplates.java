@@ -10,12 +10,8 @@ import io.strimzi.operator.common.model.Labels;
 import io.strimzi.systemtest.Constants;
 import io.strimzi.systemtest.resources.ResourceManager;
 import io.strimzi.test.TestUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 public class KafkaTopicTemplates {
-
-    private static final Logger LOGGER = LogManager.getLogger(KafkaTopicTemplates.class);
 
     private KafkaTopicTemplates() {}
 
@@ -39,10 +35,6 @@ public class KafkaTopicTemplates {
 
     public static KafkaTopicBuilder topic(String clusterName, String topicName, int partitions, int replicas, int minIsr) {
         return defaultTopic(clusterName, topicName, partitions, replicas, minIsr, ResourceManager.kubeClient().getNamespace());
-    }
-
-    public static KafkaTopicBuilder topic(String clusterName, String topicName, int partitions, int replicas, int minIsr, String topicNamespace) {
-        return defaultTopic(clusterName, topicName, partitions, replicas, minIsr, topicNamespace);
     }
 
     public static KafkaTopicBuilder defaultTopic(String clusterName, String topicName, int partitions, int replicas, int minIsr, String topicNamespace) {

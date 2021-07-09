@@ -25,24 +25,6 @@ public class Matchers {
     }
 
     /**
-     * A matcher checks that examined object has at least one match of reasons for actual events.
-     * @param eventReasons - expected events for resource
-     * @return The matcher.
-     */
-    public static Matcher<List<Event>> hasAnyOfReasons(Events... eventReasons) {
-        return new HasAnyOfReasons(eventReasons);
-    }
-
-    /**
-     * A matcher checks that events don't have all listed reasons
-     * @param eventReasons - unexpected events for resource
-     * @return a matcher {@link #hasAnyOfReasons(Events... eventReasons)} with opposite result
-     */
-    public static Matcher<List<Event>> hasNoneOfReasons(Events... eventReasons) {
-        return new HasNoneOfReasons(eventReasons);
-    }
-
-    /**
      * A matcher checks that log doesn't have unexpected errors
      * @return The matcher.
      */

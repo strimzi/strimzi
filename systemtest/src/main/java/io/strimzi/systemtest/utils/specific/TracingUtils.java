@@ -18,7 +18,6 @@ public class TracingUtils {
 
     private static final Logger LOGGER = LogManager.getLogger(TracingUtils.class);
 
-    private static final String JAEGER_QUERY_SERVICE = "my-jaeger-query";
     private static final String JAEGER_QUERY_SERVICE_ENDPOINT = "/jaeger/api/services";
     private static final String JAEGER_QUERY_SERVICE_TRACES_ENDPOINT = "/jaeger/api/traces";
     private static final String JAEGER_QUERY_SERVICE_PARAM_SERVICE = "?service=";

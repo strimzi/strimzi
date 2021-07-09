@@ -7,8 +7,6 @@ package io.strimzi.systemtest.logs;
 import io.strimzi.systemtest.Environment;
 import io.strimzi.test.timemeasuring.Operation;
 import io.strimzi.test.timemeasuring.TimeMeasuringSystem;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.LifecycleMethodExecutionExceptionHandler;
 import org.junit.jupiter.api.extension.TestExecutionExceptionHandler;
@@ -20,14 +18,13 @@ import java.util.Random;
 import static io.strimzi.test.k8s.KubeClusterResource.kubeClient;
 
 public class TestExecutionWatcher implements TestExecutionExceptionHandler, LifecycleMethodExecutionExceptionHandler {
-    private static final Logger LOGGER = LogManager.getLogger(TestExecutionWatcher.class);
 
     @Override
     public void handleTestExecutionException(ExtensionContext extensionContext, Throwable throwable) throws Throwable {
         if (!(throwable instanceof TestAbortedException)) {
             final String testClass = extensionContext.getRequiredTestClass().getName();
             final String testMethod = extensionContext.getRequiredTestMethod().getName();
-            collectLogs(extensionContext, testClass, testMethod);
+            collectLogs(testClass, testMethod);
         }
         throw throwable;
     }
@@ -36,7 +33,7 @@ public class TestExecutionWatcher implements TestExecutionExceptionHandler, Life
     public void handleBeforeAllMethodExecutionException(ExtensionContext extensionContext, Throwable throwable) throws Throwable {
         if (!(throwable instanceof TestAbortedException)) {
             String testClass = extensionContext.getRequiredTestClass().getName();
-            collectLogs(extensionContext, testClass, testClass);
+            collectLogs(testClass, testClass);
         }
         throw throwable;
     }
@@ -46,7 +43,7 @@ public class TestExecutionWatcher implements TestExecutionExceptionHandler, Life
         if (!(throwable instanceof TestAbortedException)) {
             final String testClass = extensionContext.getRequiredTestClass().getName();
             final String testMethod = extensionContext.getRequiredTestMethod().getName();
-            collectLogs(extensionContext, testClass, testMethod);
+            collectLogs(testClass, testMethod);
         }
         throw throwable;
     }
@@ -55,18 +52,18 @@ public class TestExecutionWatcher implements TestExecutionExceptionHandler, Life
     public void handleAfterEachMethodExecutionException(ExtensionContext extensionContext, Throwable throwable) throws Throwable {
         final String testClass = extensionContext.getRequiredTestClass().getName();
         final String testMethod = extensionContext.getRequiredTestMethod().getName();
-        collectLogs(extensionContext, testClass, testMethod);
+        collectLogs(testClass, testMethod);
         throw throwable;
     }
 
     @Override
     public void handleAfterAllMethodExecutionException(ExtensionContext extensionContext, Throwable throwable) throws Throwable {
         final String testClass = extensionContext.getRequiredTestClass().getName();
-        collectLogs(extensionContext, testClass, "");
+        collectLogs(testClass, "");
         throw throwable;
     }
 
-    public synchronized static void collectLogs(ExtensionContext extensionContext, String testClass, String testMethod) throws IOException {
+    public synchronized static void collectLogs(String testClass, String testMethod) throws IOException {
         // Stop test execution time counter in case of failures
         TimeMeasuringSystem.getInstance().stopOperation(Operation.TEST_EXECUTION, testClass, testMethod);
 

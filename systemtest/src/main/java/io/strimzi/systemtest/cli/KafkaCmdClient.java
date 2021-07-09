@@ -17,7 +17,6 @@ public class KafkaCmdClient {
 
     private static final int PORT = 9092;
 
-    public KafkaCmdClient() { }
 
     public static List<String> listTopicsUsingPodCli(String namespaceName, String clusterName, int kafkaPodId) {
         String podName = KafkaResources.kafkaPodName(clusterName, kafkaPodId);
@@ -48,10 +47,6 @@ public class KafkaCmdClient {
         String podName = KafkaResources.kafkaPodName(clusterName, kafkaPodId);
         return cmdKubeClient(namespaceName).execInPod(podName, "/bin/bash", "-c",
             "bin/kafka-topics.sh --bootstrap-server localhost:" + PORT + " --delete --topic " + topic).out();
-    }
-
-    public static String deleteTopicUsingPodCli(String clusterName, int kafkaPodId, String topic) {
-        return deleteTopicUsingPodCli(kubeClient().getNamespace(), clusterName, kafkaPodId, topic);
     }
 
     public static List<String> describeTopicUsingPodCli(String clusterName, int kafkaPodId, String topic) {

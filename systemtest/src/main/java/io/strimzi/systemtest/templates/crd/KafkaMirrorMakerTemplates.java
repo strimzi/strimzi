@@ -4,7 +4,6 @@
  */
 package io.strimzi.systemtest.templates.crd;
 
-import io.fabric8.kubernetes.api.model.DeletionPropagation;
 import io.fabric8.kubernetes.client.dsl.MixedOperation;
 import io.fabric8.kubernetes.client.dsl.Resource;
 import io.strimzi.api.kafka.Crds;
@@ -32,16 +31,6 @@ public class KafkaMirrorMakerTemplates {
     public static KafkaMirrorMakerBuilder kafkaMirrorMaker(String name, String sourceBootstrapServer, String targetBootstrapServer, String groupId, int mirrorMakerReplicas, boolean tlsListener) {
         KafkaMirrorMaker kafkaMirrorMaker = getKafkaMirrorMakerFromYaml(PATH_TO_KAFKA_MIRROR_MAKER_CONFIG);
         return defaultKafkaMirrorMaker(kafkaMirrorMaker, name, sourceBootstrapServer, targetBootstrapServer, groupId, mirrorMakerReplicas, tlsListener);
-    }
-
-    public static KafkaMirrorMakerBuilder defaultKafkaMirrorMaker(String name,
-                                                                  String sourceBootstrapServer,
-                                                                  String targetBootstrapServer,
-                                                                  String groupId,
-                                                                  int kafkaMirrorMakerReplicas,
-                                                                  boolean tlsListener) {
-        KafkaMirrorMaker kafkaMirrorMaker = getKafkaMirrorMakerFromYaml(PATH_TO_KAFKA_MIRROR_MAKER_CONFIG);
-        return defaultKafkaMirrorMaker(kafkaMirrorMaker, name, sourceBootstrapServer, targetBootstrapServer, groupId, kafkaMirrorMakerReplicas, tlsListener);
     }
 
     private static KafkaMirrorMakerBuilder defaultKafkaMirrorMaker(KafkaMirrorMaker kafkaMirrorMaker,
@@ -73,10 +62,6 @@ public class KafkaMirrorMakerTemplates {
                     .addToLoggers("mirrormaker.root.logger", "DEBUG")
                 .endInlineLogging()
             .endSpec();
-    }
-
-    public static void deleteKafkaMirrorMakerWithoutWait(String resourceName) {
-        kafkaMirrorMakerClient().inNamespace(ResourceManager.kubeClient().getNamespace()).withName(resourceName).withPropagationPolicy(DeletionPropagation.FOREGROUND).delete();
     }
 
     private static KafkaMirrorMaker getKafkaMirrorMakerFromYaml(String yamlPath) {

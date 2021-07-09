@@ -21,10 +21,6 @@ public class KafkaConnectorTemplates {
         return kafkaConnector(name, name, 2);
     }
 
-    public static KafkaConnectorBuilder kafkaConnector(String name, int maxTasks) {
-        return kafkaConnector(name, name, maxTasks);
-    }
-
     public static KafkaConnectorBuilder kafkaConnector(String name, String clusterName) {
         return kafkaConnector(name, clusterName, 2);
     }

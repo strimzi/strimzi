@@ -90,10 +90,6 @@ public class KafkaConnectorUtils {
         ).out();
     }
 
-    public static String getCreatedConnectors(String connectPodName) {
-        return getCreatedConnectors(kubeClient().getNamespace(), connectPodName);
-    }
-
     public static void waitForConnectorDeletion(String connectorName) {
         TestUtils.waitFor(connectorName + " connector deletion", Constants.GLOBAL_POLL_INTERVAL, READINESS_TIMEOUT, () -> {
             if (KafkaConnectorResource.kafkaConnectorClient().inNamespace(kubeClient().getNamespace()).withName(connectorName).get() == null) {
@@ -128,17 +124,9 @@ public class KafkaConnectorUtils {
         );
     }
 
-    public static void waitForConnectorsTaskMaxChange(String connectorName, int taskMax) {
-        waitForConnectorsTaskMaxChange(kubeClient().getNamespace(), connectorName, taskMax);
-    }
-
     public static String getConnectorSpecFromConnectAPI(String namespaceName, String podName, String connectorName) {
         return cmdKubeClient(namespaceName).execInPod(podName, "/bin/bash", "-c",
             "curl http://localhost:8083/connectors/" + connectorName).out();
-    }
-
-    public static String getConnectorSpecFromConnectAPI(String podName, String connectorName) {
-        return getConnectorSpecFromConnectAPI(kubeClient().getNamespace(), podName, connectorName);
     }
 
     public static String getConnectorConfig(String namespaceName, String podName, String connectorName, String apiUrl) {
@@ -146,19 +134,11 @@ public class KafkaConnectorUtils {
             connectorName + "/config").out();
     }
 
-    public static String getConnectorConfig(String podName, String connectorName, String apiUrl) {
-        return getConnectorConfig(kubeClient().getNamespace(), podName, connectorName, apiUrl);
-    }
-
     public static String waitForConnectorConfigUpdate(String namespaceName, String podName, String connectorName, String oldConfig, String apiUrl) {
         TestUtils.waitFor("Wait for KafkaConnector config will contain desired config", Constants.POLL_INTERVAL_FOR_RESOURCE_READINESS,
             ResourceOperation.getTimeoutForResourceReadiness(KafkaConnector.RESOURCE_KIND),
             () -> !oldConfig.equals(getConnectorConfig(namespaceName, podName, connectorName, apiUrl)));
         return getConnectorConfig(namespaceName, podName, connectorName, apiUrl);
-    }
-
-    public static String waitForConnectorConfigUpdate(String podName, String connectorName, String oldConfig, String apiUrl) {
-        return waitForConnectorConfigUpdate(kubeClient().getNamespace(), podName, connectorName, oldConfig, apiUrl);
     }
 
     /**

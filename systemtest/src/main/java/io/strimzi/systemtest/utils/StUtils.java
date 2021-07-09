@@ -278,10 +278,6 @@ public class StUtils {
         });
     }
 
-    public static void checkLogForJSONFormat(Map<String, String> pods, String containerName) {
-        checkLogForJSONFormat(kubeClient().getNamespace(), pods, containerName);
-    }
-
     /**
      * Method for check if test is allowed on current Kubernetes version
      * @param maxKubernetesVersion kubernetes version which test needs
@@ -292,17 +288,6 @@ public class StUtils {
             return true;
         }
         return Double.parseDouble(kubeClient().clusterKubernetesVersion()) < Double.parseDouble(maxKubernetesVersion);
-    }
-
-    /**
-     * Method which returns log from last {@code timeSince}
-     * @param podName name of pod to take a log from
-     * @param containerName name of container
-     * @param timeSince time from which the log should be taken - 3s, 5m, 2h -- back
-     * @return log from the pod
-     */
-    public static String getLogFromPodByTime(String podName, String containerName, String timeSince) {
-        return getLogFromPodByTime(kubeClient().getNamespace(), podName, containerName, timeSince);
     }
 
     /**
@@ -365,10 +350,6 @@ public class StUtils {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    public static String getLineFromPod(String podName, String filePath, String grepString) {
-        return getLineFromPodContainer(kubeClient().getNamespace(), podName, null, filePath, grepString);
     }
 
     public static String getLineFromPodContainer(String namespaceName, String podName, String containerName, String filePath, String grepString) {

@@ -87,7 +87,6 @@ class MirrorMaker2ST extends AbstractST {
     public static final String NAMESPACE = "mirrormaker2-cluster-test";
 
     private static final String MIRRORMAKER2_TOPIC_NAME = "mirrormaker2-topic-example";
-    private static int consumerCounter = 0;
     private final int messagesCount = 200;
 
     @SuppressWarnings({"checkstyle:MethodLength"})
@@ -178,7 +177,7 @@ class MirrorMaker2ST extends AbstractST {
         assertThat(StUtils.getPropertiesFromJson(0, kafkaPodJson, "KAFKA_CONNECT_CONFIGURATION"), is(expectedConfig));
         testDockerImagesForKafkaMirrorMaker2(clusterName, NAMESPACE, namespaceName);
 
-        verifyLabelsOnPods(namespaceName, clusterName, "mirrormaker2", null, "KafkaMirrorMaker2");
+        verifyLabelsOnPods(namespaceName, clusterName, "mirrormaker2", "KafkaMirrorMaker2");
         verifyLabelsForService(namespaceName, clusterName, "mirrormaker2-api", "KafkaMirrorMaker2");
         verifyLabelsForConfigMaps(namespaceName, kafkaClusterSourceName, null, kafkaClusterTargetName);
         verifyLabelsForServiceAccounts(namespaceName, kafkaClusterSourceName, null);

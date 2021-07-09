@@ -98,8 +98,6 @@ class ConnectST extends AbstractST {
     private static final Logger LOGGER = LogManager.getLogger(ConnectST.class);
     public static final String NAMESPACE = "connect-cluster-test";
 
-    private static final String KAFKA_CLIENTS_NAME = "shared-" +  Constants.KAFKA_CLIENTS;
-
     @ParallelNamespaceTest
     void testDeployUndeploy(ExtensionContext extensionContext) {
         final String namespaceName = StUtils.getNamespaceBasedOnRbac(NAMESPACE, extensionContext);
@@ -129,7 +127,7 @@ class ConnectST extends AbstractST {
         assertThat(StUtils.getPropertiesFromJson(0, kafkaPodJson, "KAFKA_CONNECT_CONFIGURATION"), is(exceptedConfig));
         testDockerImagesForKafkaConnect(NAMESPACE, namespaceName, clusterName);
 
-        verifyLabelsOnPods(namespaceName, clusterName, "connect", null, "KafkaConnect");
+        verifyLabelsOnPods(namespaceName, clusterName, "connect", "KafkaConnect");
         verifyLabelsForService(namespaceName, clusterName, "connect-api", "KafkaConnect");
         verifyLabelsForConfigMaps(namespaceName, clusterName, null, "");
         verifyLabelsForServiceAccounts(namespaceName, clusterName, null);
@@ -736,7 +734,6 @@ class ConnectST extends AbstractST {
     @Tag(CONNECTOR_OPERATOR)
     @ParallelNamespaceTest
     void testConnectTlsAuthWithWeirdUserName(ExtensionContext extensionContext) {
-        final String namespaceName = StUtils.getNamespaceBasedOnRbac(NAMESPACE, extensionContext);
         final String clusterName = mapWithClusterNames.get(extensionContext.getDisplayName());
         final String topicName = mapWithTestTopics.get(extensionContext.getDisplayName());
         final String kafkaClientsName = mapWithKafkaClientNames.get(extensionContext.getDisplayName());
@@ -802,7 +799,6 @@ class ConnectST extends AbstractST {
     @Tag(CONNECTOR_OPERATOR)
     @ParallelNamespaceTest
     void testConnectScramShaAuthWithWeirdUserName(ExtensionContext extensionContext) {
-        final String namespaceName = StUtils.getNamespaceBasedOnRbac(NAMESPACE, extensionContext);
         final String clusterName = mapWithClusterNames.get(extensionContext.getDisplayName());
         final String topicName = mapWithTestTopics.get(extensionContext.getDisplayName());
         final String kafkaClientsName = mapWithKafkaClientNames.get(extensionContext.getDisplayName());

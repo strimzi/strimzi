@@ -88,7 +88,7 @@ class HttpBridgeST extends HttpBridgeAbstractST {
         assertThat(internalKafkaClient.receiveMessagesPlain(), is(MESSAGE_COUNT));
 
         // Checking labels for Kafka Bridge
-        verifyLabelsOnPods(httpBridgeClusterName, "my-bridge", null, "KafkaBridge");
+        verifyLabelsOnPods(NAMESPACE, httpBridgeClusterName, "my-bridge", "KafkaBridge");
         verifyLabelsForService(NAMESPACE, httpBridgeClusterName, "my-bridge", "KafkaBridge");
     }
 
@@ -339,9 +339,6 @@ class HttpBridgeST extends HttpBridgeAbstractST {
             kafkaBridgeService.getMetadata().getAnnotations().entrySet().stream()
                 .filter(item -> item.getKey().equals("bar") && item.getValue().equals("app"))
                 .collect(Collectors.toMap(item -> item.getKey(), item -> item.getValue()));
-
-        final Map<String, String> exceptedKafkaBridgeCustomLabels = new HashMap<>(1);
-        final Map<String, String> exceptedKafkaBridgeCustomAnnotations = new HashMap<>(1);
 
         // verify phase: that inside KafkaBridge we can find 'exceptedKafkaBridgeCustomLabels' and 'exceptedKafkaBridgeCustomAnnotations' previously defined
         assertThat(filteredActualKafkaBridgeCustomLabels.size(), is(Collections.singletonMap("app", "bar").size()));

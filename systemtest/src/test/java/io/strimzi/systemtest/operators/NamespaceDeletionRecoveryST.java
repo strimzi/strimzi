@@ -65,7 +65,7 @@ class NamespaceDeletionRecoveryST extends AbstractST {
         String clusterName = mapWithClusterNames.get(extensionContext.getDisplayName());
         String topicName = mapWithTestTopics.get(extensionContext.getDisplayName());
 
-        prepareEnvironmentForRecovery(extensionContext, topicName, MESSAGE_COUNT);
+        prepareEnvironmentForRecovery(extensionContext, topicName);
 
         // Wait till consumer offset topic is created
         KafkaTopicUtils.waitForKafkaTopicCreationByNamePrefix("consumer-offsets");
@@ -135,7 +135,7 @@ class NamespaceDeletionRecoveryST extends AbstractST {
         String clusterName = mapWithClusterNames.get(extensionContext.getDisplayName());
         String topicName = mapWithTestTopics.get(extensionContext.getDisplayName());
 
-        prepareEnvironmentForRecovery(extensionContext, topicName, MESSAGE_COUNT);
+        prepareEnvironmentForRecovery(extensionContext, topicName);
 
         // Wait till consumer offset topic is created
         KafkaTopicUtils.waitForKafkaTopicCreationByNamePrefix("consumer-offsets");
@@ -206,7 +206,7 @@ class NamespaceDeletionRecoveryST extends AbstractST {
         );
     }
 
-    private void prepareEnvironmentForRecovery(ExtensionContext extensionContext, String topicName, int messageCount) {
+    private void prepareEnvironmentForRecovery(ExtensionContext extensionContext, String topicName) {
         String clusterName = mapWithClusterNames.get(extensionContext.getDisplayName());
 
         install = new SetupClusterOperator.SetupClusterOperatorBuilder()

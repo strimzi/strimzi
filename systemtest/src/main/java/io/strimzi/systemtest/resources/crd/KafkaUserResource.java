@@ -11,8 +11,6 @@ import io.strimzi.api.kafka.Crds;
 import io.strimzi.api.kafka.KafkaUserList;
 import io.strimzi.api.kafka.model.KafkaUser;
 import io.strimzi.systemtest.resources.ResourceType;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import io.strimzi.systemtest.resources.ResourceManager;
 
 import java.util.function.Consumer;
@@ -20,7 +18,6 @@ import java.util.function.Consumer;
 import static io.strimzi.systemtest.enums.CustomResourceStatus.Ready;
 
 public class KafkaUserResource implements ResourceType<KafkaUser> {
-    private static final Logger LOGGER = LogManager.getLogger(KafkaUserResource.class);
 
     public KafkaUserResource() {}
 
@@ -49,10 +46,6 @@ public class KafkaUserResource implements ResourceType<KafkaUser> {
 
     public static MixedOperation<KafkaUser, KafkaUserList, Resource<KafkaUser>> kafkaUserClient() {
         return Crds.kafkaUserOperation(ResourceManager.kubeClient().getClient());
-    }
-
-    public static void replaceUserResource(String resourceName, Consumer<KafkaUser> editor) {
-        ResourceManager.replaceCrdResource(KafkaUser.class, KafkaUserList.class, resourceName, editor);
     }
 
     public static void replaceUserResourceInSpecificNamespace(String resourceName, Consumer<KafkaUser> editor, String namespaceName) {

@@ -146,10 +146,6 @@ public class KafkaTopicUtils {
         return waitForKafkaTopicStatus(kubeClient().getNamespace(), topicName, Ready);
     }
 
-    public static boolean waitForKafkaTopicNotReady(String namespaceName, String topicName) {
-        return waitForKafkaTopicStatus(namespaceName, topicName, NotReady);
-    }
-
     public static boolean waitForKafkaTopicNotReady(String topicName) {
         return waitForKafkaTopicStatus(kubeClient().getNamespace(), topicName, NotReady);
     }

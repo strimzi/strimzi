@@ -232,9 +232,9 @@ public class NetworkPolicyResource implements ResourceType<NetworkPolicy> {
     public static void applyDefaultNetworkPolicySettings(ExtensionContext extensionContext, List<String> namespaces) {
         for (String namespace : namespaces) {
             if (Environment.DEFAULT_TO_DENY_NETWORK_POLICIES) {
-                NetworkPolicyTemplates.applyDefaultNetworkPolicy(extensionContext, namespace, DefaultNetworkPolicy.DEFAULT_TO_DENY);
+                NetworkPolicyTemplates.applyDefaultNetworkPolicy(namespace, DefaultNetworkPolicy.DEFAULT_TO_DENY);
             } else {
-                NetworkPolicyTemplates.applyDefaultNetworkPolicy(extensionContext, namespace, DefaultNetworkPolicy.DEFAULT_TO_ALLOW);
+                NetworkPolicyTemplates.applyDefaultNetworkPolicy(namespace, DefaultNetworkPolicy.DEFAULT_TO_ALLOW);
             }
             LOGGER.info("NetworkPolicy successfully set to: {} for namespace: {}", Environment.DEFAULT_TO_DENY_NETWORK_POLICIES, namespace);
         }

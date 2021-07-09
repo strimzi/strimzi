@@ -40,7 +40,6 @@ import io.strimzi.systemtest.utils.kubeUtils.controllers.DeploymentUtils;
 import io.strimzi.systemtest.utils.kubeUtils.controllers.StatefulSetUtils;
 import io.strimzi.systemtest.utils.kubeUtils.objects.PodUtils;
 import io.strimzi.test.TestUtils;
-import io.strimzi.test.timemeasuring.Operation;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.AfterAll;
@@ -97,10 +96,6 @@ class LogSettingST extends AbstractST {
 
     private static final String LOG_SETTING_CLUSTER_NAME = "log-setting-cluster-name";
     private static final String GC_LOGGING_SET_NAME = "gc-set-logging";
-    private static final String BRIDGE_NAME = "my-bridge";
-    private static final String MM_NAME = "my-mirror-maker";
-    private static final String MM2_NAME = "my-mirror-maker-2";
-    private static final String CONNECT_NAME = "my-connect";
 
     private static final JvmOptions JVM_OPTIONS = new JvmOptionsBuilder()
         .withGcLoggingEnabled(false)
@@ -433,10 +428,6 @@ class LogSettingST extends AbstractST {
             Constants.GLOBAL_TIMEOUT, () -> cmdKubeClient().namespace(namespaceName).execInCurrentNamespace("get", "strimzi").out().contains(resourceName));
     }
 
-    private synchronized void kubectlGetStrimziUntilOperationIsSuccessful(String resourceName) {
-        kubectlGetStrimziUntilOperationIsSuccessful(kubeClient().getNamespace(), resourceName);
-    }
-
     // only one thread can access (eliminate data-race)
     private synchronized void checkContainersHaveProcessOneAsTini(String namespaceName, String resourceClusterName) {
         //Used [/] in the grep command so that grep process does not return itself
@@ -477,10 +468,6 @@ class LogSettingST extends AbstractST {
         }
     }
 
-    private synchronized void checkContainersHaveProcessOneAsTini(String resourceClusterName) {
-        checkContainersHaveProcessOneAsTini(kubeClient().getNamespace(), resourceClusterName);
-    }
-
     private synchronized String configMap(String namespaceName, String configMapName) {
         Map<String, String> configMapData = kubeClient(namespaceName).getConfigMap(configMapName).getData();
         // tries to get a log4j2 configuration file first (operator, bridge, ...) otherwise log4j one (kafka, zookeeper, ...)
@@ -509,10 +496,6 @@ class LogSettingST extends AbstractST {
         return result;
     }
 
-    private synchronized boolean checkLoggersLevel(Map<String, String> loggers, String configMapName) {
-        return checkLoggersLevel(kubeClient().getNamespace(), loggers, configMapName);
-    }
-
     private synchronized Boolean checkGcLoggingDeployments(String namespaceName, String deploymentName, String containerName) {
         LOGGER.info("Checking deployment: {}", deploymentName);
         List<Container> containers = kubeClient(namespaceName).getDeployment(deploymentName).getSpec().getTemplate().getSpec().getContainers();
@@ -528,19 +511,11 @@ class LogSettingST extends AbstractST {
         return checkEnvVarValue(container);
     }
 
-    private synchronized Boolean checkGcLoggingDeployments(String deploymentName) {
-        return checkGcLoggingDeployments(kubeClient().getNamespace(), deploymentName);
-    }
-
     private synchronized Boolean checkGcLoggingDeploymentConfig(String namespaceName, String depConfName) {
         LOGGER.info("Checking deployment config: {}", depConfName);
         Container container = kubeClient(namespaceName).getDeploymentConfig(namespaceName, depConfName).getSpec().getTemplate().getSpec().getContainers().get(0);
         LOGGER.info("Checking container with name: {}", container.getName());
         return checkEnvVarValue(container);
-    }
-
-    private synchronized Boolean checkGcLoggingDeploymentConfig(String depConfName) {
-        return checkGcLoggingDeploymentConfig(kubeClient().getNamespace(), depConfName);
     }
 
     private synchronized Boolean checkGcLoggingStatefulSets(String namespaceName, String statefulSetName) {
@@ -570,8 +545,6 @@ class LogSettingST extends AbstractST {
             .withWatchingNamespaces(Constants.WATCH_ALL_NAMESPACES)
             .createInstallation()
             .runInstallation();
-
-        String operationId = timeMeasuringSystem.startOperation(Operation.CLASS_EXECUTION, extensionContext.getRequiredTestClass().getName(), extensionContext.getRequiredTestClass().getName());
 
         resourceManager.createResource(extensionContext, false, KafkaTemplates.kafkaPersistent(LOG_SETTING_CLUSTER_NAME, 3, 1)
             .editSpec()

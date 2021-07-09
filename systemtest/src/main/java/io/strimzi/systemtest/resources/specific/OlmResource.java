@@ -70,14 +70,8 @@ public class OlmResource implements SpecificResourceType {
         deleteOlm(deploymentName, namespace, csvName);
     }
 
-    public OlmResource() { }
-
     public OlmResource(String namespace) {
         this.namespace = namespace;
-    }
-
-    private void clusterOperator(String namespace) {
-        clusterOperator(namespace, Constants.CO_OPERATION_TIMEOUT_DEFAULT, Constants.RECONCILIATION_INTERVAL, OlmInstallationStrategy.Automatic, null);
     }
 
     private void clusterOperator(String namespace, OlmInstallationStrategy olmInstallationStrategy, String fromVersion) {

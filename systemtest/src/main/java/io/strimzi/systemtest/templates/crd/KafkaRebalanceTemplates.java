@@ -4,7 +4,6 @@
  */
 package io.strimzi.systemtest.templates.crd;
 
-import io.fabric8.kubernetes.api.model.DeletionPropagation;
 import io.fabric8.kubernetes.client.dsl.MixedOperation;
 import io.fabric8.kubernetes.client.dsl.Resource;
 import io.strimzi.api.kafka.Crds;
@@ -44,16 +43,6 @@ public class KafkaRebalanceTemplates {
                 .withNamespace(ResourceManager.kubeClient().getNamespace())
                 .withLabels(kafkaRebalanceLabels)
             .endMetadata();
-    }
-
-
-    public static KafkaRebalanceBuilder kafkaRebalanceWithoutWait(KafkaRebalance kafkaRebalance) {
-        kafkaRebalanceClient().inNamespace(ResourceManager.kubeClient().getNamespace()).createOrReplace(kafkaRebalance);
-        return new KafkaRebalanceBuilder(kafkaRebalance);
-    }
-
-    public static void deleteKafkaRebalanceWithoutWait(String resourceName) {
-        kafkaRebalanceClient().inNamespace(ResourceManager.kubeClient().getNamespace()).withName(resourceName).withPropagationPolicy(DeletionPropagation.FOREGROUND).delete();
     }
 
     private static KafkaRebalance getKafkaRebalanceFromYaml(String yamlPath) {

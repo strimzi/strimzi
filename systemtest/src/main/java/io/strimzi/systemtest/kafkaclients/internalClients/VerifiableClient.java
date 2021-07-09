@@ -268,17 +268,6 @@ public class VerifiableClient {
     }
 
     /**
-     * Method for stop client
-     */
-    public void stop() {
-        try {
-            executor.stop();
-        } catch (Exception ex) {
-            LOGGER.warn("Client stop raise exception: " + ex.getMessage());
-        }
-    }
-
-    /**
      * Validates that kafka client support this arg
      *
      * @param arg argument to validate

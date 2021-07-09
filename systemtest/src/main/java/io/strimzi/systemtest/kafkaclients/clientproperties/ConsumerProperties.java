@@ -9,14 +9,10 @@ import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.OffsetResetStrategy;
 import org.apache.kafka.common.security.auth.SecurityProtocol;
 import org.apache.kafka.common.serialization.Deserializer;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import java.util.Locale;
 
 public class ConsumerProperties extends AbstractKafkaClientProperties<ConsumerProperties> {
-
-    private static final Logger LOGGER = LogManager.getLogger(ConsumerProperties.class);
 
     public static class ConsumerPropertiesBuilder extends AbstractKafkaClientProperties.KafkaClientPropertiesBuilder<ConsumerPropertiesBuilder> {
 

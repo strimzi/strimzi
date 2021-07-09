@@ -44,7 +44,6 @@ public class OpaIntegrationST extends AbstractST {
     private static final String OPA_SUPERUSER = "arnost";
     private static final String OPA_GOOD_USER = "good-user";
     private static final String OPA_BAD_USER = "bad-user";
-    private static String clientsPodName = "";
     private static final String CLUSTER_NAME = "opa-cluster";
 
     @ParallelTest

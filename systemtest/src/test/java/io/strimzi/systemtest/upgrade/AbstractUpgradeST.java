@@ -33,20 +33,19 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.core.util.IOUtils;
 import org.junit.jupiter.api.extension.ExtensionContext;
-import org.junit.jupiter.params.provider.Arguments;
 
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Stream;
 
+import static io.strimzi.systemtest.Constants.GLOBAL_POLL_INTERVAL;
+import static io.strimzi.systemtest.Constants.GLOBAL_TIMEOUT;
+import static io.strimzi.systemtest.Constants.PATH_TO_PACKAGING_EXAMPLES;
 import static io.strimzi.test.k8s.KubeClusterResource.cmdKubeClient;
 import static io.strimzi.test.k8s.KubeClusterResource.kubeClient;
 import static org.hamcrest.CoreMatchers.containsString;
@@ -57,12 +56,10 @@ import static org.junit.jupiter.api.Assertions.fail;
 public class AbstractUpgradeST extends AbstractST {
 
     private static final Logger LOGGER = LogManager.getLogger(AbstractUpgradeST.class);
-    private io.strimzi.systemtest.Constants systemtestConstants;
 
     protected File coDir = null;
     protected File kafkaTopicYaml = null;
     protected File kafkaUserYaml = null;
-
     protected Map<String, String> zkPods;
     protected Map<String, String> kafkaPods;
     protected Map<String, String> eoPods;
@@ -92,94 +89,6 @@ public class AbstractUpgradeST extends AbstractST {
         }
     }
 
-    protected static Stream<Arguments> loadJsonUpgradeData() {
-        JsonArray upgradeData = readUpgradeJson(UPGRADE_JSON_FILE);
-        List<Arguments> parameters = new LinkedList<>();
-
-        List<TestKafkaVersion> testKafkaVersions = TestKafkaVersion.getSupportedKafkaVersions();
-        TestKafkaVersion testKafkaVersion = testKafkaVersions.get(testKafkaVersions.size() - 1);
-
-        upgradeData.forEach(jsonData -> {
-            JsonObject data = (JsonObject) jsonData;
-
-            data.put("urlTo", "HEAD");
-            data.put("toVersion", "HEAD");
-            data.put("toExamples", "HEAD");
-
-            // Generate procedures for upgrade
-            JsonObject procedures = new JsonObject();
-            procedures.put("kafkaVersion", testKafkaVersion.version());
-            procedures.put("logMessageVersion", testKafkaVersion.messageVersion());
-            procedures.put("interBrokerProtocolVersion", testKafkaVersion.protocolVersion());
-            data.put("proceduresAfterOperatorUpgrade", procedures);
-
-            parameters.add(Arguments.of(data.getString("fromVersion"), "HEAD", data));
-        });
-
-        return parameters.stream();
-    }
-
-    protected static Map<String, JsonObject> buildMidStepUpgradeData(JsonObject jsonData) {
-        List<TestKafkaVersion> testKafkaVersions = TestKafkaVersion.getSupportedKafkaVersions();
-        TestKafkaVersion testKafkaVersion = testKafkaVersions.get(testKafkaVersions.size() - 1);
-
-        Map<String, JsonObject> steps = new HashMap<>();
-
-        String midStepUrl = jsonData.getString("urlFrom");
-        String midStepVersion = jsonData.getString("fromVersion");
-        String midStepExamples = jsonData.getString("fromExamples");
-
-        JsonObject conversionTool = jsonData.getJsonObject("conversionTool");
-
-        // X -> 0.22.0 data
-        JsonObject midStep = JsonObject.mapFrom(jsonData);
-        JsonObject afterMidStep = JsonObject.mapFrom(jsonData);
-        if (jsonData.getString("prevVersion").isEmpty()) {
-            midStep.put("urlFrom", jsonData.getString("urlFrom"));
-            midStep.put("fromVersion", jsonData.getString("fromVersion"));
-            midStep.put("fromExamples", jsonData.getString("fromExamples"));
-            afterMidStep.put("urlFrom", "HEAD");
-            afterMidStep.put("fromVersion", "HEAD");
-            afterMidStep.put("fromExamples", "HEAD");
-        } else {
-            midStep.put("urlFrom", jsonData.getString("urlPrevVersion"));
-            midStep.put("fromVersion", jsonData.getString("prevVersion"));
-            midStep.put("fromExamples", jsonData.getString("prevVersionExamples"));
-            afterMidStep.put("urlFrom", midStepUrl);
-            afterMidStep.put("fromVersion", midStepVersion);
-            afterMidStep.put("fromExamples", midStepExamples);
-        }
-
-        midStep.put("urlTo", midStepUrl);
-        midStep.put("toVersion", midStepVersion);
-        midStep.put("toExamples", midStepExamples);
-        midStep.put("urlToConversionTool", conversionTool.getString("urlToConversionTool"));
-        midStep.put("toConversionTool", conversionTool.getString("toConversionTool"));
-
-        JsonObject midStepProcedures = new JsonObject();
-        midStepProcedures.put("kafkaVersion", testKafkaVersion.version());
-        midStepProcedures.put("logMessageVersion", testKafkaVersion.messageVersion());
-        midStepProcedures.put("interBrokerProtocolVersion", testKafkaVersion.protocolVersion());
-        midStep.put("proceduresAfterOperatorUpgrade", midStepProcedures);
-
-        steps.put("midStep", midStep);
-        steps.put("toHEAD", afterMidStep);
-
-        return steps;
-    }
-
-    protected static Stream<Arguments> loadJsonDowngradeData() {
-        JsonArray upgradeData = readUpgradeJson(DOWNGRADE_JSON_FILE);
-        List<Arguments> parameters = new LinkedList<>();
-
-        upgradeData.forEach(jsonData -> {
-            JsonObject data = (JsonObject) jsonData;
-            parameters.add(Arguments.of(data.getString("fromVersion"), data.getString("toVersion"), data));
-        });
-
-        return parameters.stream();
-    }
-
     protected void makeSnapshots(String clusterName) {
         coPods = DeploymentUtils.depSnapshot(ResourceManager.getCoDeploymentName());
         zkPods = StatefulSetUtils.ssSnapshot(KafkaResources.zookeeperStatefulSetName(clusterName));
@@ -204,7 +113,7 @@ public class AbstractUpgradeST extends AbstractST {
         String toUrl = testParameters.getString("urlTo");
         String examplesPath = "";
         if (toUrl.equals("HEAD")) {
-            examplesPath = io.strimzi.systemtest.Constants.PATH_TO_PACKAGING_EXAMPLES + "";
+            examplesPath = PATH_TO_PACKAGING_EXAMPLES + "";
         } else {
             File dir = FileUtils.downloadAndUnzip(toUrl);
             examplesPath = dir.getAbsolutePath() + "/" + testParameters.getString("toExamples") + "/examples";
@@ -591,7 +500,7 @@ public class AbstractUpgradeST extends AbstractST {
     }
 
     protected void waitForKafkaCRDChange() {
-        TestUtils.waitFor("Kafka CRD kafkas.kafka.strimzi.io will change it's api version", systemtestConstants.GLOBAL_POLL_INTERVAL, systemtestConstants.GLOBAL_TIMEOUT,
+        TestUtils.waitFor("Kafka CRD kafkas.kafka.strimzi.io will change it's api version", GLOBAL_POLL_INTERVAL, GLOBAL_TIMEOUT,
             () -> cmdKubeClient().exec(true, false, "get", "crd", "kafkas.kafka.strimzi.io", "-o", "jsonpath={.status.storedVersions}").out().trim().contains(Constants.V1BETA2));
     }
 }

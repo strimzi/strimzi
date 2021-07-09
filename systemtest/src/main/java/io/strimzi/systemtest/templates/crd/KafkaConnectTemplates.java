@@ -5,7 +5,6 @@
 package io.strimzi.systemtest.templates.crd;
 
 import io.fabric8.kubernetes.api.model.ConfigMap;
-import io.fabric8.kubernetes.api.model.DeletionPropagation;
 import io.fabric8.kubernetes.client.dsl.MixedOperation;
 import io.fabric8.kubernetes.client.dsl.Resource;
 import io.strimzi.api.kafka.Crds;
@@ -65,11 +64,6 @@ public class KafkaConnectTemplates {
         return defaultKafkaConnect(kafkaConnect, name, clusterName, kafkaConnectReplicas);
     }
 
-    public static KafkaConnectBuilder defaultKafkaConnect(String name, String kafkaClusterName, int kafkaConnectReplicas) {
-        KafkaConnect kafkaConnect = getKafkaConnectFromYaml(PATH_TO_KAFKA_CONNECT_CONFIG);
-        return defaultKafkaConnect(kafkaConnect, name, kafkaClusterName, kafkaConnectReplicas);
-    }
-
     private static KafkaConnectBuilder defaultKafkaConnect(KafkaConnect kafkaConnect, String name, String kafkaClusterName, int kafkaConnectReplicas) {
         return new KafkaConnectBuilder(kafkaConnect)
             .withNewMetadata()
@@ -99,21 +93,6 @@ public class KafkaConnectTemplates {
             NetworkPolicyResource.allowNetworkPolicySettingsForResource(extensionContext, kafkaConnect, KafkaConnectResources.deploymentName(kafkaConnect.getMetadata().getName()));
         }
         return new KafkaConnectBuilder(kafkaConnect);
-    }
-
-    public static KafkaConnectBuilder kafkaConnectWithoutWait(KafkaConnect kafkaConnect) {
-        kafkaConnectClient().inNamespace(ResourceManager.kubeClient().getNamespace()).createOrReplace(kafkaConnect);
-        return new KafkaConnectBuilder(kafkaConnect);
-    }
-
-    public static void allowNetworkPolicyForKafkaConnect(ExtensionContext extensionContext, KafkaConnect kafkaConnect) {
-        if (Environment.DEFAULT_TO_DENY_NETWORK_POLICIES) {
-            NetworkPolicyResource.allowNetworkPolicySettingsForResource(extensionContext, kafkaConnect, KafkaConnectResources.deploymentName(kafkaConnect.getMetadata().getName()));
-        }
-    }
-
-    public static void deleteKafkaConnectWithoutWait(String resourceName) {
-        kafkaConnectClient().inNamespace(ResourceManager.kubeClient().getNamespace()).withName(resourceName).withPropagationPolicy(DeletionPropagation.FOREGROUND).delete();
     }
 
     private static KafkaConnect getKafkaConnectFromYaml(String yamlPath) {

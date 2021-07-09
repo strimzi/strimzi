@@ -13,7 +13,6 @@ import io.strimzi.api.kafka.model.Kafka;
 import io.strimzi.api.kafka.model.KafkaResources;
 import io.strimzi.api.kafka.model.listener.arraylistener.GenericKafkaListener;
 import io.strimzi.api.kafka.model.status.Condition;
-import io.strimzi.api.kafka.model.status.KafkaStatus;
 import io.strimzi.api.kafka.model.status.ListenerStatus;
 import io.strimzi.kafka.config.model.ConfigModel;
 import io.strimzi.kafka.config.model.ConfigModels;
@@ -78,10 +77,6 @@ public class KafkaUtils {
         return waitForKafkaStatus(kubeClient().getNamespace(), clusterName, NotReady);
     }
 
-    public static boolean waitForKafkaStatus(String clusterName, Enum<?>  state) {
-        return waitForKafkaStatus(kubeClient().getNamespace(), clusterName, state);
-    }
-
     public static boolean waitForKafkaStatus(String namespaceName, String clusterName, Enum<?>  state) {
         Kafka kafka = KafkaResource.kafkaClient().inNamespace(namespaceName).withName(clusterName).get();
         return ResourceManager.waitForResourceStatus(KafkaResource.kafkaClient(), kafka, state);
@@ -100,10 +95,6 @@ public class KafkaUtils {
             Kafka k = KafkaResource.kafkaClient().inNamespace(namespaceName).withName(clusterName).get();
             return k.getMetadata().getGeneration() == k.getStatus().getObservedGeneration();
         });
-    }
-
-    public static void waitForKafkaStatusUpdate(String clusterName) {
-        waitForKafkaStatusUpdate(kubeClient().getNamespace(), clusterName);
     }
 
     public static void waitUntilKafkaStatusConditionContainsMessage(String clusterName, String namespace, String message, long timeout) {
@@ -150,10 +141,6 @@ public class KafkaUtils {
                     indent(cmdKubeClient(namespaceName).execInPod(zookeeperPod, "/bin/bash", "-c", "echo mntr | nc localhost " + zookeeperPort).out()))
             );
         }
-    }
-
-    public static void waitForZkMntr(String clusterName, Pattern pattern, int... podIndexes) {
-        waitForZkMntr(kubeClient().getNamespace(), clusterName, pattern, podIndexes);
     }
 
     public static String getKafkaStatusCertificates(String listenerType, String namespace, String clusterName) {
@@ -413,10 +400,6 @@ public class KafkaUtils {
             () -> LOGGER.info(KafkaResource.kafkaClient().inNamespace(namespaceName).withName(kafkaClusterName).get()));
     }
 
-    public static void waitForKafkaDeletion(String kafkaClusterName) {
-        waitForKafkaDeletion(kubeClient().getNamespace(), kafkaClusterName);
-    }
-
     public static String getKafkaTlsListenerCaCertName(String namespace, String clusterName, String listenerName) {
         List<GenericKafkaListener> listeners = KafkaResource.kafkaClient().inNamespace(namespace).withName(clusterName).get().getSpec().getKafka().getListeners();
 
@@ -443,10 +426,6 @@ public class KafkaUtils {
                 return KafkaResources.clusterCaCertificateSecretName(clusterName);
             }
         }
-    }
-
-    public static KafkaStatus getKafkaStatus(String clusterName, String namespace) {
-        return KafkaResource.kafkaClient().inNamespace(namespace).withName(clusterName).get().getStatus();
     }
 
     public static String changeOrRemoveKafkaVersion(File file, String version) {

@@ -12,8 +12,6 @@ import io.strimzi.systemtest.utils.kubeUtils.controllers.DeploymentUtils;
 import io.strimzi.systemtest.utils.specific.BridgeUtils;
 import io.strimzi.test.TestUtils;
 import io.strimzi.test.k8s.KubeClusterResource;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.extension.ExtensionContext;
 
 import java.io.File;
@@ -28,7 +26,6 @@ import static io.strimzi.test.TestUtils.entry;
 import static io.strimzi.test.k8s.KubeClusterResource.cmdKubeClient;
 
 public class HelmResource implements SpecificResourceType {
-    private static final Logger LOGGER = LogManager.getLogger(HelmResource.class);
 
     public static final String HELM_CHART = TestUtils.USER_PATH + "/../packaging/helm-charts/helm3/strimzi-kafka-operator/";
     public static final String HELM_RELEASE_NAME = "strimzi-systemtests";
@@ -63,10 +60,6 @@ public class HelmResource implements SpecificResourceType {
     @Override
     public void delete() {
         this.deleteClusterOperator();
-    }
-
-    private void clusterOperator() {
-        clusterOperator(Constants.CO_OPERATION_TIMEOUT_DEFAULT);
     }
 
     private void clusterOperator(long operationTimeout) {
@@ -147,9 +140,5 @@ public class HelmResource implements SpecificResourceType {
     private void deleteClusterOperator() {
         ResourceManager.helmClient().delete(namespaceInstallTo, HELM_RELEASE_NAME);
         DeploymentUtils.waitForDeploymentDeletion(ResourceManager.getCoDeploymentName());
-    }
-
-    public String getNamespaceToWatch() {
-        return this.namespaceToWatch;
     }
 }

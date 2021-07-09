@@ -203,10 +203,6 @@ public class StatefulSetUtils {
         LOGGER.debug("StatefulSet {} was deleted", name);
     }
 
-    public static void waitForStatefulSetDeletion(String name) {
-        waitForStatefulSetDeletion(kubeClient().getNamespace(), name);
-    }
-
     /**
      * Wait until the given StatefulSet has been recovered.
      * @param name The name of the StatefulSet.
@@ -231,10 +227,6 @@ public class StatefulSetUtils {
                 );
             }
         }
-    }
-
-    public static void waitForStatefulSetLabelsChange(String statefulSetName, Map<String, String> labels) {
-        waitForStatefulSetLabelsChange(kubeClient().getNamespace(), statefulSetName, labels);
     }
 
     public static void waitForStatefulSetLabelsDeletion(String namespaceName, String statefulSetName, String... labelKeys) {
@@ -264,9 +256,5 @@ public class StatefulSetUtils {
                 }
             }
         );
-    }
-
-    public static void waitForNoRollingUpdate(String statefulSetName, Map<String, String> pods) {
-        waitForNoRollingUpdate(kubeClient().getNamespace(), statefulSetName, pods);
     }
 }

@@ -118,8 +118,4 @@ public class KafkaRebalanceUtils {
             return false;
         });
     }
-
-    public static void waitForRebalanceStatusStability(Reconciliation reconciliation, String resourceName) {
-        waitForRebalanceStatusStability(reconciliation, kubeClient().getNamespace(), resourceName);
-    }
 }

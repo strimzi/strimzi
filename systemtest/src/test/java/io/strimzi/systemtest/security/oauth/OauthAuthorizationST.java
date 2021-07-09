@@ -61,9 +61,6 @@ public class OauthAuthorizationST extends OauthAbstractST {
     private final String oauthClusterName = "oauth-cluster-authz-name";
     private static final String NAMESPACE = "oauth2-authz-cluster-test";
 
-    private KafkaOauthExampleClients teamAOauthClientJob;
-    private KafkaOauthExampleClients teamBOauthClientJob;
-
     private static final String TEAM_A_CLIENT = "team-a-client";
     private static final String TEAM_B_CLIENT = "team-b-client";
     private static final String KAFKA_CLIENT_ID = "kafka";
@@ -141,7 +138,7 @@ public class OauthAuthorizationST extends OauthAbstractST {
         LOGGER.info("Producer will not produce messages because authorization topic will failed. Team A can write only to topic starting with 'x-'");
 
         resourceManager.createResource(extensionContext, teamAOauthClientJob.producerStrimziOauthTls(oauthClusterName).build());
-        assertThrows(WaitException.class, () -> JobUtils.waitForJobFailure(teamAProducerName, NAMESPACE, 30_000));
+        assertThrows(WaitException.class, () -> JobUtils.waitForJobFailure(teamAProducerName, 30_000));
         JobUtils.deleteJobWithWait(NAMESPACE, teamAProducerName);
 
         String topicXName = TOPIC_X + "-" + clusterName;
@@ -153,7 +150,7 @@ public class OauthAuthorizationST extends OauthAbstractST {
             .build();
 
         resourceManager.createResource(extensionContext, teamAOauthClientJob.producerStrimziOauthTls(oauthClusterName).build());
-        assertThrows(WaitException.class, () -> JobUtils.waitForJobFailure(teamAProducerName, NAMESPACE, 30_000));
+        assertThrows(WaitException.class, () -> JobUtils.waitForJobFailure(teamAProducerName, 30_000));
         JobUtils.deleteJobWithWait(NAMESPACE, teamAProducerName);
 
         // Team A can not create topic starting with 'x-' only write to existing on
@@ -212,7 +209,7 @@ public class OauthAuthorizationST extends OauthAbstractST {
             .build();
 
         resourceManager.createResource(extensionContext, teamAOauthClientJob.consumerStrimziOauthTls(oauthClusterName).build());
-        assertThrows(WaitException.class, () -> JobUtils.waitForJobFailure(teamAConsumerName, NAMESPACE, 30_000));
+        assertThrows(WaitException.class, () -> JobUtils.waitForJobFailure(teamAConsumerName, 30_000));
         JobUtils.deleteJobWithWait(NAMESPACE, teamAProducerName);
 
         // team A client should be able to consume messages with correct consumer group
@@ -231,8 +228,6 @@ public class OauthAuthorizationST extends OauthAbstractST {
     @Order(4)
     void testTeamBWriteToTopic(ExtensionContext extensionContext) {
         String clusterName = mapWithClusterNames.get(extensionContext.getDisplayName());
-        String teamBProducerName = TEAM_B_PRODUCER_NAME + "-" + clusterName;
-        String teamBConsumerName = TEAM_B_CONSUMER_NAME + "-" + clusterName;
         String topicName = mapWithTestTopics.get(extensionContext.getDisplayName());
         String consumerGroup = "x-" + clusterName;
 
@@ -253,7 +248,7 @@ public class OauthAuthorizationST extends OauthAbstractST {
         LOGGER.info("Sending {} messages to broker with topic name {}", MESSAGE_COUNT, TOPIC_NAME);
         // Producer will not produce messages because authorization topic will failed. Team A can write only to topic starting with 'x-'
         resourceManager.createResource(extensionContext, teamBOauthClientJob.producerStrimziOauthTls(oauthClusterName).build());
-        assertThrows(WaitException.class, () -> JobUtils.waitForJobFailure(TEAM_B_PRODUCER_NAME, NAMESPACE, 30_000));
+        assertThrows(WaitException.class, () -> JobUtils.waitForJobFailure(TEAM_B_PRODUCER_NAME, 30_000));
         JobUtils.deleteJobWithWait(NAMESPACE, TEAM_B_PRODUCER_NAME);
 
         LOGGER.info("Sending {} messages to broker with topic name {}", MESSAGE_COUNT, TOPIC_B);
@@ -332,7 +327,6 @@ public class OauthAuthorizationST extends OauthAbstractST {
         String teamBConsumerName = TEAM_B_CONSUMER_NAME + "-" + clusterName;
         // only write means that Team A can not create new topic 'x-.*'
         String topicXName = TOPIC_X + mapWithTestTopics.get(extensionContext.getDisplayName());
-        String consumerGroup = "x-" + clusterName;
 
         resourceManager.createResource(extensionContext, KafkaTopicTemplates.topic(oauthClusterName, topicXName).build());
 
@@ -355,7 +349,7 @@ public class OauthAuthorizationST extends OauthAbstractST {
             .build();
 
         resourceManager.createResource(extensionContext, teamBOauthClientJob.producerStrimziOauthTls(oauthClusterName).build());
-        assertThrows(WaitException.class, () -> JobUtils.waitForJobFailure(teamBProducerName, NAMESPACE, 30_000));
+        assertThrows(WaitException.class, () -> JobUtils.waitForJobFailure(teamBProducerName, 30_000));
         JobUtils.deleteJobWithWait(NAMESPACE, teamBProducerName);
 
         LOGGER.info("Verifying that team A is not able read to topic starting with 'x-' because in kafka cluster" +
@@ -375,7 +369,7 @@ public class OauthAuthorizationST extends OauthAbstractST {
             .build();
 
         resourceManager.createResource(extensionContext, teamAOauthClientJob.consumerStrimziOauthTls(oauthClusterName).build());
-        assertThrows(WaitException.class, () -> JobUtils.waitForJobFailure(teamAConsumerName, NAMESPACE, 30_000));
+        assertThrows(WaitException.class, () -> JobUtils.waitForJobFailure(teamAConsumerName, 30_000));
         JobUtils.deleteJobWithWait(NAMESPACE, teamAConsumerName);
 
         Map<String, String> kafkaPods = StatefulSetUtils.ssSnapshot(KafkaResources.kafkaStatefulSetName(oauthClusterName));
@@ -596,7 +590,7 @@ public class OauthAuthorizationST extends OauthAbstractST {
 
     @BeforeAll
     void setUp(ExtensionContext extensionContext)  {
-        super.beforeAllMayOverride(extensionContext);
+        super.beforeAllMayOverride();
         // for namespace
         super.setupCoAndKeycloak(extensionContext, NAMESPACE);
 

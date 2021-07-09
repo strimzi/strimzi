@@ -180,11 +180,6 @@ public class TestKafkaVersion implements Comparable<TestKafkaVersion> {
         return supportedKafkaVersions;
     }
 
-    public static List<TestKafkaVersion> getKafkaVersions() {
-        return kafkaVersions;
-    }
-
-
     /**
      * Parse the version information present in the {@code /kafka-versions} classpath resource and return a map
      * of kafka versions data with a version as key
@@ -193,10 +188,6 @@ public class TestKafkaVersion implements Comparable<TestKafkaVersion> {
      */
     public static Map<String, TestKafkaVersion> getKafkaVersionsInMap() {
         return kafkaVersions.stream().collect(Collectors.toMap(TestKafkaVersion::version, i -> i));
-    }
-
-    public static TestKafkaVersion getDefaultVersion() {
-        return kafkaVersions.stream().filter(it -> it.isDefault).collect(Collectors.toList()).get(0);
     }
 
     public static boolean containsVersion(String kafkaVersion) {

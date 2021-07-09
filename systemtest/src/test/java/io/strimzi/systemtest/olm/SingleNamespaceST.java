@@ -5,8 +5,6 @@
 package io.strimzi.systemtest.olm;
 
 import io.strimzi.systemtest.resources.specific.OlmResource;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
@@ -22,8 +20,6 @@ import static io.strimzi.systemtest.Constants.OLM;
 public class SingleNamespaceST extends OlmAbstractST {
 
     public static final String NAMESPACE = "olm-namespace";
-
-    private static final Logger LOGGER = LogManager.getLogger(SingleNamespaceST.class);
 
     @Test
     @Order(1)

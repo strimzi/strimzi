@@ -9,12 +9,8 @@ import io.strimzi.systemtest.Constants;
 import io.strimzi.systemtest.resources.ResourceManager;
 import io.strimzi.systemtest.resources.ResourceType;
 import io.strimzi.systemtest.utils.kubeUtils.controllers.DeploymentUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 public class KafkaClientsResource implements ResourceType<Deployment> {
-
-    private static final Logger LOGGER = LogManager.getLogger(KafkaClientsResource.class);
 
     public KafkaClientsResource() {}
 

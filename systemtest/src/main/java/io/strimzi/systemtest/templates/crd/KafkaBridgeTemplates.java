@@ -4,10 +4,6 @@
  */
 package io.strimzi.systemtest.templates.crd;
 
-import io.fabric8.kubernetes.client.dsl.MixedOperation;
-import io.fabric8.kubernetes.client.dsl.Resource;
-import io.strimzi.api.kafka.Crds;
-import io.strimzi.api.kafka.KafkaBridgeList;
 import io.strimzi.api.kafka.model.KafkaBridge;
 import io.strimzi.api.kafka.model.KafkaBridgeBuilder;
 import io.strimzi.systemtest.Constants;
@@ -19,10 +15,6 @@ public class KafkaBridgeTemplates {
     public static final String PATH_TO_KAFKA_BRIDGE_CONFIG = Constants.PATH_TO_PACKAGING_EXAMPLES + "/bridge/kafka-bridge.yaml";
 
     private KafkaBridgeTemplates() {}
-
-    public static MixedOperation<KafkaBridge, KafkaBridgeList, Resource<KafkaBridge>> kafkaBridgeClient() {
-        return Crds.kafkaBridgeOperation(ResourceManager.kubeClient().getClient());
-    }
 
     public static KafkaBridgeBuilder kafkaBridge(String name, String bootstrap, int kafkaBridgeReplicas) {
         return kafkaBridge(name, name, bootstrap, kafkaBridgeReplicas);
@@ -56,10 +48,6 @@ public class KafkaBridgeTemplates {
             .endSpec();
 
         return kafkaBridgeBuilder;
-    }
-
-    public static KafkaBridgeBuilder kafkaBridgeWithMetrics(String name, String clusterName, String bootstrap) throws Exception {
-        return kafkaBridgeWithMetrics(name, clusterName, bootstrap, 1);
     }
 
     public static KafkaBridgeBuilder kafkaBridgeWithMetrics(String name, String clusterName, String bootstrap, int kafkaBridgeReplicas) throws Exception {

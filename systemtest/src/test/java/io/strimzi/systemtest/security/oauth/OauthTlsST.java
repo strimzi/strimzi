@@ -64,7 +64,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 public class OauthTlsST extends OauthAbstractST {
     protected static final Logger LOGGER = LogManager.getLogger(OauthTlsST.class);
 
-    private KafkaOauthExampleClients oauthInternalClientJob;
     private final String oauthClusterName = "oauth-cluster-tls-name";
     private static final String NAMESPACE = "oauth2-tls-cluster-test";
 
@@ -255,7 +254,6 @@ public class OauthTlsST extends OauthAbstractST {
     @Tag(NODEPORT_SUPPORTED)
     @SuppressWarnings({"checkstyle:MethodLength"})
     void testMirrorMaker(ExtensionContext extensionContext) {
-        String kafkaClientsName = mapWithKafkaClientNames.get(extensionContext.getDisplayName());
         String clusterName = mapWithClusterNames.get(extensionContext.getDisplayName());
         String producerName = OAUTH_PRODUCER_NAME + "-" + clusterName;
         String consumerName = OAUTH_CONSUMER_NAME + "-" + clusterName;
@@ -417,7 +415,6 @@ public class OauthTlsST extends OauthAbstractST {
 
     @ParallelTest
     void testIntrospectionEndpoint(ExtensionContext extensionContext) {
-        String kafkaClientsName = mapWithKafkaClientNames.get(extensionContext.getDisplayName());
         String clusterName = mapWithClusterNames.get(extensionContext.getDisplayName());
         String producerName = OAUTH_PRODUCER_NAME + "-" + clusterName;
         String consumerName = OAUTH_CONSUMER_NAME + "-" + clusterName;
@@ -480,7 +477,7 @@ public class OauthTlsST extends OauthAbstractST {
 
     @BeforeAll
     void setUp(ExtensionContext extensionContext) {
-        super.beforeAllMayOverride(extensionContext);
+        super.beforeAllMayOverride();
         // for namespace
         super.setupCoAndKeycloak(extensionContext, NAMESPACE);
 

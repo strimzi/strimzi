@@ -18,15 +18,11 @@ import io.strimzi.systemtest.resources.kubernetes.DeploymentResource;
 import io.strimzi.systemtest.utils.StUtils;
 import io.strimzi.systemtest.utils.kubeUtils.controllers.DeploymentUtils;
 import io.strimzi.test.TestUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import java.util.Collections;
 import java.util.List;
 
 public class BundleResource implements ResourceType<Deployment> {
-    private static final Logger LOGGER = LogManager.getLogger(BundleResource.class);
-
     public static final String PATH_TO_CO_CONFIG = TestUtils.USER_PATH + "/../packaging/install/cluster-operator/060-Deployment-strimzi-cluster-operator.yaml";
 
     private String name;
@@ -115,15 +111,6 @@ public class BundleResource implements ResourceType<Deployment> {
 
         public BundleResourceBuilder withExtraEnvVars(List<EnvVar> extraEnvVars) {
             this.extraEnvVars = extraEnvVars;
-            return self();
-        }
-
-        public BundleResourceBuilder defaultConfigurationWithNamespace(String namespaceName) {
-            this.name = Constants.STRIMZI_DEPLOYMENT_NAME;
-            this.namespaceInstallTo = namespaceName;
-            this.namespaceToWatch = this.namespaceInstallTo;
-            this.operationTimeout = Constants.CO_OPERATION_TIMEOUT_DEFAULT;
-            this.reconciliationInterval = Constants.RECONCILIATION_INTERVAL;
             return self();
         }
 

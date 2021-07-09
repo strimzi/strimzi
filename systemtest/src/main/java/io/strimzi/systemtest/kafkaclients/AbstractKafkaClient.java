@@ -202,13 +202,6 @@ public abstract class AbstractKafkaClient<C extends AbstractKafkaClient.Builder<
         }
     }
 
-    public ProducerProperties getProducerProperties() {
-        return producerProperties;
-    }
-    public ConsumerProperties getConsumerProperties() {
-        return consumerProperties;
-    }
-
     public String getBootstrapServerFromStatus() {
 
         List<ListenerStatus> listenerStatusList = KafkaResource.kafkaClient().inNamespace(namespaceName).withName(clusterName).get().getStatus().getListeners();
@@ -230,29 +223,11 @@ public abstract class AbstractKafkaClient<C extends AbstractKafkaClient.Builder<
     public String getTopicName() {
         return topicName;
     }
-    public Integer getPartition() {
-        return partition;
-    }
     public int getMessageCount() {
         return messageCount;
     }
-    public String getConsumerGroup() {
-        return consumerGroup;
-    }
     public String getKafkaUsername() {
         return kafkaUsername;
-    }
-    public SecurityProtocol getSecurityProtocol() {
-        return securityProtocol;
-    }
-    public String getCaCertName() {
-        return caCertName;
-    }
-    public String getListenerName() {
-        return listenerName;
-    }
-    public String getSecretPrefix() {
-        return secretPrefix;
     }
     public String getClusterName() {
         return clusterName;
