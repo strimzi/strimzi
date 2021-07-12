@@ -35,6 +35,10 @@ public class Environment {
      */
     private static final String CONFIG_FILE_PATH_ENVAR = "ST_CONFIG_PATH";
     /**
+     * Specify secret name of private registries, with the container registry credentials to be able pull images.
+     */
+    private static final String STRIMZI_IMAGE_PULL_SECRET_ENV = "SYSTEM_TEST_STRIMZI_IMAGE_PULL_SECRET";
+    /**
      * Specify organization which owns image used in system tests.
      */
     private static final String STRIMZI_ORG_ENV = "DOCKER_ORG";
@@ -66,6 +70,10 @@ public class Environment {
      * Log level for cluster operator.
      */
     private static final String STRIMZI_LOG_LEVEL_ENV = "STRIMZI_LOG_LEVEL";
+    /**
+     * Log level for components.
+     */
+    private static final String STRIMZI_COMPONENTS_LOG_LEVEL_ENV = "STRIMZI_COMPONENTS_LOG_LEVEL";
     /**
      * Image pull policy env var for Components images (Kafka, Bridge, ...)
      */

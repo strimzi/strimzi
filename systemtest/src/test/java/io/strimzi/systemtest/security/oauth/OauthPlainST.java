@@ -641,28 +641,28 @@ public class OauthPlainST extends OauthAbstractST {
 
         LOGGER.info("Setting producer and consumer properties");
 
-        KafkaOauthExampleClients oauthInternalClientJob = new KafkaOauthExampleClients.Builder()
-                .withProducerName(OAUTH_PRODUCER_NAME)
-                .withConsumerName(OAUTH_CONSUMER_NAME)
-                .withBootstrapAddress(KafkaResources.plainBootstrapAddress(oauthClusterName))
-                .withTopicName(TOPIC_NAME)
-                .withMessageCount(MESSAGE_COUNT)
-                .withOAuthClientId(OAUTH_CLIENT_NAME)
-                .withOAuthClientSecret(OAUTH_CLIENT_SECRET)
-                .withOAuthTokenEndpointUri(keycloakInstance.getOauthTokenEndpointUri())
-                .build();
+        new KafkaOauthExampleClients.Builder()
+            .withProducerName(OAUTH_PRODUCER_NAME)
+            .withConsumerName(OAUTH_CONSUMER_NAME)
+            .withBootstrapAddress(KafkaResources.plainBootstrapAddress(oauthClusterName))
+            .withTopicName(TOPIC_NAME)
+            .withMessageCount(MESSAGE_COUNT)
+            .withOAuthClientId(OAUTH_CLIENT_NAME)
+            .withOAuthClientSecret(OAUTH_CLIENT_SECRET)
+            .withOAuthTokenEndpointUri(keycloakInstance.getOauthTokenEndpointUri())
+            .build();
 
-        KafkaOauthExampleClients oauthInternalClientChecksJob = new KafkaOauthExampleClients.Builder()
-                .withProducerName(OAUTH_CLIENT_AUDIENCE_PRODUCER)
-                .withConsumerName(OAUTH_CLIENT_AUDIENCE_CONSUMER)
-                .withBootstrapAddress(KafkaResources.bootstrapServiceName(oauthClusterName) + ":" + audienceListenerPort)
-                .withTopicName(TOPIC_NAME)
-                .withMessageCount(MESSAGE_COUNT)
-                .withOAuthProducerClientId(OAUTH_CLIENT_AUDIENCE_PRODUCER)
-                .withOAuthConsumerClientId(OAUTH_CLIENT_AUDIENCE_CONSUMER)
-                .withOAuthClientSecret(OAUTH_CLIENT_AUDIENCE_SECRET)
-                .withOAuthTokenEndpointUri(keycloakInstance.getOauthTokenEndpointUri())
-                .build();
+        new KafkaOauthExampleClients.Builder()
+            .withProducerName(OAUTH_CLIENT_AUDIENCE_PRODUCER)
+            .withConsumerName(OAUTH_CLIENT_AUDIENCE_CONSUMER)
+            .withBootstrapAddress(KafkaResources.bootstrapServiceName(oauthClusterName) + ":" + audienceListenerPort)
+            .withTopicName(TOPIC_NAME)
+            .withMessageCount(MESSAGE_COUNT)
+            .withOAuthProducerClientId(OAUTH_CLIENT_AUDIENCE_PRODUCER)
+            .withOAuthConsumerClientId(OAUTH_CLIENT_AUDIENCE_CONSUMER)
+            .withOAuthClientSecret(OAUTH_CLIENT_AUDIENCE_SECRET)
+            .withOAuthTokenEndpointUri(keycloakInstance.getOauthTokenEndpointUri())
+            .build();
 
         resourceManager.createResource(extensionContext, KafkaTemplates.kafkaEphemeral(oauthClusterName, 1, 1)
             .editSpec()

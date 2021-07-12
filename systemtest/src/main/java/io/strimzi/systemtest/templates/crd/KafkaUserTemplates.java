@@ -8,6 +8,7 @@ import io.fabric8.kubernetes.client.dsl.MixedOperation;
 import io.fabric8.kubernetes.client.dsl.Resource;
 import io.strimzi.api.kafka.Crds;
 import io.strimzi.api.kafka.KafkaList;
+import io.strimzi.api.kafka.KafkaUserList;
 import io.strimzi.api.kafka.model.Kafka;
 import io.strimzi.api.kafka.model.KafkaUser;
 import io.strimzi.api.kafka.model.KafkaUserBuilder;
@@ -18,6 +19,10 @@ public class KafkaUserTemplates {
 
     private KafkaUserTemplates() {}
 
+
+    public static MixedOperation<KafkaUser, KafkaUserList, Resource<KafkaUser>> kafkaUserClient() {
+        return Crds.kafkaUserOperation(ResourceManager.kubeClient().getClient());
+    }
 
     public static MixedOperation<Kafka, KafkaList, Resource<Kafka>> kafkaClient() {
         return Crds.kafkaOperation(ResourceManager.kubeClient().getClient());

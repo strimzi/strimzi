@@ -118,6 +118,15 @@ public class BundleResource implements ResourceType<Deployment> {
             return this;
         }
 
+        public BundleResourceBuilder defaultConfigurationWithNamespace(String namespaceName) {
+            this.name = Constants.STRIMZI_DEPLOYMENT_NAME;
+            this.namespaceInstallTo = namespaceName;
+            this.namespaceToWatch = this.namespaceInstallTo;
+            this.operationTimeout = Constants.CO_OPERATION_TIMEOUT_DEFAULT;
+            this.reconciliationInterval = Constants.RECONCILIATION_INTERVAL;
+            return self();
+        }
+
         public BundleResource buildBundleInstance() {
             return new BundleResource(this);
         }

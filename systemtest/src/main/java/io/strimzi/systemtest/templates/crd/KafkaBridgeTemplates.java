@@ -4,6 +4,10 @@
  */
 package io.strimzi.systemtest.templates.crd;
 
+import io.fabric8.kubernetes.client.dsl.MixedOperation;
+import io.fabric8.kubernetes.client.dsl.Resource;
+import io.strimzi.api.kafka.Crds;
+import io.strimzi.api.kafka.KafkaBridgeList;
 import io.strimzi.api.kafka.model.KafkaBridge;
 import io.strimzi.api.kafka.model.KafkaBridgeBuilder;
 import io.strimzi.systemtest.Constants;
@@ -18,6 +22,10 @@ public class KafkaBridgeTemplates {
 
     public static KafkaBridgeBuilder kafkaBridge(String name, String bootstrap, int kafkaBridgeReplicas) {
         return kafkaBridge(name, name, bootstrap, kafkaBridgeReplicas);
+    }
+
+    public static MixedOperation<KafkaBridge, KafkaBridgeList, Resource<KafkaBridge>> kafkaBridgeClient() {
+        return Crds.kafkaBridgeOperation(ResourceManager.kubeClient().getClient());
     }
 
     public static KafkaBridgeBuilder kafkaBridge(String name, String clusterName, String bootstrap, int kafkaBridgeReplicas) {
