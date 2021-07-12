@@ -48,6 +48,7 @@ import java.util.stream.Stream;
 
 import static io.strimzi.systemtest.Constants.GLOBAL_POLL_INTERVAL;
 import static io.strimzi.systemtest.Constants.GLOBAL_TIMEOUT;
+import static io.strimzi.systemtest.Constants.PATH_TO_KAFKA_TOPIC_CONFIG;
 import static io.strimzi.systemtest.Constants.PATH_TO_PACKAGING_EXAMPLES;
 import static io.strimzi.test.k8s.KubeClusterResource.cmdKubeClient;
 import static io.strimzi.test.k8s.KubeClusterResource.kubeClient;
@@ -429,7 +430,7 @@ public class AbstractUpgradeST extends AbstractST {
             // ##############################
             // Setup topic, which has 3 replicas and 2 min.isr to see if producer will be able to work during rolling update
             if (!cmdKubeClient().getResources(getResourceApiVersion(KafkaTopic.RESOURCE_PLURAL, operatorVersion)).contains(continuousTopicName)) {
-                String pathToTopicExamples = testParameters.getString("fromExamples").equals("HEAD") ? KafkaTopicTemplates.PATH_TO_KAFKA_TOPIC_CONFIG : testParameters.getString("fromExamples") + "/examples/topic/kafka-topic.yaml";
+                String pathToTopicExamples = testParameters.getString("fromExamples").equals("HEAD") ? PATH_TO_KAFKA_TOPIC_CONFIG : testParameters.getString("fromExamples") + "/examples/topic/kafka-topic.yaml";
 
                 kafkaTopicYaml = new File(dir, pathToTopicExamples);
                 cmdKubeClient().applyContent(TestUtils.getContent(kafkaTopicYaml, TestUtils::toYamlString)

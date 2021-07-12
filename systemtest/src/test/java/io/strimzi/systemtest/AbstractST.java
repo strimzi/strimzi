@@ -597,8 +597,9 @@ public abstract class AbstractST implements TestSeparator {
      * BeforeAllMayOverride, is a method, which gives you option to override @BeforeAll in sub-classes and
      * ensure that this is also executed if you call it with super.beforeAllMayOverride(). You can also skip it and
      * you your implementation in sub-class as you want.
+     * @param extensionContext
      */
-    protected void beforeAllMayOverride() {
+    protected void beforeAllMayOverride(ExtensionContext extensionContext) {
         cluster = KubeClusterResource.getInstance();
     }
 
@@ -613,7 +614,7 @@ public abstract class AbstractST implements TestSeparator {
     void setUpTestSuite(ExtensionContext extensionContext) {
         LOGGER.debug(String.join("", Collections.nCopies(76, "=")));
         LOGGER.debug("{} - [BEFORE ALL] has been called", this.getClass().getName());
-        beforeAllMayOverride();
+        beforeAllMayOverride(extensionContext);
     }
 
     @AfterEach

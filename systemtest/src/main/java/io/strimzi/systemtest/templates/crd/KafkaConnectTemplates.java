@@ -5,6 +5,7 @@
 package io.strimzi.systemtest.templates.crd;
 
 import io.fabric8.kubernetes.api.model.ConfigMap;
+import io.fabric8.kubernetes.api.model.DeletionPropagation;
 import io.fabric8.kubernetes.client.dsl.MixedOperation;
 import io.fabric8.kubernetes.client.dsl.Resource;
 import io.strimzi.api.kafka.Crds;
@@ -26,9 +27,6 @@ import static io.strimzi.systemtest.resources.ResourceManager.kubeClient;
 
 public class KafkaConnectTemplates {
 
-    public static final String PATH_TO_KAFKA_CONNECT_CONFIG = Constants.PATH_TO_PACKAGING_EXAMPLES + "/connect/kafka-connect.yaml";
-    public static final String PATH_TO_KAFKA_CONNECT_METRICS_CONFIG = Constants.PATH_TO_PACKAGING_EXAMPLES + "/metrics/kafka-connect-metrics.yaml";
-
     private KafkaConnectTemplates() {}
 
     public static MixedOperation<KafkaConnect, KafkaConnectList, Resource<KafkaConnect>> kafkaConnectClient() {
@@ -36,7 +34,7 @@ public class KafkaConnectTemplates {
     }
 
     public static KafkaConnectBuilder kafkaConnect(ExtensionContext extensionContext, String name, String clusterName, int kafkaConnectReplicas, boolean allowNP) {
-        KafkaConnect kafkaConnect = getKafkaConnectFromYaml(PATH_TO_KAFKA_CONNECT_CONFIG);
+        KafkaConnect kafkaConnect = getKafkaConnectFromYaml(Constants.PATH_TO_KAFKA_CONNECT_CONFIG);
         kafkaConnect = defaultKafkaConnect(kafkaConnect, name, clusterName, kafkaConnectReplicas).build();
         return allowNP ? deployKafkaConnectWithNetworkPolicy(extensionContext, kafkaConnect) : new KafkaConnectBuilder(kafkaConnect);
     }
@@ -58,10 +56,15 @@ public class KafkaConnectTemplates {
     }
 
     public static KafkaConnectBuilder kafkaConnectWithMetrics(String name, String clusterName, int kafkaConnectReplicas) {
-        KafkaConnect kafkaConnect = getKafkaConnectFromYaml(PATH_TO_KAFKA_CONNECT_METRICS_CONFIG);
-        ConfigMap metricsCm = TestUtils.configMapFromYaml(PATH_TO_KAFKA_CONNECT_METRICS_CONFIG, "connect-metrics");
+        KafkaConnect kafkaConnect = getKafkaConnectFromYaml(Constants.PATH_TO_KAFKA_CONNECT_METRICS_CONFIG);
+        ConfigMap metricsCm = TestUtils.configMapFromYaml(Constants.PATH_TO_KAFKA_CONNECT_METRICS_CONFIG, "connect-metrics");
         KubeClusterResource.kubeClient().getClient().configMaps().inNamespace(kubeClient().getNamespace()).createOrReplace(metricsCm);
         return defaultKafkaConnect(kafkaConnect, name, clusterName, kafkaConnectReplicas);
+    }
+
+    public static KafkaConnectBuilder defaultKafkaConnect(String name, String kafkaClusterName, int kafkaConnectReplicas) {
+        KafkaConnect kafkaConnect = getKafkaConnectFromYaml(Constants.PATH_TO_KAFKA_CONNECT_CONFIG);
+        return defaultKafkaConnect(kafkaConnect, name, kafkaClusterName, kafkaConnectReplicas);
     }
 
     private static KafkaConnectBuilder defaultKafkaConnect(KafkaConnect kafkaConnect, String name, String kafkaClusterName, int kafkaConnectReplicas) {
@@ -93,6 +96,21 @@ public class KafkaConnectTemplates {
             NetworkPolicyResource.allowNetworkPolicySettingsForResource(extensionContext, kafkaConnect, KafkaConnectResources.deploymentName(kafkaConnect.getMetadata().getName()));
         }
         return new KafkaConnectBuilder(kafkaConnect);
+    }
+
+    public static KafkaConnectBuilder kafkaConnectWithoutWait(KafkaConnect kafkaConnect) {
+        kafkaConnectClient().inNamespace(ResourceManager.kubeClient().getNamespace()).createOrReplace(kafkaConnect);
+        return new KafkaConnectBuilder(kafkaConnect);
+    }
+
+    public static void allowNetworkPolicyForKafkaConnect(ExtensionContext extensionContext, KafkaConnect kafkaConnect) {
+        if (Environment.DEFAULT_TO_DENY_NETWORK_POLICIES) {
+            NetworkPolicyResource.allowNetworkPolicySettingsForResource(extensionContext, kafkaConnect, KafkaConnectResources.deploymentName(kafkaConnect.getMetadata().getName()));
+        }
+    }
+
+    public static void deleteKafkaConnectWithoutWait(String resourceName) {
+        kafkaConnectClient().inNamespace(ResourceManager.kubeClient().getNamespace()).withName(resourceName).withPropagationPolicy(DeletionPropagation.FOREGROUND).delete();
     }
 
     private static KafkaConnect getKafkaConnectFromYaml(String yamlPath) {

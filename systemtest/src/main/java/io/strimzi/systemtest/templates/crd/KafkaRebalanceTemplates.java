@@ -4,6 +4,7 @@
  */
 package io.strimzi.systemtest.templates.crd;
 
+import io.fabric8.kubernetes.api.model.DeletionPropagation;
 import io.fabric8.kubernetes.client.dsl.MixedOperation;
 import io.fabric8.kubernetes.client.dsl.Resource;
 import io.strimzi.api.kafka.Crds;
@@ -19,8 +20,6 @@ import java.util.Map;
 
 public class KafkaRebalanceTemplates {
 
-    public static final String PATH_TO_KAFKA_REBALANCE_CONFIG = Constants.PATH_TO_PACKAGING_EXAMPLES + "/cruise-control/kafka-rebalance.yaml";
-
     private KafkaRebalanceTemplates() {}
 
     public static MixedOperation<KafkaRebalance, KafkaRebalanceList, Resource<KafkaRebalance>> kafkaRebalanceClient() {
@@ -28,7 +27,7 @@ public class KafkaRebalanceTemplates {
     }
 
     public static KafkaRebalanceBuilder kafkaRebalance(String name) {
-        KafkaRebalance kafkaRebalance = getKafkaRebalanceFromYaml(PATH_TO_KAFKA_REBALANCE_CONFIG);
+        KafkaRebalance kafkaRebalance = getKafkaRebalanceFromYaml(Constants.PATH_TO_KAFKA_REBALANCE_CONFIG);
         return defaultKafkaRebalance(kafkaRebalance, name);
     }
 
@@ -43,6 +42,15 @@ public class KafkaRebalanceTemplates {
                 .withNamespace(ResourceManager.kubeClient().getNamespace())
                 .withLabels(kafkaRebalanceLabels)
             .endMetadata();
+    }
+
+    public static KafkaRebalanceBuilder kafkaRebalanceWithoutWait(KafkaRebalance kafkaRebalance) {
+        kafkaRebalanceClient().inNamespace(ResourceManager.kubeClient().getNamespace()).createOrReplace(kafkaRebalance);
+        return new KafkaRebalanceBuilder(kafkaRebalance);
+    }
+
+    public static void deleteKafkaRebalanceWithoutWait(String resourceName) {
+        kafkaRebalanceClient().inNamespace(ResourceManager.kubeClient().getNamespace()).withName(resourceName).withPropagationPolicy(DeletionPropagation.FOREGROUND).delete();
     }
 
     private static KafkaRebalance getKafkaRebalanceFromYaml(String yamlPath) {

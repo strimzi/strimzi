@@ -19,7 +19,6 @@ public class KafkaUserTemplates {
 
     private KafkaUserTemplates() {}
 
-
     public static MixedOperation<KafkaUser, KafkaUserList, Resource<KafkaUser>> kafkaUserClient() {
         return Crds.kafkaUserOperation(ResourceManager.kubeClient().getClient());
     }

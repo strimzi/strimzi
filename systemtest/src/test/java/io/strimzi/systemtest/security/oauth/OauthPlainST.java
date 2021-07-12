@@ -630,7 +630,7 @@ public class OauthPlainST extends OauthAbstractST {
 
     @BeforeAll
     void setUp(ExtensionContext extensionContext) {
-        super.beforeAllMayOverride();
+        super.beforeAllMayOverride(extensionContext);
         // for namespace
         super.setupCoAndKeycloak(extensionContext, NAMESPACE);
 

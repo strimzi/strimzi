@@ -16,8 +16,6 @@ import io.strimzi.test.TestUtils;
 
 public class KafkaBridgeTemplates {
 
-    public static final String PATH_TO_KAFKA_BRIDGE_CONFIG = Constants.PATH_TO_PACKAGING_EXAMPLES + "/bridge/kafka-bridge.yaml";
-
     private KafkaBridgeTemplates() {}
 
     public static KafkaBridgeBuilder kafkaBridge(String name, String bootstrap, int kafkaBridgeReplicas) {
@@ -29,7 +27,7 @@ public class KafkaBridgeTemplates {
     }
 
     public static KafkaBridgeBuilder kafkaBridge(String name, String clusterName, String bootstrap, int kafkaBridgeReplicas) {
-        KafkaBridge kafkaBridge = getKafkaBridgeFromYaml(PATH_TO_KAFKA_BRIDGE_CONFIG);
+        KafkaBridge kafkaBridge = getKafkaBridgeFromYaml(Constants.PATH_TO_KAFKA_BRIDGE_CONFIG);
         return defaultKafkaBridge(kafkaBridge, name, clusterName, bootstrap, kafkaBridgeReplicas);
     }
 
@@ -41,7 +39,7 @@ public class KafkaBridgeTemplates {
     public static KafkaBridgeBuilder kafkaBridgeWithCors(String name, String clusterName, String bootstrap,
                                                   int kafkaBridgeReplicas, String allowedCorsOrigin,
                                                   String allowedCorsMethods) {
-        KafkaBridge kafkaBridge = getKafkaBridgeFromYaml(PATH_TO_KAFKA_BRIDGE_CONFIG);
+        KafkaBridge kafkaBridge = getKafkaBridgeFromYaml(Constants.PATH_TO_KAFKA_BRIDGE_CONFIG);
 
         KafkaBridgeBuilder kafkaBridgeBuilder = defaultKafkaBridge(kafkaBridge, name, clusterName, bootstrap, kafkaBridgeReplicas);
 
@@ -58,8 +56,12 @@ public class KafkaBridgeTemplates {
         return kafkaBridgeBuilder;
     }
 
+    public static KafkaBridgeBuilder kafkaBridgeWithMetrics(String name, String clusterName, String bootstrap) throws Exception {
+        return kafkaBridgeWithMetrics(name, clusterName, bootstrap, 1);
+    }
+
     public static KafkaBridgeBuilder kafkaBridgeWithMetrics(String name, String clusterName, String bootstrap, int kafkaBridgeReplicas) throws Exception {
-        KafkaBridge kafkaBridge = getKafkaBridgeFromYaml(PATH_TO_KAFKA_BRIDGE_CONFIG);
+        KafkaBridge kafkaBridge = getKafkaBridgeFromYaml(Constants.PATH_TO_KAFKA_BRIDGE_CONFIG);
 
         return defaultKafkaBridge(kafkaBridge, name, clusterName, bootstrap, kafkaBridgeReplicas)
             .editSpec()
