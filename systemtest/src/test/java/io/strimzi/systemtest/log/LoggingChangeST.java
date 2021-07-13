@@ -634,7 +634,7 @@ class LoggingChangeST extends AbstractST {
         long reconciliationSleep = RECONCILIATION_INTERVAL + Duration.ofSeconds(10).toMillis();
         LOGGER.info("Waiting {} ms log not to be empty", reconciliationSleep);
         // wait enough time (at least for reconciliation time + 10) and check whether logs after this time are not empty
-        Thread.sleep(reconciliationSleep);
+        Thread.sleep(reconciliationSleep * 2);
 
         LOGGER.info("Asserting if log will contain no records");
         String coLog = StUtils.getLogFromPodByTime(NAMESPACE, coPodName, STRIMZI_DEPLOYMENT_NAME, "30s");
