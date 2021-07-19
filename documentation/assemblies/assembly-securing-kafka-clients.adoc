@@ -5,6 +5,7 @@
 [id='assembly-securing-kafka-clients-{context}']
 = Security options for Kafka clients
 
+[role="_abstract"]
 Use the `KafkaUser` resource to configure the authentication mechanism, authorization mechanism, and access rights for Kafka clients.
 In terms of configuring security, clients are represented as users.
 
@@ -14,6 +15,12 @@ Authentication permits access, and authorization constrains the access to permis
 You can also create _super users_ that have unconstrained access to Kafka brokers.
 
 The authentication and authorization mechanisms must match the xref:proc-securing-kafka-{context}[specification for the listener used to access the Kafka brokers].
+
+[role="_additional-resources"]
+.Additional resources
+
+* xref:proc-configuring-kafka-user-str[Securing user access to Kafka]
+* link:{BookURLDeploying}#setup-external-clients-str[Setting up access for clients outside of Kubernetes^]
 
 include::../modules/con-securing-client-labels.adoc[leveloffset=+1]
 include::../modules/con-securing-client-authentication.adoc[leveloffset=+1]

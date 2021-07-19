@@ -5,25 +5,37 @@
 [id='con-securing-client-authentication-{context}']
 = User authentication
 
+[role="_abstract"]
 User authentication is configured using the `authentication` property in `KafkaUser.spec`.
 The authentication mechanism enabled for the user is specified using the `type` field.
 
-Supported authentication mechanisms:
+Supported authentication types:
 
-* TLS client authentication
-* SCRAM-SHA-512 authentication
+* `tls` for TLS client authentication
+* `tls-external` for TLS client authentication using external certificates
+* `scram-sha-512` for SCRAM-SHA-512 authentication
 
-When no authentication mechanism is specified, the User Operator does not create the user or its credentials.
+If `tls` or `scram-sha-512` is specified, the User Operator creates authentication credentials when it creates the user.
+If `tls-external` is specified, the user is expected to use TLS client authentication, but no authentication credentials are created.
+When no authentication type is specified, the User Operator does not create the user or its credentials.
 
+Use `tls-external` to authenticate with TLS using a certificate issued outside the User Operator.
+The User Operator does not generate a TLS certificate or a secret.
+You can still manage user authorization through the User Operator  in the same way as with the `tls` mechanism.
+This means that you use the `CN=__USER-NAME__` format when specifying ACL rules and quotas.
+_USER-NAME_ is the common name given in a TLS certificate.
+
+[role="_additional-resources"]
 .Additional resources
 
 * xref:con-securing-kafka-authentication-{context}[When to use mutual TLS authentication or SCRAM-SHA Authentication authentication for clients]
+* xref:type-KafkaUserSpec-reference[`KafkaUserSpec` schema reference]
 
-== TLS Client Authentication
+== TLS client authentication
 
-To use TLS client authentication, you set the `type` field to `tls`.
+To use TLS client authentication, you set the `type` field in the `KafkaUser` resource to `tls`.
 
-.An example `KafkaUser` with TLS client authentication enabled
+.Example user with TLS client authentication enabled
 [source,yaml,subs="attributes+"]
 ----
 apiVersion: {KafkaUserApiVersion}
@@ -38,17 +50,17 @@ spec:
   # ...
 ----
 
-When the user is created by the User Operator, it creates a new Secret with the same name as the `KafkaUser` resource.
-The Secret contains a private and public key for TLS client authentication.
+When the user is created by the User Operator, it creates a new secret with the same name as the `KafkaUser` resource.
+The secret contains a private and public key for TLS client authentication.
 The public key is contained in a user certificate, which is signed by the client Certificate Authority (CA).
 
 All keys are in X.509 format.
 
 Secrets provide private keys and certificates in PEM and PKCS #12 formats.
 
-For more information on securing Kafka communication with Secrets, see xref:security-{context}[].
+For more information on securing Kafka communication with secrets, see xref:security-{context}[].
 
-.An example `Secret` with user credentials
+.Example secret with user credentials
 [source,yaml,subs="attributes+"]
 ----
 apiVersion: v1
@@ -67,11 +79,31 @@ data:
   user.password: # Password for protecting the PKCS #12 archive file
 ----
 
-== SCRAM-SHA-512 Authentication
+== TLS client authentication using a certificate issued outside the User Operator
 
-To use the SCRAM-SHA-512 authentication mechanism, you set the `type` field to `scram-sha-512`.
+To use TLS client authentication using a certificate issued outside the User Operator, you set the `type` field in the `KafkaUser` resource to `tls-external`.
+A secret and credentials are not created for the user.
 
-.An example `KafkaUser` with SCRAM-SHA-512 authentication enabled
+.Example user with TLS client authentication that uses a certificate issued outside the User Operator
+[source,yaml,subs="attributes+"]
+----
+apiVersion: {KafkaUserApiVersion}
+kind: KafkaUser
+metadata:
+  name: my-user
+  labels:
+    strimzi.io/cluster: my-cluster
+spec:
+  authentication:
+    type: tls-external
+  # ...
+----
+
+== SCRAM-SHA-512 authentication
+
+To use the SCRAM-SHA-512 authentication mechanism, you set the `type` field in the `KafkaUser` resource to `scram-sha-512`.
+
+.Example user with SCRAM-SHA-512 authentication enabled
 [source,yaml,subs="attributes+"]
 ----
 apiVersion: {KafkaUserApiVersion}
@@ -90,7 +122,7 @@ When the user is created by the User Operator, it creates a new secret with the 
 The secret contains the generated password in the `password` key, which is encoded with base64.
 In order to use the password, it must be decoded.
 
-.An example `Secret` with user credentials
+.Example secret with user credentials
 [source,yaml,subs="attributes+"]
 ----
 apiVersion: v1
@@ -118,7 +150,7 @@ echo "Z2VuZXJhdGVkcGFzc3dvcmQ=" | base64 --decode
 When a user is created, Strimzi generates a random password.
 You can use your own password instead of the one generated by Strimzi. To do so, create a secret with the password and reference it in the `KafkaUser` resource.
 
-.An example `KafkaUser` with a password set for SCRAM-SHA-512 authentication
+.Example user with a password set for SCRAM-SHA-512 authentication
 [source,yaml,subs="attributes+"]
 ----
 apiVersion: {KafkaUserApiVersion}
