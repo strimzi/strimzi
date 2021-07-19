@@ -12,9 +12,11 @@ import io.fabric8.kubernetes.api.model.KubernetesResourceList;
 import io.fabric8.kubernetes.api.model.LabelSelector;
 import io.fabric8.kubernetes.api.model.LabelSelectorRequirement;
 import io.fabric8.kubernetes.client.KubernetesClientException;
+import io.fabric8.kubernetes.client.KubernetesClientTimeoutException;
 import io.fabric8.kubernetes.client.Watch;
 import io.fabric8.kubernetes.client.Watcher;
 import io.fabric8.kubernetes.client.dsl.MixedOperation;
+import io.fabric8.kubernetes.client.dsl.NonNamespaceOperation;
 import io.fabric8.kubernetes.client.dsl.Resource;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -218,6 +220,12 @@ class MockBuilder<T extends HasMetadata,
         return build;
     }
 
+    public MixedOperation<T, L, R> buildNns(Supplier<NonNamespaceOperation<T, L, R>> x) {
+        MixedOperation<T, L, R> build = build();
+        when(x.get()).thenReturn(build);
+        return build;
+    }
+
     MixedOperation<T, L, R> mockWithLabels(Map<String, String> labels) {
         return mockWithLabelPredicate(p -> {
             Map<String, String> m = new HashMap<>(p.getMetadata().getLabels() == null ? emptyMap() : p.getMetadata().getLabels());
@@ -314,7 +322,7 @@ class MockBuilder<T extends HasMetadata,
                 }
                 return t;
             });
-        } catch (InterruptedException e) {
+        } catch (KubernetesClientTimeoutException e) {
             throw new RuntimeException(e);
         }
     }
@@ -460,7 +468,7 @@ class MockBuilder<T extends HasMetadata,
 
     @SuppressWarnings("unchecked")
     protected OngoingStubbing<T> mockSetStatus(String resourceName, R resource) {
-        return when(resource.updateStatus((T) any())).thenAnswer(i -> {
+        return when(resource.replaceStatus((T) any())).thenAnswer(i -> {
             T r = i.getArgument(0);
             updateStatus(r.getMetadata().getNamespace(), r.getMetadata().getName(), r);
             LOGGER.debug("{} {} setStatus {}", resourceType, resourceName, r);

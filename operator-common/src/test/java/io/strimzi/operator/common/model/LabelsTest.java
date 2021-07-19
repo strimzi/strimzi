@@ -277,7 +277,7 @@ public class LabelsTest {
         expectedLabels.put(Labels.KUBERNETES_PART_OF_LABEL, Labels.APPLICATION_NAME + "-" + instance);
 
         Labels l = Labels.generateDefaultLabels(new ResourceWithMetadata("MyResource", "strimzi.io/v0", new ObjectMetaBuilder()
-            .withNewName(instance)
+            .withName(instance)
             .build()), appName, operatorName);
 
         assertThat(l.toMap(), is(expectedLabels));

@@ -491,28 +491,28 @@ public class KafkaStatusTest {
         // Mock Pods Operator
         Pod pod0 = new PodBuilder()
                 .withNewMetadata()
-                    .withNewName(clusterName + "-kafka-" + 0)
+                    .withName(clusterName + "-kafka-" + 0)
                 .endMetadata()
                 .withNewStatus()
-                    .withNewHostIP("10.0.0.1")
+                    .withHostIP("10.0.0.1")
                 .endStatus()
                 .build();
 
         Pod pod1 = new PodBuilder()
                 .withNewMetadata()
-                    .withNewName(clusterName + "-kafka-" + 1)
+                    .withName(clusterName + "-kafka-" + 1)
                 .endMetadata()
                 .withNewStatus()
-                    .withNewHostIP("10.0.0.25")
+                    .withHostIP("10.0.0.25")
                 .endStatus()
                 .build();
 
         Pod pod2 = new PodBuilder()
                 .withNewMetadata()
-                    .withNewName(clusterName + "-kafka-" + 2)
+                    .withName(clusterName + "-kafka-" + 2)
                 .endMetadata()
                 .withNewStatus()
-                    .withNewHostIP("10.0.0.13")
+                    .withHostIP("10.0.0.13")
                 .endStatus()
                 .build();
 
@@ -608,28 +608,28 @@ public class KafkaStatusTest {
         // Mock Pods Operator
         Pod pod0 = new PodBuilder()
                 .withNewMetadata()
-                    .withNewName(clusterName + "-kafka-" + 0)
+                    .withName(clusterName + "-kafka-" + 0)
                 .endMetadata()
                 .withNewStatus()
-                    .withNewHostIP("10.0.0.1")
+                    .withHostIP("10.0.0.1")
                 .endStatus()
                 .build();
 
         Pod pod1 = new PodBuilder()
                 .withNewMetadata()
-                    .withNewName(clusterName + "-kafka-" + 1)
+                    .withName(clusterName + "-kafka-" + 1)
                 .endMetadata()
                 .withNewStatus()
-                    .withNewHostIP("10.0.0.25")
+                    .withHostIP("10.0.0.25")
                 .endStatus()
                 .build();
 
         Pod pod2 = new PodBuilder()
                 .withNewMetadata()
-                    .withNewName(clusterName + "-kafka-" + 2)
+                    .withName(clusterName + "-kafka-" + 2)
                 .endMetadata()
                 .withNewStatus()
-                    .withNewHostIP("10.0.0.13")
+                    .withHostIP("10.0.0.13")
                 .endStatus()
                 .build();
 
@@ -715,28 +715,28 @@ public class KafkaStatusTest {
         // Mock Pods Operator
         Pod pod0 = new PodBuilder()
                 .withNewMetadata()
-                    .withNewName(clusterName + "-kafka-" + 0)
+                    .withName(clusterName + "-kafka-" + 0)
                 .endMetadata()
                 .withNewStatus()
-                    .withNewHostIP("10.0.0.1")
+                    .withHostIP("10.0.0.1")
                 .endStatus()
                 .build();
 
         Pod pod1 = new PodBuilder()
                 .withNewMetadata()
-                    .withNewName(clusterName + "-kafka-" + 1)
+                    .withName(clusterName + "-kafka-" + 1)
                 .endMetadata()
                 .withNewStatus()
-                    .withNewHostIP("10.0.0.25")
+                    .withHostIP("10.0.0.25")
                 .endStatus()
                 .build();
 
         Pod pod2 = new PodBuilder()
                 .withNewMetadata()
-                    .withNewName(clusterName + "-kafka-" + 2)
+                    .withName(clusterName + "-kafka-" + 2)
                 .endMetadata()
                 .withNewStatus()
-                    .withNewHostIP("10.0.0.13")
+                    .withHostIP("10.0.0.13")
                 .endStatus()
                 .build();
 
@@ -819,28 +819,28 @@ public class KafkaStatusTest {
         // Mock Pods Operator
         Pod pod0 = new PodBuilder()
                 .withNewMetadata()
-                    .withNewName(clusterName + "-kafka-" + 0)
+                    .withName(clusterName + "-kafka-" + 0)
                 .endMetadata()
                 .withNewStatus()
-                    .withNewHostIP("10.0.0.1")
+                    .withHostIP("10.0.0.1")
                 .endStatus()
                 .build();
 
         Pod pod1 = new PodBuilder()
                 .withNewMetadata()
-                    .withNewName(clusterName + "-kafka-" + 1)
+                    .withName(clusterName + "-kafka-" + 1)
                 .endMetadata()
                 .withNewStatus()
-                    .withNewHostIP("10.0.0.1")
+                    .withHostIP("10.0.0.1")
                 .endStatus()
                 .build();
 
         Pod pod2 = new PodBuilder()
                 .withNewMetadata()
-                    .withNewName(clusterName + "-kafka-" + 2)
+                    .withName(clusterName + "-kafka-" + 2)
                 .endMetadata()
                 .withNewStatus()
-                    .withNewHostIP("10.0.0.1")
+                    .withHostIP("10.0.0.1")
                 .endStatus()
                 .build();
 
@@ -922,10 +922,10 @@ public class KafkaStatusTest {
         // Mock Pods Operator
         Pod pod0 = new PodBuilder()
                 .withNewMetadata()
-                    .withNewName(clusterName + "-kafka-" + 0)
+                    .withName(clusterName + "-kafka-" + 0)
                 .endMetadata()
                 .withNewStatus()
-                    .withNewHostIP("10.0.0.5")
+                    .withHostIP("10.0.0.5")
                 .endStatus()
                 .build();
 

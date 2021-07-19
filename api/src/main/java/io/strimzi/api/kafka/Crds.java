@@ -155,7 +155,7 @@ public class Crds {
         List<CustomResourceDefinitionVersion> crVersions = new ArrayList<>(versions.size());
         for (String apiVersion : versions)  {
             crVersions.add(new CustomResourceDefinitionVersionBuilder()
-                    .withNewName(apiVersion)
+                    .withName(apiVersion)
                     .withNewSubresources()
                         .withStatus(status)
                     .endSubresources()

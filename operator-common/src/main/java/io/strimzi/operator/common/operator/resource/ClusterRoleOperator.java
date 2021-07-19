@@ -9,7 +9,7 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import io.fabric8.kubernetes.api.model.rbac.ClusterRole;
 import io.fabric8.kubernetes.api.model.rbac.ClusterRoleList;
 import io.fabric8.kubernetes.client.KubernetesClient;
-import io.fabric8.kubernetes.client.dsl.MixedOperation;
+import io.fabric8.kubernetes.client.dsl.NonNamespaceOperation;
 import io.fabric8.kubernetes.client.dsl.Resource;
 import io.vertx.core.Vertx;
 
@@ -28,8 +28,8 @@ public class ClusterRoleOperator extends AbstractNonNamespacedResourceOperator<K
     }
 
     @Override
-    protected MixedOperation<ClusterRole, ClusterRoleList,
-            Resource<ClusterRole>> operation() {
+    protected NonNamespaceOperation<ClusterRole, ClusterRoleList,
+                Resource<ClusterRole>> operation() {
         return client.rbac().clusterRoles();
     }
 

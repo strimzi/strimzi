@@ -148,7 +148,7 @@ public class UtilTest {
     public void testMatchesSelector()   {
         Pod testResource = new PodBuilder()
                 .withNewMetadata()
-                    .withNewName("test-pod")
+                    .withName("test-pod")
                 .endMetadata()
                 .withNewSpec()
                 .endSpec()

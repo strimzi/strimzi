@@ -117,7 +117,7 @@ public class CaRenewalTest {
 
         Secret initialSecret = new SecretBuilder()
                 .withNewMetadata()
-                    .withNewName("test-secret")
+                    .withName("test-secret")
                 .endMetadata()
                 .addToData("pod0.crt", Base64.getEncoder().encodeToString("old-cert".getBytes()))
                 .addToData("pod0.key", Base64.getEncoder().encodeToString("old-key".getBytes()))
@@ -203,7 +203,7 @@ public class CaRenewalTest {
 
         Secret initialSecret = new SecretBuilder()
                 .withNewMetadata()
-                .withNewName("test-secret")
+                .withName("test-secret")
                 .endMetadata()
                 .addToData("pod0.crt", Base64.getEncoder().encodeToString("old-cert".getBytes()))
                 .addToData("pod0.key", Base64.getEncoder().encodeToString("old-key".getBytes()))
@@ -289,7 +289,7 @@ public class CaRenewalTest {
 
         Secret initialSecret = new SecretBuilder()
                 .withNewMetadata()
-                .withNewName("test-secret")
+                .withName("test-secret")
                 .endMetadata()
                 .addToData("pod0.crt", Base64.getEncoder().encodeToString("old-cert".getBytes()))
                 .addToData("pod0.key", Base64.getEncoder().encodeToString("old-key".getBytes()))

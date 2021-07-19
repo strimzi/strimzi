@@ -346,7 +346,7 @@ public class MockKube {
         when(mockClient.rbac()).thenReturn(rbac);
         roleBindingMockBuilder.build2(mockClient.rbac()::roleBindings);
         roleMockBuilder.build2(mockClient.rbac()::roles);
-        clusterRoleBindingMockBuilder.build2(mockClient.rbac()::clusterRoleBindings);
+        clusterRoleBindingMockBuilder.buildNns(mockClient.rbac()::clusterRoleBindings);
 
         // Openshift group
         OpenShiftClient mockOpenShiftClient = mock(OpenShiftClient.class);

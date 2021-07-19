@@ -139,7 +139,7 @@ class LoggingChangeST extends AbstractST {
 
         ConfigMap configMapKafka = new ConfigMapBuilder()
             .withNewMetadata()
-                .withNewName(configMapKafkaName)
+                .withName(configMapKafkaName)
                 .withNamespace(namespaceName)
             .endMetadata()
             .addToData("log4j.properties", loggersConfigKafka)
@@ -152,7 +152,7 @@ class LoggingChangeST extends AbstractST {
 
         ConfigMap configMapOperators = new ConfigMapBuilder()
             .withNewMetadata()
-                .withNewName(configMapOpName)
+                .withName(configMapOpName)
                 .withNamespace(namespaceName)
             .endMetadata()
             .addToData("log4j2.properties", loggersConfigOperators)
@@ -165,7 +165,7 @@ class LoggingChangeST extends AbstractST {
 
         ConfigMap configMapZookeeper = new ConfigMapBuilder()
             .withNewMetadata()
-                .withNewName(configMapZookeeperName)
+                .withName(configMapZookeeperName)
                 .withNamespace(namespaceName)
             .endMetadata()
             .addToData("log4j-custom.properties", loggersConfigZookeeper)
@@ -178,7 +178,7 @@ class LoggingChangeST extends AbstractST {
 
         ConfigMap configMapCO = new ConfigMapBuilder()
             .withNewMetadata()
-                .withNewName(configMapCOName)
+                .withName(configMapCOName)
                 // we are using this namespace because CO is deployed @BeforeAll
                 .withNamespace(NAMESPACE)
             .endMetadata()

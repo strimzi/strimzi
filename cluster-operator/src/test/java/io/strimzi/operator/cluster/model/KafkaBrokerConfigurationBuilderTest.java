@@ -1055,7 +1055,7 @@ public class KafkaBrokerConfigurationBuilderTest {
     public void testWithExternalListenersIngress()  {
         GenericKafkaListenerConfigurationBroker broker = new GenericKafkaListenerConfigurationBrokerBuilder()
                 .withBroker(0)
-                .withNewHost("broker-0.mytld.com")
+                .withHost("broker-0.mytld.com")
                 .build();
 
         GenericKafkaListener listener = new GenericKafkaListenerBuilder()
@@ -1064,9 +1064,9 @@ public class KafkaBrokerConfigurationBuilderTest {
                 .withType(KafkaListenerType.INGRESS)
                 .withTls(true)
                 .withNewConfiguration()
-                    .withNewIngressClass("nginx-ingress")
+                    .withIngressClass("nginx-ingress")
                     .withNewBootstrap()
-                        .withNewHost("bootstrap.mytld.com")
+                        .withHost("bootstrap.mytld.com")
                     .endBootstrap()
                     .withBrokers(broker)
                 .endConfiguration()

@@ -391,7 +391,7 @@ public class KafkaExporterTest {
                                     .withLabels(podLabels)
                                     .withAnnotations(podAnots)
                                 .endMetadata()
-                                .withNewPriorityClassName("top-priority")
+                                .withPriorityClassName("top-priority")
                                 .withNewSchedulerName("my-scheduler")
                                 .withAffinity(affinity)
                                 .withTolerations(tolerations)

@@ -109,7 +109,7 @@ public class CrdOperator<C extends KubernetesClient,
             String name = resource.getMetadata().getName();
 
             try {
-                T result = operation().inNamespace(namespace).withName(name).updateStatus(resource);
+                T result = operation().inNamespace(namespace).withName(name).replaceStatus(resource);
                 LOGGER.infoCr(reconciliation, "Status of {} {} in namespace {} has been updated", resourceKind, name, namespace);
                 future.complete(result);
             } catch (Exception e) {

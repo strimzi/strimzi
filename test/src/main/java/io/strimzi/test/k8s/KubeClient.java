@@ -817,15 +817,15 @@ public class KubeClient {
     }
 
     public ClusterRoleBinding createOrReplaceClusterRoleBinding(ClusterRoleBinding clusterRoleBinding) {
-        return client.rbac().clusterRoleBindings().inNamespace(getNamespace()).createOrReplace(clusterRoleBinding);
+        return client.rbac().clusterRoleBindings().createOrReplace(clusterRoleBinding);
     }
 
     public Boolean deleteClusterRoleBinding(ClusterRoleBinding clusterRoleBinding) {
-        return client.rbac().clusterRoleBindings().inNamespace(getNamespace()).delete(clusterRoleBinding);
+        return client.rbac().clusterRoleBindings().delete(clusterRoleBinding);
     }
 
     public ClusterRoleBinding getClusterRoleBinding(String name) {
-        return client.rbac().clusterRoleBindings().inNamespace(getNamespace()).withName(name).get();
+        return client.rbac().clusterRoleBindings().withName(name).get();
     }
 
     public List<RoleBinding> listRoleBindings(String namespaceName) {
