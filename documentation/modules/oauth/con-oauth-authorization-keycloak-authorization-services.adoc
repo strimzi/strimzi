@@ -144,7 +144,7 @@ Use fine-grained permissions to pull together the policies, resources, and autho
 
 The name of each permission should clearly define what permissions it grants to which users.
 
-For more information on how to configure permissions through Keycloak Authorization Services, see xref:con-oauth-authorization-keycloak-example_str[the authorization example].
+For more information on how to configure permissions through Keycloak Authorization Services, see xref:proc-oauth-authorization-keycloak-example_str[the authorization example].
 
 
 == Example permissions required for operations on Kafka
