@@ -326,6 +326,7 @@ public class TopicST extends AbstractST {
         created = hasTopicInKafka(topicName, TOPIC_CLUSTER_NAME);
         assertThat(created, is(true));
 
+        KafkaTopicUtils.waitForKafkaTopicCreation(topicName);
         KafkaTopic kafkaTopic = KafkaTopicResource.kafkaTopicClient().inNamespace(NAMESPACE).withName(topicName).get();
         assertThat(kafkaTopic, notNullValue());
 
