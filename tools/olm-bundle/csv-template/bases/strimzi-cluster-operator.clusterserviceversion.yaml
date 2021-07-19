@@ -1,0 +1,838 @@
+apiVersion: operators.coreos.com/v1alpha1
+kind: ClusterServiceVersion
+metadata:
+  annotations:
+    alm-examples-metadata: |-
+      {
+        "my-cluster": {
+          "description": "Example Kafka cluster with Ephemeral storage"
+        },
+        "my-connect-cluster": {
+          "description": "Example Kafka Connect cluster"
+        },
+        "my-connect-cluster": {
+          "description": "Example Kafka Connect cluster with S2I support"
+        },
+        "my-mirror-maker": {
+          "description": "Example Kafka Mirror Maker 1 deployment"
+        },
+        "my-mm2-cluster": {
+          "description": "Example Kafka Mirror Maker 2 deployment"
+        },
+        "my-bridge": {
+          "description": "Example Strimzi Kafka HTTP Bridge deployment"
+        },
+        "my-topic": {
+          "description": "Example KafkaTopic custom resource"
+        },
+        "my-user": {
+          "description": "Example KafkaUser custom resource"
+        },
+        "my-source-connector": {
+          "description": "Example Kafka Connect source connector"
+        },
+        "my-rebalance": {
+          "description": "Example Cruise Control rebalance request"
+        }
+      }
+    alm-examples: |-
+      [
+        {
+          "apiVersion":"kafka.strimzi.io/v1beta2",
+          "kind":"Kafka",
+          "metadata":{
+            "name":"my-cluster"
+          },
+          "spec":{
+            "kafka":{
+                "version":"2.8.0",
+                "replicas":3,
+                "listeners": [
+                  {
+                    "name": "plain",
+                    "port": 9092,
+                    "type": "internal",
+                    "tls": false
+                  },
+                  {
+                    "name": "tls",
+                    "port": 9093,
+                    "type": "internal",
+                    "tls": true
+                  }
+                ],
+                "config":{
+                  "offsets.topic.replication.factor":3,
+                  "transaction.state.log.replication.factor":3,
+                  "transaction.state.log.min.isr":2,
+                  "log.message.format.version":"2.8",
+                  "inter.broker.protocol.version":"2.8"
+                },
+                "storage":{
+                  "type":"ephemeral"
+                }
+            },
+            "zookeeper":{
+                "replicas":3,
+                "storage":{
+                  "type":"ephemeral"
+                }
+            },
+            "entityOperator":{
+                "topicOperator":{
+                  },
+                "userOperator":{
+                  }
+            }
+          }
+        },
+        {
+          "apiVersion":"kafka.strimzi.io/v1beta2",
+          "kind":"KafkaConnect",
+          "metadata":{
+            "name":"my-connect-cluster"
+          },
+          "spec":{
+            "version":"2.8.0",
+            "replicas":1,
+            "bootstrapServers":"my-cluster-kafka-bootstrap:9093",
+            "tls":{
+                "trustedCertificates":[
+                  {
+                      "secretName":"my-cluster-cluster-ca-cert",
+                      "certificate":"ca.crt"
+                  }
+                ]
+            }
+          }
+        },
+        {
+          "apiVersion":"kafka.strimzi.io/v1beta2",
+          "kind":"KafkaMirrorMaker",
+          "metadata":{
+            "name":"my-mirror-maker"
+          },
+          "spec":{
+            "version":"2.8.0",
+            "replicas":1,
+            "consumer":{
+                "bootstrapServers":"my-source-cluster-kafka-bootstrap:9092",
+                "groupId":"my-source-group-id"
+            },
+            "producer":{
+                "bootstrapServers":"my-target-cluster-kafka-bootstrap:9092"
+            },
+            "whitelist":".*"
+          }
+        },
+        {
+          "apiVersion":"kafka.strimzi.io/v1beta2",
+          "kind":"KafkaBridge",
+          "metadata":{
+            "name":"my-bridge"
+          },
+          "spec":{
+            "replicas":1,
+            "bootstrapServers":"my-cluster-kafka-bootstrap:9092",
+            "http":{
+                "port":8080
+            }
+          }
+        },
+        {
+          "apiVersion":"kafka.strimzi.io/v1beta2",
+          "kind":"KafkaTopic",
+          "metadata":{
+            "name":"my-topic",
+            "labels":{
+                "strimzi.io/cluster":"my-cluster"
+            }
+          },
+          "spec":{
+            "partitions":10,
+            "replicas":3,
+            "config":{
+                "retention.ms":604800000,
+                "segment.bytes":1073741824
+            }
+          }
+        },
+        {
+          "apiVersion":"kafka.strimzi.io/v1beta2",
+          "kind":"KafkaUser",
+          "metadata":{
+            "name":"my-user",
+            "labels":{
+                "strimzi.io/cluster":"my-cluster"
+            }
+          },
+          "spec":{
+            "authentication":{
+                "type":"tls"
+            },
+            "authorization":{
+                "type":"simple",
+                "acls":[
+                  {
+                      "resource":{
+                        "type":"topic",
+                        "name":"my-topic",
+                        "patternType":"literal"
+                      },
+                      "operation":"Read",
+                      "host":"*"
+                  },
+                  {
+                      "resource":{
+                        "type":"topic",
+                        "name":"my-topic",
+                        "patternType":"literal"
+                      },
+                      "operation":"Describe",
+                      "host":"*"
+                  },
+                  {
+                      "resource":{
+                        "type":"group",
+                        "name":"my-group",
+                        "patternType":"literal"
+                      },
+                      "operation":"Read",
+                      "host":"*"
+                  },
+                  {
+                      "resource":{
+                        "type":"topic",
+                        "name":"my-topic",
+                        "patternType":"literal"
+                      },
+                      "operation":"Write",
+                      "host":"*"
+                  },
+                  {
+                      "resource":{
+                        "type":"topic",
+                        "name":"my-topic",
+                        "patternType":"literal"
+                      },
+                      "operation":"Create",
+                      "host":"*"
+                  },
+                  {
+                      "resource":{
+                        "type":"topic",
+                        "name":"my-topic",
+                        "patternType":"literal"
+                      },
+                      "operation":"Describe",
+                      "host":"*"
+                  }
+                ]
+            }
+          }
+        },
+        {
+          "apiVersion": "kafka.strimzi.io/v1beta2",
+          "kind": "KafkaConnector",
+          "metadata": {
+            "name": "my-source-connector",
+            "labels": {
+              "strimzi.io/cluster": "my-connect-cluster"
+            }
+          },
+          "spec": {
+            "class": "org.apache.kafka.connect.file.FileStreamSourceConnector",
+            "tasksMax": 2,
+            "config": {
+              "file": "/opt/kafka/LICENSE",
+              "topic": "my-topic"
+            }
+          }
+        },
+        {
+          "apiVersion": "kafka.strimzi.io/v1beta2",
+          "kind": "KafkaMirrorMaker2",
+          "metadata": {
+            "name": "my-mm2-cluster"
+          },
+          "spec": {
+            "version":"2.8.0",
+            "replicas": 1,
+            "connectCluster": "my-cluster-target",
+            "clusters": [
+              {
+                "alias": "my-cluster-source",
+                "bootstrapServers": "my-cluster-source-kafka-bootstrap:9092"
+              },
+              {
+                "alias": "my-cluster-target",
+                "bootstrapServers": "my-cluster-target-kafka-bootstrap:9092",
+                "config": {
+                  "config.storage.replication.factor": 1,
+                  "offset.storage.replication.factor": 1,
+                  "status.storage.replication.factor": 1
+                }
+              }
+            ],
+            "mirrors": [
+              {
+                "sourceCluster": "my-cluster-source",
+                "targetCluster": "my-cluster-target",
+                "sourceConnector": {
+                  "config": {
+                    "replication.factor": 1,
+                    "offset-syncs.topic.replication.factor": 1,
+                    "sync.topic.acls.enabled": "false"
+                  }
+                },
+                "heartbeatConnector": {
+                  "config": {
+                    "heartbeats.topic.replication.factor": 1
+                  }
+                },
+                "checkpointConnector": {
+                  "config": {
+                    "checkpoints.topic.replication.factor": 1
+                  }
+                },
+                "topicsPattern": ".*",
+                "groupsPattern": ".*"
+              }
+            ]
+          }
+        },
+        {
+          "apiVersion": "kafka.strimzi.io/v1beta2",
+          "kind": "KafkaRebalance",
+          "metadata": {
+            "name": "my-rebalance",
+            "labels": {
+              "strimzi.io/cluster": "my-cluster"
+            }
+          },
+          "spec": {
+            "goals": [
+              "NetworkInboundCapacityGoal",
+              "DiskCapacityGoal",
+              "RackAwareGoal",
+              "NetworkOutboundCapacityGoal",
+              "CpuCapacityGoal",
+              "ReplicaCapacityGoal"
+            ]
+          }
+        }
+      ]
+    capabilities: Deep Insights
+    categories: Streaming & Messaging
+    certified: 'false'
+    containerImage: placeholder
+    createdAt: placeholder
+    description: Strimzi provides a way to run an Apache Kafka cluster on Kubernetes
+      or OpenShift in various deployment configurations.
+    repository: https://github.com/strimzi/strimzi-kafka-operator
+    support: Strimzi
+    operators.openshift.io/infrastructure-features: |-
+      ["Disconnected", "Proxy"]
+  name: strimzi-cluster-operator.v # placeholder
+  namespace: placeholder
+spec:
+  MinKubeVersion: 1.16.0
+  customresourcedefinitions:
+    owned:
+    - description: Represents a Kafka cluster
+      displayName: Kafka
+      kind: Kafka
+      name: kafkas.kafka.strimzi.io
+      resources:
+      - kind: Route
+        name: ''
+        version: route.openshift.io/v1
+      - kind: Service
+        name: ''
+        version: v1
+      - kind: StatefulSet
+        name: ''
+        version: v1
+      - kind: Deployment
+        name: ''
+        version: v1
+      - kind: ReplicaSet
+        name: ''
+        version: v1
+      - kind: Pod
+        name: ''
+        version: v1
+      - kind: Secret
+        name: ''
+        version: v1
+      specDescriptors:
+      - description: Kafka version
+        displayName: Version
+        path: kafka.version
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:text
+      - description: The desired number of Kafka brokers.
+        displayName: Kafka Brokers
+        path: kafka.replicas
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:podCount
+      - description: The type of storage used by Kafka brokers
+        displayName: Kafka storage
+        path: kafka.storage.type
+        x-descriptors:
+          - urn:alm:descriptor:com.tectonic.ui:select:ephemeral
+          - urn:alm:descriptor:com.tectonic.ui:select:persistent-claim
+          - urn:alm:descriptor:com.tectonic.ui:select:jbod
+      - description: Limits describes the minimum/maximum amount of compute resources
+          required/allowed
+        displayName: Kafka Resource Requirements
+        path: kafka.resources
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:resourceRequirements
+      - description: The desired number of Zookeeper nodes.
+        displayName: Zookeeper Nodes
+        path: zookeeper.replicas
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:podCount
+      - description: The type of storage used by Zookeeper nodes
+        displayName: Zookeeper storage
+        path: zookeeper.storage.type
+        x-descriptors:
+          - urn:alm:descriptor:com.tectonic.ui:select:ephemeral
+          - urn:alm:descriptor:com.tectonic.ui:select:persistent-claim
+          - urn:alm:descriptor:com.tectonic.ui:select:jbod
+      - description: Limits describes the minimum/maximum amount of compute resources
+          required/allowed
+        displayName: Zookeeper Resource Requirements
+        path: zookeeper.resources
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:resourceRequirements
+      statusDescriptors:
+      - description: Kafka cluster conditions
+        displayName: Conditions
+        path: conditions
+        x-descriptors:
+        - urn:alm:descriptor:io.kubernetes.conditions
+      version: v1beta2
+    - description: Represents a Kafka Connect cluster
+      displayName: Kafka Connect
+      kind: KafkaConnect
+      name: kafkaconnects.kafka.strimzi.io
+      resources:
+      - kind: Service
+        name: ''
+        version: v1
+      - kind: Deployment
+        name: ''
+        version: v1
+      - kind: ReplicaSet
+        name: ''
+        version: v1
+      - kind: Pod
+        name: ''
+        version: v1
+      specDescriptors:
+      - description: The desired number of Kafka Connect nodes.
+        displayName: Connect nodes
+        path: replicas
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:podCount
+      - description: Kafka Connect version
+        displayName: Version
+        path: version
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:text
+      - description: The address of the bootstrap server
+        displayName: Bootstrap server
+        path: bootstrapServers
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:text
+      - description: Limits describes the minimum/maximum amount of compute resources
+          required/allowed
+        displayName: Resource Requirements
+        path: resources
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:resourceRequirements
+      statusDescriptors:
+      - description: Kafka Connect conditions
+        displayName: Conditions
+        path: conditions
+        x-descriptors:
+        - urn:alm:descriptor:io.kubernetes.conditions
+      version: v1beta2
+    - description: Represents a Kafka MirrorMaker cluster
+      displayName: Kafka Mirror Maker
+      kind: KafkaMirrorMaker
+      name: kafkamirrormakers.kafka.strimzi.io
+      resources:
+      - kind: Deployment
+        name: ''
+        version: v1
+      - kind: ReplicaSet
+        name: ''
+        version: v1
+      - kind: Pod
+        name: ''
+        version: v1
+      specDescriptors:
+      - description: The desired number of Kafka MirrorMaker nodes.
+        displayName: MirrorMaker nodes
+        path: replicas
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:podCount
+      - description: Kafka Mirror Maker version
+        displayName: Version
+        path: version
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:text
+      - description: The bootstrap address of the Source cluster
+        displayName: Source cluster
+        path: consumer.bootstrapServers
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:text
+      - description: The bootstrap address of the Target cluster
+        displayName: Target cluster
+        path: producer.bootstrapServers
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:text
+      - description: Expression specifying the topics which should be mirrored
+        displayName: Mirrored topics
+        path: whitelist
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:text
+      - description: Limits describes the minimum/maximum amount of compute resources
+          required/allowed
+        displayName: Resource Requirements
+        path: resources
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:resourceRequirements
+      statusDescriptors:
+      - description: Kafka MirrorMaker conditions
+        displayName: Conditions
+        path: conditions
+        x-descriptors:
+        - urn:alm:descriptor:io.kubernetes.conditions
+      version: v1beta2
+    - description: Represents a Kafka Bridge cluster
+      displayName: Kafka Bridge
+      kind: KafkaBridge
+      name: kafkabridges.kafka.strimzi.io
+      resources:
+      - kind: Deployment
+        name: ''
+        version: v1
+      - kind: ReplicaSet
+        name: ''
+        version: v1
+      - kind: Pod
+        name: ''
+        version: v1
+      - kind: Service
+        name: ''
+        version: v1
+      specDescriptors:
+      - description: The desired number of Kafka Bridge nodes.
+        displayName: Bridge nodes
+        path: replicas
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:podCount
+      - description: The bootstrap address of the Kafka cluster
+        displayName: Kafka cluster
+        path: bootstrapServers
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:text
+      - description: The port where the HTTP Bridge is listening
+        displayName: HTTP port
+        path: http.port
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:number
+      - description: Limits describes the minimum/maximum amount of compute resources
+          required/allowed
+        displayName: Resource Requirements
+        path: resources
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:resourceRequirements
+      statusDescriptors:
+      - description: Kafka Bridge conditions
+        displayName: Conditions
+        path: conditions
+        x-descriptors:
+        - urn:alm:descriptor:io.kubernetes.conditions
+      version: v1beta2
+    - description: Represents a topic inside a Kafka cluster
+      displayName: Kafka Topic
+      kind: KafkaTopic
+      name: kafkatopics.kafka.strimzi.io
+      specDescriptors:
+      - description: The number of partitions
+        displayName: Partitions
+        path: partitions
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:text
+      - description: The number of replicas
+        displayName: Replication factor
+        path: replicas
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:text
+      statusDescriptors:
+      - description: Kafka topic conditions
+        displayName: Conditions
+        path: conditions
+        x-descriptors:
+        - urn:alm:descriptor:io.kubernetes.conditions
+      version: v1beta2
+    - description: Represents a user inside a Kafka cluster
+      displayName: Kafka User
+      kind: KafkaUser
+      name: kafkausers.kafka.strimzi.io
+      resources:
+      - kind: Secret
+        name: ''
+        version: v1
+      specDescriptors:
+      - description: Authentication type
+        displayName: Authentication type
+        path: authentication.type
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:select:tls
+        - urn:alm:descriptor:com.tectonic.ui:select:scram-sha-512
+      - description: Authorization type
+        displayName: Authorization type
+        path: authorization.type
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:select:simple
+      statusDescriptors:
+      - description: Kafka user conditions
+        displayName: Conditions
+        path: conditions
+        x-descriptors:
+        - urn:alm:descriptor:io.kubernetes.conditions
+      version: v1beta2
+    - description: Represents a Connector inside a Kafka Connect cluster
+      displayName: Kafka Connector
+      kind: KafkaConnector
+      name: kafkaconnectors.kafka.strimzi.io
+      specDescriptors:
+      - description: Class of the Kafka Connect connector
+        displayName: Class
+        path: class
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:text
+      - description: Maximum number of tasks used by the connector
+        displayName: Max number of tasks
+        path: tasksMax
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:text
+      statusDescriptors:
+      - description: Connector conditions
+        displayName: Conditions
+        path: conditions
+        x-descriptors:
+        - urn:alm:descriptor:io.kubernetes.conditions
+      version: v1beta2
+    - description: Represents a Kafka MirrorMaker 2 cluster
+      displayName: Kafka MirrorMaker 2
+      kind: KafkaMirrorMaker2
+      name: kafkamirrormaker2s.kafka.strimzi.io
+      resources:
+      - kind: Deployment
+        name: ''
+        version: v1
+      - kind: ReplicaSet
+        name: ''
+        version: v1
+      - kind: Pod
+        name: ''
+        version: v1
+      specDescriptors:
+      - description: The desired number of Kafka MirrorMaker 2 nodes.
+        displayName: MirrorMaker2 nodes
+        path: replicas
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:podCount
+      - description: Kafka MirrorMaker 2 version
+        displayName: Version
+        path: version
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:text
+      - description: The Kafka cluster where the underlying Kafka Connect connects
+        displayName: Connect cluster
+        path: connectCluster
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:text
+      - description: Limits describes the minimum/maximum amount of compute resources
+          required/allowed
+        displayName: Resource Requirements
+        path: resources
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:resourceRequirements
+      statusDescriptors:
+      - description: Kafka MirrorMaker conditions
+        displayName: Conditions
+        path: conditions
+        x-descriptors:
+        - urn:alm:descriptor:io.kubernetes.conditions
+      version: v1beta2
+    - description: Triggeres rebalance of replicas in a Kafka cluster
+      displayName: Kafka Rebalance
+      kind: KafkaRebalance
+      name: kafkarebalances.kafka.strimzi.io
+      resources: []
+      specDescriptors:
+      - description: Skip hard Cruise Cotnrol goals
+        displayName: Skip hard goals
+        path: 'skipHardGoalCheck'
+        x-descriptors:
+          - 'urn:alm:descriptor:com.tectonic.ui:booleanSwitch'
+      statusDescriptors:
+      - description: Kafka Rebalance conditions
+        displayName: Conditions
+        path: conditions
+        x-descriptors:
+        - urn:alm:descriptor:io.kubernetes.conditions
+      version: v1beta2
+  description: >
+    Strimzi provides a way to run an [Apache Kafka®](https://kafka.apache.org) cluster on 
+    [Kubernetes](https://kubernetes.io/) or [OpenShift](https://www.openshift.com/) in various deployment configurations.
+    See our [website](https://strimzi.io) for more details about the project.
+
+    ### Supported Features
+
+    * **Manages the Kafka Cluster** - Deploys and manages all of the components of this complex application, including dependencies like Apache ZooKeeper® that are traditionally hard to administer.
+
+    * **Includes Kafka Connect** - Allows for configuration of common data sources and sinks to move data into and out of the Kafka cluster.
+
+    * **Topic Management** - Creates and manages Kafka Topics within the cluster.
+
+    * **User Management** - Creates and manages Kafka Users within the cluster.
+
+    * **Connector Management** - Creates and manages Kafka Connect connectors.
+
+    * **Includes Kafka Mirror Maker 1 and 2** - Allows for morroring data between different Apache Kafka® clusters.
+
+    * **Includes HTTP Kafka Bridge** - Allows clients to send and receive messages through an Apache Kafka® cluster via HTTP protocol.
+
+    * **Cluster Rebalancing** - Uses built-in Cruise Control for redistributes partition replicas according to specified goals in order to achieve the best cluster performance.
+
+    * **Monitoring** - Built-in support for monitoring using Prometheus and provided Grafana dashabords
+
+    ### Upgrading your Clusters
+    
+    The Strimzi Operator understands how to run and upgrade between a set of Kafka versions.
+    When specifying a new version in your config, check to make sure you aren't using any features that may have been removed.
+    See [the upgrade guide](https://strimzi.io/docs/operators/latest/deploying.html#assembly-upgrading-kafka-versions-str) for more information.
+
+    ### Storage
+
+    An efficient data storage infrastructure is essential to the optimal performance of Apache Kafka®.
+    Apache Kafka® deployed via Strimzi requires block storage.
+    The use of file storage (for example, NFS) is not recommended.
+    
+    The Strimzi Operator supports three types of data storage:
+    
+    * Ephemeral (Recommended for development only!)
+    
+    * Persistent
+    
+    * JBOD (Just a Bunch of Disks, suitable for Kafka only. Not supported in Zookeeper.)
+    
+    Strimzi also supports advanced operations such as adding or removing disks in Apache Kafka® brokers or resizing the persistent volumes (where supported by the infrastructure).
+
+    ### Documentation
+
+    Documentation to the current _master_ branch as well as all releases can be found on our [website](https://strimzi.io/documentation).
+
+    ### Getting help
+
+    If you encounter any issues while using Strimzi, you can get help using:
+
+    * [Strimzi mailing list on CNCF](https://lists.cncf.io/g/cncf-strimzi-users/topics)
+
+    * [Strimzi Slack channel on CNCF workspace](https://cloud-native.slack.com/messages/strimzi)
+
+    ### Contributing
+
+    You can contribute by:
+
+    * Raising any issues you find using Strimzi
+
+    * Fixing issues by opening Pull Requests
+
+    * Improving documentation
+
+    * Talking about Strimzi
+
+
+    All bugs, tasks or enhancements are tracked as [GitHub issues](https://github.com/strimzi/strimzi-kafka-operator/issues). Issues which 
+    might be a good start for new contributors are marked with ["good-start"](https://github.com/strimzi/strimzi-kafka-operator/labels/good-start)
+    label.
+
+
+    The [Development guide](https://github.com/strimzi/strimzi-kafka-operator/blob/master/development-docs/DEV_GUIDE.md) describes how to build Strimzi and how to 
+    test your changes before submitting a patch or opening a PR.
+
+
+    The [Documentation Contributor Guide](https://strimzi.io/contributing/guide/) describes how to contribute to Strimzi documentation.
+
+
+    If you want to get in touch with us first before contributing, you can use:
+
+    * [Strimzi mailing list on CNCF](https://lists.cncf.io/g/cncf-strimzi-users/topics)
+
+    * [Strimzi Slack channel on CNCF workspace](https://cloud-native.slack.com/messages/strimzi)
+
+    ### License
+    
+    Strimzi is licensed under the [Apache License, Version 2.0](https://github.com/strimzi/strimzi-kafka-operator/blob/master/LICENSE).
+  displayName: Strimzi
+  icon:
+  - base64data: PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4KPCEtLSBHZW5lcmF0b3I6IEFkb2JlIElsbHVzdHJhdG9yIDIyLjAuMSwgU1ZHIEV4cG9ydCBQbHVnLUluIC4gU1ZHIFZlcnNpb246IDYuMDAgQnVpbGQgMCkgIC0tPgo8c3ZnIHZlcnNpb249IjEuMSIgaWQ9IkxheWVyXzEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHg9IjBweCIgeT0iMHB4IgoJIHZpZXdCb3g9IjAgMCA1MTIgNTk1IiBzdHlsZT0iZW5hYmxlLWJhY2tncm91bmQ6bmV3IDAgMCA1MTIgNTk1OyIgeG1sOnNwYWNlPSJwcmVzZXJ2ZSI+CjxzdHlsZSB0eXBlPSJ0ZXh0L2NzcyI+Cgkuc3Qwe2ZpbGw6IzE5MkM0Nzt9Cgkuc3Qxe2ZpbGw6dXJsKCNTVkdJRF8xXyk7fQoJLnN0MntmaWxsOnVybCgjU1ZHSURfMl8pO30KCS5zdDN7ZmlsbDp1cmwoI1NWR0lEXzNfKTt9Cgkuc3Q0e2ZpbGw6dXJsKCNTVkdJRF80Xyk7fQoJLnN0NXtmaWxsOnVybCgjU1ZHSURfNV8pO30KCS5zdDZ7ZmlsbDp1cmwoI1NWR0lEXzZfKTt9Cjwvc3R5bGU+CjxnPgoJPHBvbHlnb24gY2xhc3M9InN0MCIgcG9pbnRzPSIyNTYsNSAxLDE1Mi4yIDEsNDQ2LjcgMjU2LDU5My45IDUxMSw0NDYuNyA1MTEsMTUyLjIgMjU2LDUgCSIvPgoJPGxpbmVhckdyYWRpZW50IGlkPSJTVkdJRF8xXyIgZ3JhZGllbnRVbml0cz0idXNlclNwYWNlT25Vc2UiIHgxPSIxMDkuNDk5NiIgeTE9Ijg0Ljk2MjIiIHgyPSI0NDAuOTUxNyIgeTI9Ijc5My44MTAyIj4KCQk8c3RvcCAgb2Zmc2V0PSIwIiBzdHlsZT0ic3RvcC1jb2xvcjojRkZGRkZGIi8+CgkJPHN0b3AgIG9mZnNldD0iMSIgc3R5bGU9InN0b3AtY29sb3I6IzU0QkFEOCIvPgoJPC9saW5lYXJHcmFkaWVudD4KCTxwYXRoIGNsYXNzPSJzdDEiIGQ9Ik0yNTYsNTYxbDIyNi41LTEzMC44di0yNi4zYy0zNy42LTcuMy04NC45LTE0LjMtMTQzLjUtMTkuM2MtMTk5LjItMTcuMi0xNC44LTU2LjYsNjguOS0xMjcuMQoJCVMxMzAsMTY1LjcsMTMwLDE2NS43czE0Ny42LDMxLDEzMi44LDUwYy0xMC41LDEzLjUtMTM0LjMsNDMuNS0yMzMuMyw4OC4xdjEyNi41TDI1Niw1NjF6Ii8+CjwvZz4KPC9zdmc+Cg==
+    mediatype: image/svg+xml
+  install:
+    spec: null # placeholder
+    strategy: deployment
+  installModes:
+    - supported: true
+      type: OwnNamespace
+    - supported: true
+      type: SingleNamespace
+    - supported: true
+      type: MultiNamespace
+    - supported: true
+      type: AllNamespaces
+  relatedImages:
+    - name:  placeholder
+      image: placeholder
+  keywords:
+    - kafka
+    - messaging
+    - kafka-connect
+    - kafka-streams
+    - data-streaming
+    - data-streams
+    - streaming
+    - streams
+  labels:
+    name: strimzi-cluster-operator
+  links:
+    - name: Website
+      url: https://strimzi.io/
+    - name: Documentation
+      url: https://strimzi.io/documentation/
+    - name: Mailing list
+      url: https://lists.cncf.io/g/cncf-strimzi-users/topics
+    - name: Slack
+      url: https://cloud-native.slack.com/messages/strimzi
+    - name: GitHub
+      url: https://github.com/strimzi/strimzi-kafka-operator
+  maintainers:
+    - email: cncf-strimzi-users@lists.cncf.io
+      name: Strimzi
+  maturity: stable
+  provider:
+    name: Strimzi
+  replaces: # placeholder 
+  selector:
+    matchLabels:
+      name: strimzi-cluster-operator
+  version: 0.0.0 # placeholder
