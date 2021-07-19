@@ -179,7 +179,6 @@ public class KafkaConnectorIT {
 
                 assertThat(registry.get(AbstractOperator.METRICS_PREFIX + "reconciliations").tag("kind", KafkaConnector.RESOURCE_KIND).counter().count(), CoreMatchers.is(2.0));
                 assertThat(registry.get(AbstractOperator.METRICS_PREFIX + "reconciliations.successful").tag("kind", KafkaConnector.RESOURCE_KIND).counter().count(), CoreMatchers.is(2.0));
-                assertThat(registry.get(AbstractOperator.METRICS_PREFIX + "reconciliations.failed").tag("kind", KafkaConnector.RESOURCE_KIND).counter().count(), CoreMatchers.is(0.0));
 
                 assertThat(registry.get(AbstractOperator.METRICS_PREFIX + "reconciliations.duration").tag("kind", KafkaConnector.RESOURCE_KIND).timer().count(), CoreMatchers.is(2L));
                 assertThat(registry.get(AbstractOperator.METRICS_PREFIX + "reconciliations.duration").tag("kind", KafkaConnector.RESOURCE_KIND).timer().totalTime(TimeUnit.MILLISECONDS), greaterThan(0.0));

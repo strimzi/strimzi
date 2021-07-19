@@ -527,6 +527,7 @@ public class ConnectorMockTest {
         KafkaConnector connector = new KafkaConnectorBuilder()
                 .withNewMetadata()
                     .withName(connectorName)
+                    .withNamespace(NAMESPACE)
                     .addToLabels(Labels.STRIMZI_CLUSTER_LABEL, connectName)
                 .endMetadata()
                 .withNewSpec().endSpec()
