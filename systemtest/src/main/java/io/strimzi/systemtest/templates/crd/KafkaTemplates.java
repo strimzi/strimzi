@@ -226,18 +226,18 @@ public class KafkaTemplates {
     public static KafkaBuilder kafkaFromYaml(File yamlFile, String clusterName, int kafkaReplicas, int zookeeperReplicas) {
         Kafka kafka = getKafkaFromYaml(yamlFile);
         return new KafkaBuilder(kafka)
-                .withNewMetadata()
+            .withNewMetadata()
                 .withName(clusterName)
                 .withNamespace(kubeClient().getNamespace())
-                .endMetadata()
-                .editOrNewSpec()
+            .endMetadata()
+            .editOrNewSpec()
                 .editKafka()
-                .withReplicas(kafkaReplicas)
+                    .withReplicas(kafkaReplicas)
                 .endKafka()
                 .editZookeeper()
-                .withReplicas(zookeeperReplicas)
+                    .withReplicas(zookeeperReplicas)
                 .endZookeeper()
-                .endSpec();
+            .endSpec();
     }
 
     /**
