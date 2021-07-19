@@ -118,6 +118,13 @@ public class Config {
     public static final String TC_TLS_KEYSTORE_PASSWORD = "STRIMZI_KEYSTORE_PASSWORD";
     public static final String TC_TLS_SSL_ENDPOINT_IDENTIFICATION_ALGORITHM = "STRIMZI_SSL_ENDPOINT_IDENTIFICATION_ALGORITHM";
 
+    public static final String TC_SASL_ENABLED = "STRIMZI_SASL_ENABLED";
+    public static final String TC_SASL_MECHANISM = "STRIMZI_SASL_MECHANISM";
+    public static final String TC_SASL_USERNAME = "STRIMZI_SASL_USERNAME";
+    public static final String TC_SASL_PASSWORD = "STRIMZI_SASL_PASSWORD";
+
+    public static final String TC_SECURITY_PROTOCOL = "STRIMZI_SECURITY_PROTOCOL";
+
     public static final String TC_STORE_TOPIC = "STRIMZI_STORE_TOPIC";
     public static final String TC_STORE_NAME = "STRIMZI_STORE_NAME";
     public static final String TC_APPLICATION_ID = "STRIMZI_APPLICATION_ID";
@@ -179,6 +186,16 @@ public class Config {
     public static final Value<String> TLS_KEYSTORE_PASSWORD = new Value<>(TC_TLS_KEYSTORE_PASSWORD, STRING, "");
     /** The endpoint identification algorithm used by clients to validate server host name. The default value is https. Clients including client connections created by the broker for inter-broker communication verify that the broker host name matches the host name in the broker’s certificate. Disable server host name verification by setting to an empty string.**/
     public static final Value<String> TLS_SSL_ENDPOINT_IDENTIFICATION_ALGORITHM = new Value<>(TC_TLS_SSL_ENDPOINT_IDENTIFICATION_ALGORITHM, STRING, "HTTPS");
+    /** If SASL should be used to authenticate with */
+    public static final Value<String> SASL_ENABLED = new Value<>(TC_SASL_ENABLED, STRING, "false");
+    /** The SASL mechanism to be used */
+    public static final Value<String> SASL_MECHANISM = new Value<>(TC_SASL_MECHANISM, STRING, "");
+    /** The SASL username to be used for authentication */
+    public static final Value<String> SASL_USERNAME = new Value<>(TC_SASL_USERNAME, STRING, "");
+    /** The SASL password to be used for authentication */
+    public static final Value<String> SASL_PASSWORD = new Value<>(TC_SASL_PASSWORD, STRING, "");
+    /** The security protocol to be used */
+    public static final Value<String> SECURITY_PROTOCOL = new Value<>(TC_SECURITY_PROTOCOL, STRING, "");
 
     /**
      * The store topic for the Kafka Streams based TopicStore
@@ -211,10 +228,15 @@ public class Config {
         addConfigValue(configValues, TOPIC_METADATA_MAX_ATTEMPTS);
         addConfigValue(configValues, TOPICS_PATH);
         addConfigValue(configValues, TLS_ENABLED);
+        addConfigValue(configValues, SECURITY_PROTOCOL);
         addConfigValue(configValues, TLS_TRUSTSTORE_LOCATION);
         addConfigValue(configValues, TLS_TRUSTSTORE_PASSWORD);
         addConfigValue(configValues, TLS_KEYSTORE_LOCATION);
         addConfigValue(configValues, TLS_KEYSTORE_PASSWORD);
+        addConfigValue(configValues, SASL_ENABLED);
+        addConfigValue(configValues, SASL_MECHANISM);
+        addConfigValue(configValues, SASL_USERNAME);
+        addConfigValue(configValues, SASL_PASSWORD);
         addConfigValue(configValues, TLS_SSL_ENDPOINT_IDENTIFICATION_ALGORITHM);
         addConfigValue(configValues, STORE_TOPIC);
         addConfigValue(configValues, STORE_NAME);

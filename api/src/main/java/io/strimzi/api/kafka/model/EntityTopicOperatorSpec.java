@@ -44,6 +44,7 @@ public class EntityTopicOperatorSpec implements UnknownPropertyPreserving, Seria
     public static final int DEFAULT_FULL_RECONCILIATION_INTERVAL_SECONDS = 120;
     public static final int DEFAULT_ZOOKEEPER_SESSION_TIMEOUT_SECONDS = 18;
     public static final int DEFAULT_TOPIC_METADATA_MAX_ATTEMPTS = 6;
+    public static final String DEFAULT_SECURITY_PROTOCOL = "SSL";
 
     protected String watchedNamespace;
     protected String image;

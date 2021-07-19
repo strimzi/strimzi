@@ -22,20 +22,26 @@ function create_keystore {
    RANDFILE=/tmp/.rnd openssl pkcs12 -export -in "$3" -inkey "$4" -name topic-operator -password pass:"$2" -out "$1"
 }
 
-echo "Preparing certificates for internal communication"
-STORE=/tmp/topic-operator/replication.truststore.p12
-rm -f "$STORE"
-for CRT in /etc/tls-sidecar/cluster-ca-certs/*.crt; do
-  ALIAS=$(basename "$CRT" .crt)
-  echo "Adding $CRT to truststore $STORE with alias $ALIAS"
-  create_truststore "$STORE" "$CERTS_STORE_PASSWORD" "$CRT" "$ALIAS"
-done
+if [ "$STRIMZI_PUBLIC_CA" != "true" ]; then
+    echo "Preparing trust store certificates for internal communication"
+    STORE=/tmp/topic-operator/replication.truststore.p12
+    rm -f "$STORE"
+    for CRT in /etc/tls-sidecar/cluster-ca-certs/*.crt; do
+      ALIAS=$(basename "$CRT" .crt)
+      echo "Adding $CRT to truststore $STORE with alias $ALIAS"
+      create_truststore "$STORE" "$CERTS_STORE_PASSWORD" "$CRT" "$ALIAS"
+    done
+    echo "Preparing trust store certificates for internal communication is completed"
+fi
 
-STORE=/tmp/topic-operator/replication.keystore.p12
-rm -f "$STORE"
-create_keystore "$STORE" "$CERTS_STORE_PASSWORD" \
-    /etc/tls-sidecar/eo-certs/entity-operator.crt \
-    /etc/tls-sidecar/eo-certs/entity-operator.key \
-    /etc/tls-sidecar/cluster-ca-certs/ca.crt \
-    entity-operator
-echo "Preparing certificates for internal communication is complete"
+if [ "$STRIMZI_TLS_AUTH_ENABLED" != "false" ]; then
+  echo "Preparing key store certificates for internal communication"
+  STORE=/tmp/topic-operator/replication.keystore.p12
+  rm -f "$STORE"
+  create_keystore "$STORE" "$CERTS_STORE_PASSWORD" \
+      /etc/tls-sidecar/eo-certs/entity-operator.crt \
+      /etc/tls-sidecar/eo-certs/entity-operator.key \
+      /etc/tls-sidecar/cluster-ca-certs/ca.crt \
+      entity-operator
+  echo "Preparing key store certificates for internal communication is completed"
+fi

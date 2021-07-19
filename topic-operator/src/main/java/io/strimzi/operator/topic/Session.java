@@ -22,10 +22,13 @@ import io.vertx.micrometer.backends.BackendRegistries;
 import org.apache.kafka.clients.admin.AdminClient;
 import org.apache.kafka.clients.admin.AdminClientConfig;
 import org.apache.kafka.common.config.SslConfigs;
+import org.apache.kafka.common.config.SaslConfigs;
 import org.apache.kafka.common.errors.TimeoutException;
 import org.apache.kafka.streams.StreamsConfig;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import io.strimzi.operator.common.InvalidConfigurationException;
 
 import java.security.Security;
 import java.time.Duration;
@@ -36,6 +39,10 @@ import java.util.concurrent.CompletionStage;
 public class Session extends AbstractVerticle {
 
     private final static Logger LOGGER = LogManager.getLogger(Session.class);
+
+    private final static String SASL_TYPE_PLAIN = "plain";
+    private final static String SASL_TYPE_SCRAM_SHA_256 = "scram-sha-256";
+    private final static String SASL_TYPE_SCRAM_SHA_512 = "scram-sha-512";
 
     private static final int HEALTH_SERVER_PORT = 8080;
 
@@ -142,26 +149,15 @@ public class Session extends AbstractVerticle {
         }, stop);
     }
 
+    @SuppressWarnings({"JavaNCSS", "MethodLength", "CyclomaticComplexity"})
     @Override
     public void start(Promise<Void> start) {
         LOGGER.info("Starting");
-        Properties kafkaClientProps = new Properties();
 
         String dnsCacheTtl = System.getenv("STRIMZI_DNS_CACHE_TTL") == null ? "30" : System.getenv("STRIMZI_DNS_CACHE_TTL");
         Security.setProperty("networkaddress.cache.ttl", dnsCacheTtl);
-        kafkaClientProps.setProperty(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, config.get(Config.KAFKA_BOOTSTRAP_SERVERS));
-        kafkaClientProps.setProperty(StreamsConfig.APPLICATION_ID_CONFIG, config.get(Config.APPLICATION_ID));
 
-        if (Boolean.parseBoolean(config.get(Config.TLS_ENABLED))) {
-            kafkaClientProps.setProperty(AdminClientConfig.SECURITY_PROTOCOL_CONFIG, "SSL");
-            kafkaClientProps.setProperty(SslConfigs.SSL_TRUSTSTORE_LOCATION_CONFIG, config.get(Config.TLS_TRUSTSTORE_LOCATION));
-            kafkaClientProps.setProperty(SslConfigs.SSL_TRUSTSTORE_PASSWORD_CONFIG, config.get(Config.TLS_TRUSTSTORE_PASSWORD));
-            kafkaClientProps.setProperty(SslConfigs.SSL_KEYSTORE_LOCATION_CONFIG, config.get(Config.TLS_KEYSTORE_LOCATION));
-            kafkaClientProps.setProperty(SslConfigs.SSL_KEYSTORE_PASSWORD_CONFIG, config.get(Config.TLS_KEYSTORE_PASSWORD));
-            kafkaClientProps.setProperty(SslConfigs.SSL_ENDPOINT_IDENTIFICATION_ALGORITHM_CONFIG, config.get(Config.TLS_SSL_ENDPOINT_IDENTIFICATION_ALGORITHM));
-        }
-
-        this.adminClient = AdminClient.create(kafkaClientProps);
+        this.adminClient = AdminClient.create(adminClientProperties());
         LOGGER.debug("Using AdminClient {}", adminClient);
         this.kafka = new KafkaImpl(adminClient, vertx);
         LOGGER.debug("Using Kafka {}", kafka);
@@ -194,10 +190,10 @@ public class Session extends AbstractVerticle {
                     boolean exists = zk.getPathExists(topicsPath);
                     CompletionStage<KafkaStreamsTopicStoreService> cs;
                     if (exists) {
-                        cs = Zk2KafkaStreams.upgrade(zk, config, kafkaClientProps, false);
+                        cs = Zk2KafkaStreams.upgrade(zk, config, adminClientProperties(), false);
                     } else {
                         KafkaStreamsTopicStoreService ksc = new KafkaStreamsTopicStoreService();
-                        cs = ksc.start(config, kafkaClientProps).thenCompose(s -> CompletableFuture.completedFuture(ksc));
+                        cs = ksc.start(config, adminClientProperties()).thenCompose(s -> CompletableFuture.completedFuture(ksc));
                     }
                     topicStore = ConcurrentUtil.result(
                             cs.handle((s, t) -> {
@@ -265,6 +261,88 @@ public class Session extends AbstractVerticle {
                 periodic.handle(null);
                 LOGGER.info("Started");
             });
+    }
+
+    private void setSaslConfigs(Properties kafkaClientProps) {
+        String saslMechanism = null;
+        String jaasConfig = null;
+        String username = config.get(Config.SASL_USERNAME);
+        String password = config.get(Config.SASL_PASSWORD);
+        String configSaslMechanism = config.get(Config.SASL_MECHANISM);
+
+        if (username.isEmpty() || password.isEmpty()) {
+            throw new InvalidConfigurationException("SASL credentials are not set");
+        }
+
+        if (SASL_TYPE_PLAIN.equals(configSaslMechanism)) {
+            saslMechanism = "PLAIN";
+            jaasConfig = "org.apache.kafka.common.security.plain.PlainLoginModule required username=\"" + username + "\" password=\"" + password + "\";";
+        } else if (SASL_TYPE_SCRAM_SHA_256.equals(configSaslMechanism) || SASL_TYPE_SCRAM_SHA_512.equals(configSaslMechanism)) {
+            jaasConfig = "org.apache.kafka.common.security.scram.ScramLoginModule required username=\"" + username + "\" password=\"" + password + "\";";
+
+            if (SASL_TYPE_SCRAM_SHA_256.equals(configSaslMechanism)) {
+                saslMechanism = "SCRAM-SHA-256";
+            } else if (SASL_TYPE_SCRAM_SHA_512.equals(configSaslMechanism)) {
+                saslMechanism = "SCRAM-SHA-512";
+            }
+        } else {
+            throw new IllegalArgumentException("Invalid SASL_MECHANISM type: " + config.get(config.SASL_MECHANISM));
+        }
+
+        if (saslMechanism != null) {
+            kafkaClientProps.setProperty(SaslConfigs.SASL_MECHANISM, saslMechanism);
+        }
+        if (jaasConfig != null) {
+            kafkaClientProps.setProperty(SaslConfigs.SASL_JAAS_CONFIG, jaasConfig);
+        }
+    }
+
+    Properties adminClientProperties() {
+        Properties kafkaClientProps = new Properties();
+        kafkaClientProps.setProperty(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, config.get(Config.KAFKA_BOOTSTRAP_SERVERS));
+        kafkaClientProps.setProperty(StreamsConfig.APPLICATION_ID_CONFIG, config.get(Config.APPLICATION_ID));
+
+        String securityProtocol = config.get(Config.SECURITY_PROTOCOL);
+        boolean tlsEnabled = Boolean.parseBoolean(config.get(Config.TLS_ENABLED));
+
+        if (tlsEnabled && !securityProtocol.isEmpty()) {
+            if (!securityProtocol.equals("SSL") && !securityProtocol.equals("SASL_SSL")) {
+                throw new InvalidConfigurationException("TLS is enabled but the security protocol does not match SSL or SASL_SSL");
+            }
+        }
+
+        if (!securityProtocol.isEmpty()) {
+            kafkaClientProps.setProperty(AdminClientConfig.SECURITY_PROTOCOL_CONFIG, securityProtocol);
+        } else if (tlsEnabled) {
+            kafkaClientProps.setProperty(AdminClientConfig.SECURITY_PROTOCOL_CONFIG, "SSL");
+        } else {
+            kafkaClientProps.setProperty(AdminClientConfig.SECURITY_PROTOCOL_CONFIG, "PLAINTEXT");
+        }
+
+        if (securityProtocol.equals("SASL_SSL") || securityProtocol.equals("SSL") || tlsEnabled) {
+            kafkaClientProps.setProperty(SslConfigs.SSL_ENDPOINT_IDENTIFICATION_ALGORITHM_CONFIG, config.get(Config.TLS_SSL_ENDPOINT_IDENTIFICATION_ALGORITHM));
+
+            if (!config.get(Config.TLS_TRUSTSTORE_LOCATION).isEmpty()) {
+                kafkaClientProps.setProperty(SslConfigs.SSL_TRUSTSTORE_LOCATION_CONFIG, config.get(Config.TLS_TRUSTSTORE_LOCATION));
+            }
+
+            if (!config.get(Config.TLS_TRUSTSTORE_PASSWORD).isEmpty()) {
+                if (config.get(Config.TLS_TRUSTSTORE_LOCATION).isEmpty()) {
+                    throw new InvalidConfigurationException("TLS_TRUSTSTORE_PASSWORD was supplied but TLS_TRUSTSTORE_LOCATION was not supplied");
+                }
+                kafkaClientProps.setProperty(SslConfigs.SSL_TRUSTSTORE_PASSWORD_CONFIG, config.get(Config.TLS_TRUSTSTORE_PASSWORD));
+            }
+
+            if (!config.get(Config.TLS_KEYSTORE_LOCATION).isEmpty() && !config.get(Config.TLS_KEYSTORE_PASSWORD).isEmpty()) {
+                kafkaClientProps.setProperty(SslConfigs.SSL_KEYSTORE_LOCATION_CONFIG, config.get(Config.TLS_KEYSTORE_LOCATION));
+                kafkaClientProps.setProperty(SslConfigs.SSL_KEYSTORE_PASSWORD_CONFIG, config.get(Config.TLS_KEYSTORE_PASSWORD));
+            }
+        }
+
+        if (Boolean.parseBoolean(config.get(Config.SASL_ENABLED))) {
+            setSaslConfigs(kafkaClientProps);
+        }
+        return kafkaClientProps;
     }
 
     Future<Void> startWatcher() {
