@@ -324,10 +324,4 @@ abstract public class AbstractKafkaClientProperties<C extends AbstractKafkaClien
     public String getClusterName() {
         return clusterName;
     }
-    public String getCaSecretName() {
-        return caSecretName;
-    }
-    public String getKafkaUsername() {
-        return kafkaUsername;
-    }
 }

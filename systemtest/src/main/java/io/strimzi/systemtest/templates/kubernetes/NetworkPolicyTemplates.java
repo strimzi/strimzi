@@ -11,20 +11,10 @@ import io.strimzi.systemtest.Constants;
 import io.strimzi.systemtest.enums.DefaultNetworkPolicy;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.junit.jupiter.api.extension.ExtensionContext;
 
 public class NetworkPolicyTemplates {
 
     private static final Logger LOGGER = LogManager.getLogger(NetworkPolicyTemplates.class);
-
-    public static NetworkPolicyBuilder networkPolicyBuilder(String name, String namespace) {
-        return networkPolicyBuilder(namespace, name, null)
-            .withNewSpec()
-                .withNewPodSelector()
-                .endPodSelector()
-                .withPolicyTypes("Ingress")
-            .endSpec();
-    }
 
     public static NetworkPolicyBuilder networkPolicyBuilder(String namespace, String name, LabelSelector labelSelector) {
         return new NetworkPolicyBuilder()
@@ -44,7 +34,7 @@ public class NetworkPolicyTemplates {
                     .endSpec();
     }
 
-    public static NetworkPolicy applyDefaultNetworkPolicy(ExtensionContext extensionContext, String namespace, DefaultNetworkPolicy policy) {
+    public static NetworkPolicy applyDefaultNetworkPolicy(String namespace, DefaultNetworkPolicy policy) {
         NetworkPolicy networkPolicy = new NetworkPolicyBuilder()
             .withApiVersion("networking.k8s.io/v1")
             .withKind(Constants.NETWORK_POLICY)

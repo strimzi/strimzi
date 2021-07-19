@@ -69,10 +69,6 @@ public class DeploymentUtils {
         }
     }
 
-    public static void logCurrentDeploymentStatus(Deployment deployment) {
-        logCurrentDeploymentStatus(deployment, kubeClient().getNamespace());
-    }
-
     public static void waitForNoRollingUpdate(String namespaceName, String deploymentName, Map<String, String> pods) {
         // alternative to sync hassling AtomicInteger one could use an integer array instead
         // not need to be final because reference to the array does not get another array assigned
@@ -89,10 +85,6 @@ public class DeploymentUtils {
                 }
             }
         );
-    }
-
-    public static void waitForNoRollingUpdate(String deploymentName, Map<String, String> pods) {
-        waitForNoRollingUpdate(kubeClient().getNamespace(), deploymentName, pods);
     }
 
     /**
@@ -130,10 +122,6 @@ public class DeploymentUtils {
             LOGGER.debug("Some pods still need to roll: {}", map);
             return false;
         }
-    }
-
-    public static boolean depHasRolled(String name, Map<String, String> snapshot) {
-        return depHasRolled(kubeClient().getNamespace(), name, snapshot);
     }
 
     /**

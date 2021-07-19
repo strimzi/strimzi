@@ -17,18 +17,15 @@ import io.strimzi.systemtest.templates.crd.KafkaTemplates;
 import io.strimzi.systemtest.utils.kafkaUtils.KafkaConnectUtils;
 import io.strimzi.systemtest.utils.kafkaUtils.KafkaConnectorUtils;
 import io.strimzi.systemtest.utils.kafkaUtils.KafkaMirrorMakerUtils;
-import io.strimzi.systemtest.utils.kafkaUtils.KafkaTopicUtils;
 import io.strimzi.test.TestUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.extension.ExtensionContext;
 
-import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
 import static io.strimzi.systemtest.enums.CustomResourceStatus.Ready;
-import static io.strimzi.test.k8s.KubeClusterResource.cmdKubeClient;
 import static io.strimzi.test.k8s.KubeClusterResource.kubeClient;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -72,21 +69,6 @@ public abstract class AbstractNamespaceST extends AbstractST {
         LOGGER.info("Waiting for creation {} in namespace {}", MAIN_NAMESPACE_CLUSTER_NAME + "-mirror-maker", SECOND_NAMESPACE);
         KafkaMirrorMakerUtils.waitForKafkaMirrorMakerReady(MAIN_NAMESPACE_CLUSTER_NAME);
         cluster.setNamespace(previousNamespace);
-    }
-
-    void deployNewTopic(String topicNamespace, String kafkaClusterNamespace, String topic) {
-        LOGGER.info("Creating topic {} in namespace {}", topic, topicNamespace);
-        cluster.setNamespace(topicNamespace);
-        cmdKubeClient().create(new File(TOPIC_EXAMPLES_DIR));
-        KafkaTopicUtils.waitForKafkaTopicReady(topic);
-        cluster.setNamespace(kafkaClusterNamespace);
-    }
-
-    void deleteNewTopic(String namespace, String topic) {
-        LOGGER.info("Deleting topic {} in namespace {}", topic, namespace);
-        cluster.setNamespace(namespace);
-        cmdKubeClient().deleteByName("KafkaTopic", topic);
-        cluster.setNamespace(CO_NAMESPACE);
     }
 
     void deployKafkaConnectorWithSink(ExtensionContext extensionContext, String clusterName, String namespace, String topicName, String connectLabel, String sharedKafkaClusterName) {

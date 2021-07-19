@@ -35,22 +35,6 @@ public class ClientArgumentMap {
     }
 
     /**
-     * Removes argument from map
-     *
-     * @param key name of argument
-     */
-    public void remove(ClientArgument key) {
-        mappings.remove(key);
-    }
-
-    /**
-     * Clear all arguments
-     */
-    public void clear() {
-        mappings.clear();
-    }
-
-    /**
      * Add argument and his values
      *
      * @param key   arguments

@@ -40,12 +40,6 @@ public class HttpUtils {
         LOGGER.info("Service name {} is present", serviceName);
     }
 
-    public static void waitUntilServiceWithNameIsReady(String baserURI, String... serviceNames) {
-        for (String serviceName : serviceNames) {
-            waitUntilServiceWithNameIsReady(baserURI, serviceName);
-        }
-    }
-
     public static void waitUntilServiceHasSomeTraces(String baseURI, String serviceName) {
         LOGGER.info("Wait untill Service {} has some traces", serviceName);
         TestUtils.waitFor("Service " + serviceName + " has some traces", Constants.GLOBAL_TRACING_POLL, READINESS_TIMEOUT,
@@ -62,11 +56,5 @@ public class HttpUtils {
                 return data.size() > 0;
             });
         LOGGER.info("Service {} has traces", serviceName);
-    }
-
-    public static void waitUntilServiceHasSomeTraces(String baseURI, String... serviceNames) {
-        for (String serviceName : serviceNames) {
-            waitUntilServiceHasSomeTraces(baseURI, serviceName);
-        }
     }
 }

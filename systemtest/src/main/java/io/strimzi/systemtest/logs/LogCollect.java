@@ -6,10 +6,10 @@ package io.strimzi.systemtest.logs;
 
 public interface LogCollect {
 
-    public void collectLogsFromPods();
-    public void collectEvents();
-    public void collectConfigMaps();
-    public void collectDeployments();
-    public void collectStatefulSets();
-    public void collectReplicaSets();
+    void collectLogsFromPods();
+    void collectEvents();
+    void collectConfigMaps();
+    void collectDeployments();
+    void collectStatefulSets();
+    void collectReplicaSets();
 }

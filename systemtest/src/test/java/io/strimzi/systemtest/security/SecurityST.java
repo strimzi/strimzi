@@ -646,7 +646,6 @@ class SecurityST extends AbstractST {
         final String namespaceName = StUtils.getNamespaceBasedOnRbac(NAMESPACE, extensionContext);
         final String clusterName = mapWithClusterNames.get(extensionContext.getDisplayName());
         final String topicName = mapWithTestTopics.get(extensionContext.getDisplayName());
-        final String userName = mapWithTestUsers.get(extensionContext.getDisplayName());
         final String secretName = KafkaResources.clusterCaCertificateSecretName(clusterName);
 
         LocalDateTime maintenanceWindowStart = LocalDateTime.now().withSecond(0);

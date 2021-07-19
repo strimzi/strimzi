@@ -4,14 +4,10 @@
  */
 package io.strimzi.systemtest.keycloak;
 
-import io.strimzi.systemtest.resources.ResourceManager;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import static io.strimzi.test.k8s.KubeClusterResource.kubeClient;
 
 public class KeycloakInstance {
 
@@ -68,33 +64,6 @@ public class KeycloakInstance {
         }
     }
 
-    public String getKeystorePassword() {
-        String keycloakPodName = kubeClient().listPodsByPrefixInName("keycloak-").get(0).getMetadata().getName();
-        String inputFile = ResourceManager.cmdKubeClient().execInPod(keycloakPodName,
-            "cat", "/opt/jboss/keycloak/standalone/configuration/standalone-ha.xml").out().trim();
-
-        Matcher keystoreMatcher = keystorePattern.matcher(inputFile);
-        String keystorePassword = null;
-
-        if (keystoreMatcher.find()) {
-            String result = keystoreMatcher.group(0);
-            LOGGER.info(result);
-
-            String[] shards = result.split("\n");
-            LOGGER.info(shards[3]);
-
-            Matcher keystorePasswordMatcher = keystorePasswordPattern.matcher(shards[3]);
-
-            if (keystorePasswordMatcher.find()) {
-                keystorePassword = keystorePasswordMatcher.group(0);
-                // erasing the '"'
-                keystorePassword = keystorePassword.substring(1, keystorePassword.length() - 1);
-                LOGGER.info(keystorePassword);
-            }
-        }
-        return keystorePassword;
-    }
-
     public String getUsername() {
         return username;
     }
@@ -107,27 +76,14 @@ public class KeycloakInstance {
     public String getHttpsUri() {
         return httpsUri;
     }
-    public String getHttpUri() {
-        return httpUri;
-    }
     public String getValidIssuerUri() {
         return validIssuerUri;
-    }
-    public void setValidIssuerUri(String validIssuerUri) {
-        this.validIssuerUri = validIssuerUri;
     }
     public String getJwksEndpointUri() {
         return jwksEndpointUri;
     }
-    public void setJwksEndpointUri(String jwksEndpointUri) {
-        this.jwksEndpointUri = jwksEndpointUri;
-    }
     public String getOauthTokenEndpointUri() {
         return oauthTokenEndpointUri;
-    }
-
-    public void setOauthTokenEndpointUri(String oauthTokenEndpointUri) {
-        this.oauthTokenEndpointUri = oauthTokenEndpointUri;
     }
     public String getIntrospectionEndpointUri() {
         return introspectionEndpointUri;
@@ -138,16 +94,6 @@ public class KeycloakInstance {
     public String getUserNameClaim() {
         return userNameClaim;
     }
-    public void setUserNameClaim(String userNameClaim) {
-        this.userNameClaim = userNameClaim;
-    }
-    public Pattern getKeystorePattern() {
-        return keystorePattern;
-    }
-    public void setKeystorePattern(Pattern keystorePattern) {
-        this.keystorePattern = keystorePattern;
-    }
-
     public int getJwksExpireSeconds() {
         return jwksExpireSeconds;
     }

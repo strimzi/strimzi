@@ -15,14 +15,11 @@ public interface Constants {
     long TIMEOUT_FOR_RESOURCE_RECOVERY = Duration.ofMinutes(6).toMillis();
     long TIMEOUT_FOR_MIRROR_MAKER_COPY_MESSAGES_BETWEEN_BROKERS = Duration.ofMinutes(7).toMillis();
     long TIMEOUT_FOR_LOG = Duration.ofMinutes(2).toMillis();
-    long POLL_INTERVAL_FOR_RESOURCE_CREATION = Duration.ofSeconds(3).toMillis();
     long POLL_INTERVAL_FOR_RESOURCE_READINESS = Duration.ofSeconds(1).toMillis();
     long POLL_INTERVAL_FOR_RESOURCE_DELETION = Duration.ofSeconds(5).toMillis();
     long WAIT_FOR_ROLLING_UPDATE_INTERVAL = Duration.ofSeconds(5).toMillis();
 
     long TIMEOUT_FOR_SEND_RECEIVE_MSG = Duration.ofSeconds(60).toMillis();
-    long TIMEOUT_AVAILABILITY_TEST = Duration.ofMinutes(1).toMillis();
-
     long TIMEOUT_FOR_CLUSTER_STABLE = Duration.ofMinutes(20).toMillis();
 
     long TIMEOUT_TEARDOWN = Duration.ofSeconds(10).toMillis();
@@ -44,7 +41,6 @@ public interface Constants {
 
     long GLOBAL_CLIENTS_POLL = Duration.ofSeconds(15).toMillis();
     long GLOBAL_CLIENTS_TIMEOUT = Duration.ofMinutes(2).toMillis();
-    long HUGE_CLIENTS_TIMEOUT = Duration.ofMinutes(30).toMillis();
     long GLOBAL_CLIENTS_EXCEPT_ERROR_TIMEOUT = Duration.ofSeconds(10).toMillis();
 
     long CO_OPERATION_TIMEOUT_DEFAULT = Duration.ofMinutes(5).toMillis();
@@ -82,8 +78,6 @@ public interface Constants {
     /**
      * Constants for specific ports
      */
-    int HTTP_KEYCLOAK_DEFAULT_PORT = 8080;
-    int HTTPS_KEYCLOAK_DEFAULT_PORT = 8443;
     int COMPONENTS_METRICS_PORT = 9404;
     int CLUSTER_OPERATOR_METRICS_PORT = 8080;
     int USER_OPERATOR_METRICS_PORT = 8081;
@@ -94,7 +88,6 @@ public interface Constants {
     String DEPLOYMENT = "Deployment";
     String DEPLOYMENT_TYPE = "deployment-type";
     String SERVICE = "Service";
-    String INGRESS = "Ingress";
     String CLUSTER_ROLE_BINDING = "ClusterRoleBinding";
     String ROLE_BINDING = "RoleBinding";
     String ROLE = "Role";
@@ -110,19 +103,10 @@ public interface Constants {
      * Kafka Bridge JSON encoding with JSON embedded format
      */
     String KAFKA_BRIDGE_JSON_JSON = "application/vnd.kafka.json.v2+json";
-
-    /**
-     * Kafka Bridge JSON encoding
-     */
-    String KAFKA_BRIDGE_JSON = "application/vnd.kafka.v2+json";
-
     String DEFAULT_SINK_FILE_PATH = "/tmp/test-file-sink.txt";
 
     int HTTP_BRIDGE_DEFAULT_PORT = 8080;
-    int HTTP_JAEGER_DEFAULT_TCP_PORT = 5778;
-    int HTTP_JAEGER_DEFAULT_NODE_PORT = 32480;
     int HTTPS_KEYCLOAK_DEFAULT_NODE_PORT = 32481;
-    int HTTP_KEYCLOAK_DEFAULT_NODE_PORT = 32482;
 
     /**
      * Basic paths to examples
@@ -134,12 +118,23 @@ public interface Constants {
      * File paths for metrics YAMLs
      */
     String PATH_TO_KAFKA_METRICS_CONFIG = PATH_TO_PACKAGING_EXAMPLES + "/metrics/kafka-metrics.yaml";
-    String PATH_TO_KAFKA_CRUISE_CONTROL_METRICS_CONFIG = PATH_TO_PACKAGING_EXAMPLES + "/metrics/kafka-cruise-control-metrics.yaml";
-    String PATH_TO_KAFKA_CONNECT_METRICS_CONFIG = PATH_TO_PACKAGING_EXAMPLES + "/metrics/kafka-connect-metrics.yaml";
-    String PATH_TO_KAFKA_MIRROR_MAKER_2_METRICS_CONFIG = PATH_TO_PACKAGING_EXAMPLES + "/metrics/kafka-mirror-maker-2-metrics.yaml";
 
     String METRICS_CONFIG_YAML_NAME = "metrics-config.yml";
     String METRICS_CONFIG_JSON_NAME = "metrics-config.json";
+
+    String PATH_TO_KAFKA_CONNECT_CONFIG = Constants.PATH_TO_PACKAGING_EXAMPLES + "/connect/kafka-connect.yaml";
+    String PATH_TO_KAFKA_CONNECT_METRICS_CONFIG = Constants.PATH_TO_PACKAGING_EXAMPLES + "/metrics/kafka-connect-metrics.yaml";
+    String PATH_TO_KAFKA_BRIDGE_CONFIG = Constants.PATH_TO_PACKAGING_EXAMPLES + "/bridge/kafka-bridge.yaml";
+    String PATH_TO_KAFKA_REBALANCE_CONFIG = Constants.PATH_TO_PACKAGING_EXAMPLES + "/cruise-control/kafka-rebalance.yaml";
+    String PATH_TO_KAFKA_CRUISE_CONTROL_CONFIG = Constants.PATH_TO_PACKAGING_EXAMPLES + "/cruise-control/kafka-cruise-control.yaml";
+    String PATH_TO_KAFKA_EPHEMERAL_CONFIG = Constants.PATH_TO_PACKAGING_EXAMPLES + "/kafka/kafka-ephemeral.yaml";
+    String PATH_TO_KAFKA_PERSISTENT_CONFIG = Constants.PATH_TO_PACKAGING_EXAMPLES + "/kafka/kafka-persistent.yaml";
+    String PATH_TO_KAFKA_CRUISE_CONTROL_METRICS_CONFIG = Constants.PATH_TO_PACKAGING_EXAMPLES + "/metrics/kafka-cruise-control-metrics.yaml";
+    String PATH_TO_KAFKA_TOPIC_CONFIG = Constants.PATH_TO_PACKAGING_EXAMPLES + "/topic/kafka-topic.yaml";
+    String PATH_TO_KAFKA_CONNECTOR_CONFIG = Constants.PATH_TO_PACKAGING_EXAMPLES + "/connect/source-connector.yaml";
+    String PATH_TO_KAFKA_MIRROR_MAKER_CONFIG = Constants.PATH_TO_PACKAGING_EXAMPLES + "/mirror-maker/kafka-mirror-maker.yaml";
+    String PATH_TO_KAFKA_MIRROR_MAKER_2_CONFIG = Constants.PATH_TO_PACKAGING_EXAMPLES + "/mirror-maker/kafka-mirror-maker-2.yaml";
+    String PATH_TO_KAFKA_MIRROR_MAKER_2_METRICS_CONFIG = Constants.PATH_TO_PACKAGING_EXAMPLES + "/metrics/kafka-mirror-maker-2-metrics.yaml";
 
     /**
      * Default value which allows execution of tests with any tags

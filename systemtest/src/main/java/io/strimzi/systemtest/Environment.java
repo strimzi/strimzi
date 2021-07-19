@@ -75,10 +75,6 @@ public class Environment {
      */
     private static final String STRIMZI_COMPONENTS_LOG_LEVEL_ENV = "STRIMZI_COMPONENTS_LOG_LEVEL";
     /**
-     * Cluster domain. It's used for specify URL endpoint of testing clients.
-     */
-    private static final String KUBERNETES_DOMAIN_ENV = "KUBERNETES_DOMAIN";
-    /**
      * Image pull policy env var for Components images (Kafka, Bridge, ...)
      */
     private static final String COMPONENTS_IMAGE_PULL_POLICY_ENV = "COMPONENTS_IMAGE_PULL_POLICY";
@@ -86,10 +82,6 @@ public class Environment {
      * Image pull policy env var for Operator images
      */
     private static final String OPERATOR_IMAGE_PULL_POLICY_ENV = "OPERATOR_IMAGE_PULL_POLICY";
-    /**
-     * CO reconciliation interval.
-     */
-    private static final String STRIMZI_FULL_RECONCILIATION_INTERVAL_MS_ENV = "STRIMZI_FULL_RECONCILIATION_INTERVAL_MS";
     /**
      * CO Roles only mode.
      */
@@ -107,7 +99,6 @@ public class Environment {
     private static final String OLM_SOURCE_NAMESPACE_ENV = "OLM_SOURCE_NAMESPACE";
     private static final String OLM_APP_BUNDLE_PREFIX_ENV = "OLM_APP_BUNDLE_PREFIX";
     private static final String OLM_OPERATOR_VERSION_ENV = "OLM_OPERATOR_VERSION";
-    private static final String OLM_LATEST_CONTAINER_IMAGE_TAG_ENV = "OLM_LATEST_CONTAINER_IMAGE_TAG";
     /**
      * Allows network policies
      */
@@ -140,7 +131,6 @@ public class Environment {
     private static final String TEST_LOG_DIR_DEFAULT = TestUtils.USER_PATH + "/../systemtest/target/logs/";
     private static final String STRIMZI_LOG_LEVEL_DEFAULT = "DEBUG";
     private static final String STRIMZI_COMPONENTS_LOG_LEVEL_DEFAULT = "INFO";
-    static final String KUBERNETES_DOMAIN_DEFAULT = ".nip.io";
     public static final String COMPONENTS_IMAGE_PULL_POLICY_ENV_DEFAULT = Constants.IF_NOT_PRESENT_IMAGE_PULL_POLICY;
     public static final String OPERATOR_IMAGE_PULL_POLICY_ENV_DEFAULT = Constants.ALWAYS_IMAGE_PULL_POLICY;
     public static final String OLM_OPERATOR_NAME_DEFAULT = "strimzi-kafka-operator";
@@ -165,7 +155,6 @@ public class Environment {
     public static final String ST_KAFKA_VERSION = getOrDefault(ST_KAFKA_VERSION_ENV, ST_KAFKA_VERSION_DEFAULT);
     public static final String STRIMZI_LOG_LEVEL = getOrDefault(STRIMZI_LOG_LEVEL_ENV, STRIMZI_LOG_LEVEL_DEFAULT);
     public static final String STRIMZI_COMPONENTS_LOG_LEVEL = getOrDefault(STRIMZI_COMPONENTS_LOG_LEVEL_ENV, STRIMZI_COMPONENTS_LOG_LEVEL_DEFAULT);
-    public static final String KUBERNETES_DOMAIN = getOrDefault(KUBERNETES_DOMAIN_ENV, KUBERNETES_DOMAIN_DEFAULT);
     public static final boolean SKIP_TEARDOWN = getOrDefault(SKIP_TEARDOWN_ENV, Boolean::parseBoolean, false);
     public static final String STRIMZI_RBAC_SCOPE = getOrDefault(STRIMZI_RBAC_SCOPE_ENV, STRIMZI_RBAC_SCOPE_DEFAULT);
     public static final String STRIMZI_FEATURE_GATES = getOrDefault(STRIMZI_FEATURE_GATES_ENV, STRIMZI_FEATURE_GATES_DEFAULT);

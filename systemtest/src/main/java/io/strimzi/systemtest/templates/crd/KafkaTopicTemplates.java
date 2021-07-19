@@ -10,16 +10,10 @@ import io.strimzi.operator.common.model.Labels;
 import io.strimzi.systemtest.Constants;
 import io.strimzi.systemtest.resources.ResourceManager;
 import io.strimzi.test.TestUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 public class KafkaTopicTemplates {
 
-    private static final Logger LOGGER = LogManager.getLogger(KafkaTopicTemplates.class);
-
     private KafkaTopicTemplates() {}
-
-    public static final String PATH_TO_KAFKA_TOPIC_CONFIG = Constants.PATH_TO_PACKAGING_EXAMPLES + "/topic/kafka-topic.yaml";
 
     public static KafkaTopicBuilder topic(String clusterName, String topicName) {
         return defaultTopic(clusterName, topicName, 1, 1, 1, ResourceManager.kubeClient().getNamespace());
@@ -46,7 +40,7 @@ public class KafkaTopicTemplates {
     }
 
     public static KafkaTopicBuilder defaultTopic(String clusterName, String topicName, int partitions, int replicas, int minIsr, String topicNamespace) {
-        KafkaTopic kafkaTopic = getKafkaTopicFromYaml(PATH_TO_KAFKA_TOPIC_CONFIG);
+        KafkaTopic kafkaTopic = getKafkaTopicFromYaml(Constants.PATH_TO_KAFKA_TOPIC_CONFIG);
         return new KafkaTopicBuilder(kafkaTopic)
             .withNewMetadata()
                 .withName(topicName)

@@ -13,7 +13,6 @@ import io.strimzi.systemtest.resources.ResourceType;
 import io.strimzi.test.TestUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.junit.jupiter.api.extension.ExtensionContext;
 
 public class RoleBindingResource implements ResourceType<RoleBinding> {
 
@@ -40,7 +39,7 @@ public class RoleBindingResource implements ResourceType<RoleBinding> {
         return resource != null;
     }
 
-    public static RoleBinding roleBinding(ExtensionContext extensionContext, String yamlPath, String namespace, String clientNamespace) {
+    public static RoleBinding roleBinding(String yamlPath, String namespace, String clientNamespace) {
         LOGGER.info("Creating RoleBinding from {} in namespace {}", yamlPath, namespace);
         RoleBinding roleBinding = getRoleBindingFromYaml(yamlPath);
         if (Environment.isNamespaceRbacScope()) {

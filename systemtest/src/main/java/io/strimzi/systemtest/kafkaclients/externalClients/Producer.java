@@ -110,8 +110,4 @@ public class Producer extends ClientHandlerBase<Integer> implements AutoCloseabl
             });
         }
     }
-
-    public void setClientName(String clientName) {
-        this.clientName = clientName;
-    }
 }

@@ -6,8 +6,6 @@ package io.strimzi.systemtest.kafkaclients.externalClients;
 
 import io.strimzi.systemtest.kafkaclients.AbstractKafkaClient;
 import io.strimzi.systemtest.kafkaclients.KafkaClientOperations;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 /**
  * The TracingKafkaClient for sending and receiving messages using tracing properties.
@@ -15,7 +13,6 @@ import org.apache.logging.log4j.Logger;
  */
 public class TracingExternalKafkaClient extends AbstractKafkaClient<TracingExternalKafkaClient.Builder> implements KafkaClientOperations {
 
-    private static final Logger LOGGER = LogManager.getLogger(TracingExternalKafkaClient.class);
     private String serviceName;
 
     public static class Builder extends AbstractKafkaClient.Builder<Builder> {

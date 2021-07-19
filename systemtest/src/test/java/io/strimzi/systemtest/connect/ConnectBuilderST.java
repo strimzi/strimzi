@@ -133,7 +133,7 @@ class ConnectBuilderST extends AbstractST {
     void testBuildFailsWithWrongChecksumOfArtifact(ExtensionContext extensionContext) {
         String connectClusterName = mapWithClusterNames.get(extensionContext.getDisplayName()) + "-connect";
         String kafkaClientsName = mapWithKafkaClientNames.get(extensionContext.getDisplayName());
-        final String imageName = getImageNameForTestCase(extensionContext);
+        final String imageName = getImageNameForTestCase();
 
         Plugin pluginWithWrongChecksum = new PluginBuilder()
             .withName("connector-with-wrong-checksum")
@@ -206,7 +206,7 @@ class ConnectBuilderST extends AbstractST {
         String connectClusterName = mapWithClusterNames.get(extensionContext.getDisplayName()) + "-connect";
         String topicName = mapWithTestTopics.get(extensionContext.getDisplayName());
         String kafkaClientsName = mapWithKafkaClientNames.get(extensionContext.getDisplayName());
-        final String imageName = getImageNameForTestCase(extensionContext);
+        final String imageName = getImageNameForTestCase();
 
         resourceManager.createResource(extensionContext, KafkaTopicTemplates.topic(SHARED_KAFKA_CLUSTER_NAME, topicName).build());
         resourceManager.createResource(extensionContext, KafkaConnectTemplates.kafkaConnect(extensionContext, connectClusterName, SHARED_KAFKA_CLUSTER_NAME, 1, false)
@@ -312,7 +312,7 @@ class ConnectBuilderST extends AbstractST {
         String kafkaClientsName = mapWithKafkaClientNames.get(extensionContext.getDisplayName());
         String echoConnector = "echo-sink-connector";
         String camelConnector = "camel-http-connector";
-        final String imageName = getImageNameForTestCase(extensionContext);
+        final String imageName = getImageNameForTestCase();
 
         Plugin secondPlugin =  new PluginBuilder()
             .withName("camel-connector")
@@ -403,7 +403,7 @@ class ConnectBuilderST extends AbstractST {
     void testBuildOtherPluginTypeWithAndWithoutFileName(ExtensionContext extensionContext) {
         final String connectClusterName = mapWithClusterNames.get(extensionContext.getDisplayName()) + "-connect";
         String kafkaClientsName = mapWithKafkaClientNames.get(extensionContext.getDisplayName());
-        final String imageName = getImageNameForTestCase(extensionContext);
+        final String imageName = getImageNameForTestCase();
 
         String topicName = KafkaTopicUtils.generateRandomNameOfTopic();
 
@@ -464,7 +464,7 @@ class ConnectBuilderST extends AbstractST {
             "/bin/bash", "-c", "ls plugins/plugin-with-other-type/*").out().trim();
     }
 
-    private String getImageNameForTestCase(ExtensionContext extensionContext) {
+    private String getImageNameForTestCase() {
         int randomNum = new Random().nextInt(Integer.MAX_VALUE);
         return outputRegistry + "/connect-build-" + randomNum + ":latest";
     }

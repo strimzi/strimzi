@@ -269,7 +269,7 @@ class CustomResourceStatusST extends AbstractST {
             .build());
 
         assertKafkaConnectStatus(1, connectUrl);
-        assertKafkaConnectorStatus(CUSTOM_RESOURCE_STATUS_CLUSTER_NAME, 1, "RUNNING|UNASSIGNED", 0, "RUNNING", "source", List.of());
+        assertKafkaConnectorStatus(1, "RUNNING|UNASSIGNED", "source", List.of());
 
         KafkaConnectResource.replaceKafkaConnectResource(CUSTOM_RESOURCE_STATUS_CLUSTER_NAME, kb -> kb.getSpec().setResources(new ResourceRequirementsBuilder()
                 .addToRequests("cpu", new Quantity("100000000m"))
@@ -290,7 +290,7 @@ class CustomResourceStatusST extends AbstractST {
         KafkaConnectorResource.replaceKafkaConnectorResource(CUSTOM_RESOURCE_STATUS_CLUSTER_NAME,
             kc -> kc.getMetadata().setLabels(Collections.singletonMap(Labels.STRIMZI_CLUSTER_LABEL, CUSTOM_RESOURCE_STATUS_CLUSTER_NAME)));
         KafkaConnectorUtils.waitForConnectorReady(CUSTOM_RESOURCE_STATUS_CLUSTER_NAME);
-        assertKafkaConnectorStatus(CUSTOM_RESOURCE_STATUS_CLUSTER_NAME, 1, "RUNNING|UNASSIGNED", 0, "RUNNING", "source", List.of(EXAMPLE_TOPIC_NAME));
+        assertKafkaConnectorStatus(1, "RUNNING|UNASSIGNED", "source", List.of(EXAMPLE_TOPIC_NAME));
 
         String defaultClass = KafkaConnectorResource.kafkaConnectorClient().inNamespace(NAMESPACE).withName(CUSTOM_RESOURCE_STATUS_CLUSTER_NAME).get().getSpec().getClassName();
 
@@ -306,7 +306,7 @@ class CustomResourceStatusST extends AbstractST {
             });
 
         KafkaConnectorUtils.waitForConnectorReady(CUSTOM_RESOURCE_STATUS_CLUSTER_NAME);
-        assertKafkaConnectorStatus(CUSTOM_RESOURCE_STATUS_CLUSTER_NAME, 3, "RUNNING|UNASSIGNED", 0, "RUNNING", "source", List.of(EXAMPLE_TOPIC_NAME));
+        assertKafkaConnectorStatus(3, "RUNNING|UNASSIGNED", "source", List.of(EXAMPLE_TOPIC_NAME));
     }
 
     @ParallelTest
@@ -568,7 +568,7 @@ class CustomResourceStatusST extends AbstractST {
     }
 
     @SuppressWarnings("unchecked")
-    void assertKafkaConnectorStatus(String clusterName, long expectedObservedGeneration, String connectorStates, int taskId, String taskState, String type, List<String> topics) {
+    void assertKafkaConnectorStatus(long expectedObservedGeneration, String connectorStates, String type, List<String> topics) {
         KafkaConnectorStatus kafkaConnectorStatus = KafkaConnectorResource.kafkaConnectorClient().inNamespace(NAMESPACE).withName(CUSTOM_RESOURCE_STATUS_CLUSTER_NAME).get().getStatus();
         assertThat(kafkaConnectorStatus.getObservedGeneration(), is(expectedObservedGeneration));
         Map<String, Object> connectorStatus = kafkaConnectorStatus.getConnectorStatus();

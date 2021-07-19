@@ -15,8 +15,6 @@ import io.strimzi.systemtest.templates.crd.KafkaTopicTemplates;
 import io.strimzi.systemtest.utils.StUtils;
 import io.strimzi.systemtest.utils.kubeUtils.controllers.JobUtils;
 import io.strimzi.test.WaitException;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
@@ -31,7 +29,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class QuotasST extends AbstractST {
-    private static final Logger LOGGER = LogManager.getLogger(QuotasST.class);
 
     public static final String NAMESPACE = "quotas";
     /**
@@ -75,7 +72,7 @@ public class QuotasST extends AbstractST {
 
         resourceManager.createResource(extensionContext, basicClients.producerStrimzi().build());
         // Kafka Quotas Plugin should stop producer in around 10-20 seconds with configured throughput
-        assertThrows(WaitException.class, () -> JobUtils.waitForJobFailure(producerName, NAMESPACE, 120_000));
+        assertThrows(WaitException.class, () -> JobUtils.waitForJobFailure(producerName, 120_000));
 
         String kafkaLog = kubeClient(namespaceName).logs(KafkaResources.kafkaPodName(clusterName, 0));
         String softLimitLog = "disk is beyond soft limit";

@@ -109,7 +109,7 @@ public class KafkaRollerST extends AbstractST {
 
         //Test that CO doesn't have any exceptions in log
         timeMeasuringSystem.stopOperation(operationId, extensionContext.getRequiredTestClass().getName(), extensionContext.getDisplayName());
-        assertNoCoErrorsLogged(NAMESPACE, timeMeasuringSystem.getDurationInSeconds(extensionContext.getRequiredTestClass().getName(), extensionContext.getDisplayName(), operationId));
+        assertNoCoErrorsLogged(timeMeasuringSystem.getDurationInSeconds(extensionContext.getRequiredTestClass().getName(), extensionContext.getDisplayName(), operationId));
 
         // scale down
         final int scaledDownReplicas = 3;
@@ -149,7 +149,6 @@ public class KafkaRollerST extends AbstractST {
 
         // rolling update for kafka
         LOGGER.info("Annotate Kafka StatefulSet {} with manual rolling update annotation", kafkaName);
-        String operationId = timeMeasuringSystem.startTimeMeasuring(Operation.CLUSTER_RECOVERY, extensionContext.getRequiredTestClass().getName(), extensionContext.getDisplayName());
 
         // set annotation to trigger Kafka rolling update
         kubeClient(namespaceName).statefulSet(kafkaName).withPropagationPolicy(DeletionPropagation.ORPHAN).edit(sts -> new StatefulSetBuilder(sts)

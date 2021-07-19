@@ -34,12 +34,6 @@ import static io.strimzi.systemtest.resources.ResourceManager.kubeClient;
 
 public class KafkaTemplates {
 
-    private static final String PATH_TO_KAFKA_METRICS_CONFIG = Constants.PATH_TO_PACKAGING_EXAMPLES + "/metrics/kafka-metrics.yaml";
-    private static final String PATH_TO_KAFKA_CRUISE_CONTROL_CONFIG = Constants.PATH_TO_PACKAGING_EXAMPLES + "/cruise-control/kafka-cruise-control.yaml";
-    private static final String PATH_TO_KAFKA_CRUISE_CONTROL_METRICS_CONFIG = Constants.PATH_TO_PACKAGING_EXAMPLES + "/metrics/kafka-cruise-control-metrics.yaml";
-    private static final String PATH_TO_KAFKA_EPHEMERAL_CONFIG = Constants.PATH_TO_PACKAGING_EXAMPLES + "/kafka/kafka-ephemeral.yaml";
-    private static final String PATH_TO_KAFKA_PERSISTENT_CONFIG = Constants.PATH_TO_PACKAGING_EXAMPLES + "/kafka/kafka-persistent.yaml";
-
     private KafkaTemplates() {};
 
     public static MixedOperation<Kafka, KafkaList, Resource<Kafka>> kafkaClient() {
@@ -51,7 +45,7 @@ public class KafkaTemplates {
     }
 
     public static KafkaBuilder kafkaEphemeral(String name, int kafkaReplicas, int zookeeperReplicas) {
-        Kafka kafka = getKafkaFromYaml(PATH_TO_KAFKA_EPHEMERAL_CONFIG);
+        Kafka kafka = getKafkaFromYaml(Constants.PATH_TO_KAFKA_EPHEMERAL_CONFIG);
         return defaultKafka(kafka, name, kafkaReplicas, zookeeperReplicas);
     }
 
@@ -60,7 +54,7 @@ public class KafkaTemplates {
     }
 
     public static KafkaBuilder kafkaPersistent(String name, int kafkaReplicas, int zookeeperReplicas) {
-        Kafka kafka = getKafkaFromYaml(PATH_TO_KAFKA_PERSISTENT_CONFIG);
+        Kafka kafka = getKafkaFromYaml(Constants.PATH_TO_KAFKA_PERSISTENT_CONFIG);
         return defaultKafka(kafka, name, kafkaReplicas, zookeeperReplicas)
             .editSpec()
                 .editKafka()
@@ -83,7 +77,7 @@ public class KafkaTemplates {
     }
 
     public static KafkaBuilder kafkaJBOD(String name, int kafkaReplicas, int zookeeperReplicas, JbodStorage jbodStorage) {
-        Kafka kafka = getKafkaFromYaml(PATH_TO_KAFKA_PERSISTENT_CONFIG);
+        Kafka kafka = getKafkaFromYaml(Constants.PATH_TO_KAFKA_PERSISTENT_CONFIG);
         return defaultKafka(kafka, name, kafkaReplicas, zookeeperReplicas)
             .editSpec()
                 .editKafka()
@@ -100,9 +94,9 @@ public class KafkaTemplates {
     }
 
     public static KafkaBuilder kafkaWithMetrics(String name, String namespace, int kafkaReplicas, int zookeeperReplicas) {
-        Kafka kafka = getKafkaFromYaml(PATH_TO_KAFKA_METRICS_CONFIG);
+        Kafka kafka = getKafkaFromYaml(Constants.PATH_TO_KAFKA_METRICS_CONFIG);
 
-        ConfigMap metricsCm = TestUtils.configMapFromYaml(PATH_TO_KAFKA_METRICS_CONFIG, "kafka-metrics");
+        ConfigMap metricsCm = TestUtils.configMapFromYaml(Constants.PATH_TO_KAFKA_METRICS_CONFIG, "kafka-metrics");
         KubeClusterResource.kubeClient().getClient().configMaps().inNamespace(namespace).createOrReplace(metricsCm);
         return defaultKafka(kafka, name, kafkaReplicas, zookeeperReplicas)
             .editOrNewMetadata()
@@ -115,26 +109,26 @@ public class KafkaTemplates {
     }
 
     public static KafkaBuilder kafkaWithCruiseControl(String name, int kafkaReplicas, int zookeeperReplicas) {
-        Kafka kafka = getKafkaFromYaml(PATH_TO_KAFKA_CRUISE_CONTROL_CONFIG);
+        Kafka kafka = getKafkaFromYaml(Constants.PATH_TO_KAFKA_CRUISE_CONTROL_CONFIG);
         return defaultKafka(kafka, name, kafkaReplicas, zookeeperReplicas);
     }
 
     public static KafkaBuilder kafkaAndCruiseControlWithMetrics(String name, int kafkaReplicas, int zookeeperReplicas) {
-        Kafka kafka = getKafkaFromYaml(PATH_TO_KAFKA_CRUISE_CONTROL_METRICS_CONFIG);
-        ConfigMap kafkaMetricsCm = TestUtils.configMapFromYaml(PATH_TO_KAFKA_METRICS_CONFIG, "kafka-metrics");
+        Kafka kafka = getKafkaFromYaml(Constants.PATH_TO_KAFKA_CRUISE_CONTROL_METRICS_CONFIG);
+        ConfigMap kafkaMetricsCm = TestUtils.configMapFromYaml(Constants.PATH_TO_KAFKA_METRICS_CONFIG, "kafka-metrics");
         KubeClusterResource.kubeClient().getClient().configMaps().inNamespace(kubeClient().getNamespace()).createOrReplace(kafkaMetricsCm);
-        ConfigMap zkMetricsCm = TestUtils.configMapFromYaml(PATH_TO_KAFKA_METRICS_CONFIG, "kafka-metrics");
+        ConfigMap zkMetricsCm = TestUtils.configMapFromYaml(Constants.PATH_TO_KAFKA_METRICS_CONFIG, "kafka-metrics");
         KubeClusterResource.kubeClient().getClient().configMaps().inNamespace(kubeClient().getNamespace()).createOrReplace(zkMetricsCm);
-        ConfigMap ccMetricsCm = TestUtils.configMapFromYaml(PATH_TO_KAFKA_CRUISE_CONTROL_CONFIG, "cruise-control-metrics");
+        ConfigMap ccMetricsCm = TestUtils.configMapFromYaml(Constants.PATH_TO_KAFKA_CRUISE_CONTROL_CONFIG, "cruise-control-metrics");
         KubeClusterResource.kubeClient().getClient().configMaps().inNamespace(kubeClient().getNamespace()).createOrReplace(ccMetricsCm);
         return defaultKafka(kafka, name, kafkaReplicas, zookeeperReplicas);
     }
 
     public static KafkaBuilder kafkaWithMetricsAndCruiseControlWithMetrics(String name, int kafkaReplicas, int zookeeperReplicas) {
-        Kafka kafka = getKafkaFromYaml(PATH_TO_KAFKA_METRICS_CONFIG);
-        ConfigMap kafkaMetricsCm = TestUtils.configMapFromYaml(PATH_TO_KAFKA_METRICS_CONFIG, "kafka-metrics");
+        Kafka kafka = getKafkaFromYaml(Constants.PATH_TO_KAFKA_METRICS_CONFIG);
+        ConfigMap kafkaMetricsCm = TestUtils.configMapFromYaml(Constants.PATH_TO_KAFKA_METRICS_CONFIG, "kafka-metrics");
         KubeClusterResource.kubeClient().getClient().configMaps().inNamespace(kubeClient().getNamespace()).createOrReplace(kafkaMetricsCm);
-        ConfigMap zkMetricsCm = TestUtils.configMapFromYaml(PATH_TO_KAFKA_METRICS_CONFIG, "kafka-metrics");
+        ConfigMap zkMetricsCm = TestUtils.configMapFromYaml(Constants.PATH_TO_KAFKA_METRICS_CONFIG, "kafka-metrics");
         KubeClusterResource.kubeClient().getClient().configMaps().inNamespace(kubeClient().getNamespace()).createOrReplace(zkMetricsCm);
 
         ConfigMap ccCm = new ConfigMapBuilder()
@@ -173,7 +167,7 @@ public class KafkaTemplates {
     }
 
     public static KafkaBuilder defaultKafka(String name, int kafkaReplicas, int zookeeperReplicas) {
-        Kafka kafka = getKafkaFromYaml(PATH_TO_KAFKA_EPHEMERAL_CONFIG);
+        Kafka kafka = getKafkaFromYaml(Constants.PATH_TO_KAFKA_EPHEMERAL_CONFIG);
         return defaultKafka(kafka, name, kafkaReplicas, zookeeperReplicas);
     }
 

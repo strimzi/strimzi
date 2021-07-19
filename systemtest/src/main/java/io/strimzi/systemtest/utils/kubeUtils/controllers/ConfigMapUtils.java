@@ -4,8 +4,6 @@
  */
 package io.strimzi.systemtest.utils.kubeUtils.controllers;
 
-import io.fabric8.kubernetes.api.model.ConfigMap;
-
 import io.strimzi.operator.common.model.Labels;
 import io.strimzi.systemtest.Constants;
 import io.strimzi.systemtest.resources.ResourceOperation;
@@ -13,11 +11,8 @@ import io.strimzi.test.TestUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
-import static io.strimzi.systemtest.resources.ResourceManager.cmdKubeClient;
 import static io.strimzi.test.k8s.KubeClusterResource.kubeClient;
 
 public class ConfigMapUtils {
@@ -53,10 +48,6 @@ public class ConfigMapUtils {
         }
     }
 
-    public static void waitForConfigMapLabelsChange(String configMapName, Map<String, String> labels) {
-        waitForConfigMapLabelsChange(kubeClient().getNamespace(), configMapName, labels);
-    }
-
     public static void waitForConfigMapLabelsDeletion(String namespaceName, String configMapName, String... labelKeys) {
         for (final String labelKey : labelKeys) {
             LOGGER.info("Waiting for ConfigMap {} label {} change to {}", configMapName, labelKey, null);
@@ -68,23 +59,5 @@ public class ConfigMapUtils {
                 });
             LOGGER.info("ConfigMap {} label {} change to {}", configMapName, labelKey, null);
         }
-    }
-
-    public static void waitUntilConfigMapDeletion(String clusterName) {
-        LOGGER.info("Waiting for all ConfigMaps of cluster {} deletion", clusterName);
-        TestUtils.waitFor("ConfigMaps will be deleted {}", Constants.GLOBAL_POLL_INTERVAL, DELETION_TIMEOUT,
-            () -> {
-                List<ConfigMap> cmList = kubeClient().listConfigMaps().stream().filter(cm -> cm.getMetadata().getName().contains(clusterName)).collect(Collectors.toList());
-                if (cmList.isEmpty()) {
-                    return true;
-                } else {
-                    for (ConfigMap cm : cmList) {
-                        LOGGER.warn("ConfigMap {} is not deleted yet! Triggering force delete by cmd client!", cm.getMetadata().getName());
-                        cmdKubeClient().deleteByName("configmap", cm.getMetadata().getName());
-                    }
-                    return false;
-                }
-            });
-        LOGGER.info("ConfigMaps of cluster {} were deleted", clusterName);
     }
 }

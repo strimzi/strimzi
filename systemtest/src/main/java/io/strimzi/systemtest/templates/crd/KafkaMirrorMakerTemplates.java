@@ -21,8 +21,6 @@ import org.apache.kafka.clients.producer.ProducerConfig;
 
 public class KafkaMirrorMakerTemplates {
 
-    public static final String PATH_TO_KAFKA_MIRROR_MAKER_CONFIG = Constants.PATH_TO_PACKAGING_EXAMPLES + "/mirror-maker/kafka-mirror-maker.yaml";
-
     private KafkaMirrorMakerTemplates() {}
 
     public static MixedOperation<KafkaMirrorMaker, KafkaMirrorMakerList, Resource<KafkaMirrorMaker>> kafkaMirrorMakerClient() {
@@ -30,18 +28,8 @@ public class KafkaMirrorMakerTemplates {
     }
 
     public static KafkaMirrorMakerBuilder kafkaMirrorMaker(String name, String sourceBootstrapServer, String targetBootstrapServer, String groupId, int mirrorMakerReplicas, boolean tlsListener) {
-        KafkaMirrorMaker kafkaMirrorMaker = getKafkaMirrorMakerFromYaml(PATH_TO_KAFKA_MIRROR_MAKER_CONFIG);
+        KafkaMirrorMaker kafkaMirrorMaker = getKafkaMirrorMakerFromYaml(Constants.PATH_TO_KAFKA_MIRROR_MAKER_CONFIG);
         return defaultKafkaMirrorMaker(kafkaMirrorMaker, name, sourceBootstrapServer, targetBootstrapServer, groupId, mirrorMakerReplicas, tlsListener);
-    }
-
-    public static KafkaMirrorMakerBuilder defaultKafkaMirrorMaker(String name,
-                                                                  String sourceBootstrapServer,
-                                                                  String targetBootstrapServer,
-                                                                  String groupId,
-                                                                  int kafkaMirrorMakerReplicas,
-                                                                  boolean tlsListener) {
-        KafkaMirrorMaker kafkaMirrorMaker = getKafkaMirrorMakerFromYaml(PATH_TO_KAFKA_MIRROR_MAKER_CONFIG);
-        return defaultKafkaMirrorMaker(kafkaMirrorMaker, name, sourceBootstrapServer, targetBootstrapServer, groupId, kafkaMirrorMakerReplicas, tlsListener);
     }
 
     private static KafkaMirrorMakerBuilder defaultKafkaMirrorMaker(KafkaMirrorMaker kafkaMirrorMaker,

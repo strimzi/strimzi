@@ -13,7 +13,6 @@ import io.strimzi.systemtest.templates.kubernetes.NetworkPolicyTemplates;
 import io.strimzi.systemtest.utils.kubeUtils.controllers.JobUtils;
 import io.strimzi.systemtest.utils.kubeUtils.objects.SecretUtils;
 import io.strimzi.systemtest.utils.specific.KeycloakUtils;
-import io.vertx.ext.web.client.WebClient;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.AfterEach;
@@ -34,7 +33,6 @@ import static io.strimzi.test.k8s.KubeClusterResource.kubeClient;
 @Tag(REGRESSION)
 public class OauthAbstractST extends AbstractST {
 
-    public static final String NAMESPACE = "oauth2-cluster-test";
     protected static final Logger LOGGER = LogManager.getLogger(OauthAbstractST.class);
     protected static final String OAUTH_CLIENT_NAME = "hello-world-producer";
     protected static final String OAUTH_CLIENT_SECRET = "hello-world-producer-secret";
@@ -71,8 +69,6 @@ public class OauthAbstractST extends AbstractST {
         connectorConfig.put("status.storage.replication.factor", 1);
     }
 
-    protected WebClient client;
-    
     protected void setupCoAndKeycloak(ExtensionContext extensionContext, String namespace) {
 
         install = new SetupClusterOperator.SetupClusterOperatorBuilder()
@@ -81,11 +77,11 @@ public class OauthAbstractST extends AbstractST {
             .createInstallation()
             .runInstallation();
 
-        resourceManager.createResource(extensionContext, NetworkPolicyTemplates.applyDefaultNetworkPolicy(extensionContext, namespace, DefaultNetworkPolicy.DEFAULT_TO_ALLOW));
+        resourceManager.createResource(extensionContext, NetworkPolicyTemplates.applyDefaultNetworkPolicy(namespace, DefaultNetworkPolicy.DEFAULT_TO_ALLOW));
 
         LOGGER.info("Deploying keycloak...");
 
-        KeycloakUtils.deployKeycloak(extensionContext, namespace);
+        KeycloakUtils.deployKeycloak(namespace);
 
         SecretUtils.waitForSecretReady("credential-example-keycloak");
         String passwordEncoded = kubeClient().getSecret("credential-example-keycloak").getData().get("ADMIN_PASSWORD");

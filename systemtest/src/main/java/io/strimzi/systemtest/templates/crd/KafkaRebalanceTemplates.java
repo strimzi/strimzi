@@ -20,8 +20,6 @@ import java.util.Map;
 
 public class KafkaRebalanceTemplates {
 
-    public static final String PATH_TO_KAFKA_REBALANCE_CONFIG = Constants.PATH_TO_PACKAGING_EXAMPLES + "/cruise-control/kafka-rebalance.yaml";
-
     private KafkaRebalanceTemplates() {}
 
     public static MixedOperation<KafkaRebalance, KafkaRebalanceList, Resource<KafkaRebalance>> kafkaRebalanceClient() {
@@ -29,7 +27,7 @@ public class KafkaRebalanceTemplates {
     }
 
     public static KafkaRebalanceBuilder kafkaRebalance(String name) {
-        KafkaRebalance kafkaRebalance = getKafkaRebalanceFromYaml(PATH_TO_KAFKA_REBALANCE_CONFIG);
+        KafkaRebalance kafkaRebalance = getKafkaRebalanceFromYaml(Constants.PATH_TO_KAFKA_REBALANCE_CONFIG);
         return defaultKafkaRebalance(kafkaRebalance, name);
     }
 
@@ -45,7 +43,6 @@ public class KafkaRebalanceTemplates {
                 .withLabels(kafkaRebalanceLabels)
             .endMetadata();
     }
-
 
     public static KafkaRebalanceBuilder kafkaRebalanceWithoutWait(KafkaRebalance kafkaRebalance) {
         kafkaRebalanceClient().inNamespace(ResourceManager.kubeClient().getNamespace()).createOrReplace(kafkaRebalance);

@@ -13,8 +13,6 @@ import io.strimzi.test.TestUtils;
 
 public class KafkaConnectorTemplates {
 
-    public static final String PATH_TO_KAFKA_CONNECTOR_CONFIG = Constants.PATH_TO_PACKAGING_EXAMPLES + "/connect/source-connector.yaml";
-
     private KafkaConnectorTemplates() {}
 
     public static KafkaConnectorBuilder kafkaConnector(String name) {
@@ -30,12 +28,12 @@ public class KafkaConnectorTemplates {
     }
 
     public static KafkaConnectorBuilder kafkaConnector(String name, String clusterName, int maxTasks) {
-        KafkaConnector kafkaConnector = getKafkaConnectorFromYaml(PATH_TO_KAFKA_CONNECTOR_CONFIG);
+        KafkaConnector kafkaConnector = getKafkaConnectorFromYaml(Constants.PATH_TO_KAFKA_CONNECTOR_CONFIG);
         return defaultKafkaConnector(kafkaConnector, name, clusterName, maxTasks);
     }
 
     public static KafkaConnectorBuilder defaultKafkaConnector(String name, String clusterName, int maxTasks) {
-        KafkaConnector kafkaConnector = getKafkaConnectorFromYaml(PATH_TO_KAFKA_CONNECTOR_CONFIG);
+        KafkaConnector kafkaConnector = getKafkaConnectorFromYaml(Constants.PATH_TO_KAFKA_CONNECTOR_CONFIG);
         return defaultKafkaConnector(kafkaConnector, name, clusterName, maxTasks);
     }
 

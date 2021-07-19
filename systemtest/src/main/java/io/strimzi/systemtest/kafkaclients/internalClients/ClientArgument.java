@@ -52,8 +52,4 @@ public enum ClientArgument {
     public String command() {
         return command;
     }
-
-    public String setConfiguration(String config) {
-        return config;
-    }
 }

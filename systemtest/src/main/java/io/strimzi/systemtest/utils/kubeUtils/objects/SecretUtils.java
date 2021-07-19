@@ -25,10 +25,8 @@ import java.security.cert.X509Certificate;
 import java.util.Base64;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-import static io.strimzi.test.k8s.KubeClusterResource.cmdKubeClient;
 import static io.strimzi.test.k8s.KubeClusterResource.kubeClient;
 
 public class SecretUtils {
@@ -81,16 +79,8 @@ public class SecretUtils {
         createSecret(kubeClient().getNamespace(), secretName, dataKey, dataValue);
     }
 
-    public static void createSecretFromFile(String pathToOrigin, String key, String name, String namespace) {
-        createSecretFromFile(Collections.singletonMap(key, pathToOrigin), name, namespace, null);
-    }
-
     public static void createSecretFromFile(String pathToOrigin, String key, String name, String namespace, Map<String, String> labels) {
         createSecretFromFile(Collections.singletonMap(key, pathToOrigin), name, namespace, labels);
-    }
-
-    public static void createSecretFromFile(Map<String, String> certFilesPath, String name, String namespace) {
-        createSecretFromFile(certFilesPath, name, namespace, null);
     }
 
     public static void createSecretFromFile(Map<String, String> certFilesPath, String name, String namespace, Map<String, String> labels) {
@@ -117,24 +107,6 @@ public class SecretUtils {
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
-
-    public static void waitForClusterSecretsDeletion(String clusterName) {
-        LOGGER.info("Waiting for Secret {} deletion", clusterName);
-        TestUtils.waitFor("Secret " + clusterName + " deletion", Constants.POLL_INTERVAL_FOR_RESOURCE_READINESS, DELETION_TIMEOUT,
-            () -> {
-                List<Secret> secretList = kubeClient().listSecrets(Labels.STRIMZI_CLUSTER_LABEL, clusterName);
-                if (secretList.isEmpty()) {
-                    return true;
-                } else {
-                    for (Secret secret : secretList) {
-                        LOGGER.warn("Secret {} is not deleted yet! Triggering force delete by cmd client!", secret.getMetadata().getName());
-                        cmdKubeClient().deleteByName("secret", secret.getMetadata().getName());
-                    }
-                    return false;
-                }
-            });
-        LOGGER.info("Secret {} deleted", clusterName);
     }
 
     public static void createCustomSecret(String name, String clusterName, String namespace, CertAndKeyFiles certAndKeyFiles) {

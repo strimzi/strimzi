@@ -12,7 +12,6 @@ import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.junit.jupiter.api.extension.ExtensionContext;
 
 import static io.strimzi.systemtest.resources.ResourceManager.cmdKubeClient;
 import static io.strimzi.systemtest.resources.ResourceManager.kubeClient;
@@ -27,7 +26,7 @@ public class KeycloakUtils {
 
     private KeycloakUtils() {}
 
-    public static void deployKeycloak(ExtensionContext extensionContext, String namespace) {
+    public static void deployKeycloak(String namespace) {
         LOGGER.info("Prepare Keycloak in namespace: {}", namespace);
 
         // This is needed because from time to time the first try fails on Azure
@@ -111,18 +110,6 @@ public class KeycloakUtils {
             baseURI + "/auth/admin/realms/" + desiredRealm + "/clients",
             "-H", "Authorization: Bearer " + token
         ).out());
-    }
-
-    /**
-     * Returns all resources from client of specific realm
-     * @param baseURI base uri for accessing Keycloak API
-     * @param token admin token
-     * @param desiredRealm realm we want to get clients from
-     * @param clientId id of desired client
-     * @return JsonArray with all resources for clients in specific realm
-     */
-    public static JsonArray getResourcesFromRealmClient(String baseURI, String token, String desiredRealm, String clientId) {
-        return getConfigFromResourceServerOfRealm(baseURI, token, desiredRealm, clientId, "resource");
     }
 
     /**

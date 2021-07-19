@@ -74,35 +74,6 @@ public class FileUtils {
     }
 
     @SuppressFBWarnings("RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE")
-    public static File downloadYamlAndReplaceNamespace(String url, String namespace) throws IOException {
-        File yamlFile = File.createTempFile("temp-file", ".yaml");
-
-        try (InputStream bais = (InputStream) URI.create(url).toURL().openConnection().getContent();
-             BufferedReader br = new BufferedReader(new InputStreamReader(bais, StandardCharsets.UTF_8));
-             OutputStreamWriter osw = new OutputStreamWriter(new FileOutputStream(yamlFile), StandardCharsets.UTF_8)) {
-
-            StringBuilder sb = new StringBuilder();
-
-            String read;
-            while ((read = br.readLine()) != null) {
-                sb.append(read);
-                sb.append("\n");
-            }
-            String yaml = sb.toString();
-            yaml = yaml.replaceAll("namespace: .*", "namespace: " + namespace);
-            yaml = yaml.replace("securityContext:\n" +
-                "        runAsNonRoot: true\n" +
-                "        runAsUser: 65534", "");
-            osw.write(yaml);
-            return yamlFile;
-
-        } catch (RuntimeException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    @SuppressFBWarnings("RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE")
     public static File downloadYaml(String url) throws IOException {
         File yamlFile = File.createTempFile("temp-file", ".yaml");
 
