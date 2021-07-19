@@ -176,6 +176,7 @@ the documentation for more details.
 | `nodeSelector`                       | Add a node selector to Operator Pod       | `{}`                                                 |
 | `featureGates`                       | Feature Gates configuration               | ``                                                   |
 | `labelsExclusionPattern`             | Override the exclude pattern for exclude some labels             | `""`  
+| `generateNetworkPolicy`              | Controls whether Strimzi generates network policy resources      | `true`                        |
 
 Specify each parameter using the `--set key=value[,key=value]` argument to `helm install`. For example,
 
