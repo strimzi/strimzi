@@ -432,11 +432,11 @@ class AlternativeReconcileTriggersST extends AbstractST {
 
     @BeforeAll
     void setup(ExtensionContext extensionContext) {
+        // CO_OPERATION_TIMEOUT_DEFAULT is set here for ensuring that all operations will be fulfilled successfully
         install = new SetupClusterOperator.SetupClusterOperatorBuilder()
             .withExtensionContext(extensionContext)
             .withNamespace(NAMESPACE)
             .withWatchingNamespaces(Constants.WATCH_ALL_NAMESPACES)
-            .withOperationTimeout(Constants.CO_OPERATION_TIMEOUT_SHORT)
             .createInstallation()
             .runInstallation();
     }
