@@ -65,6 +65,7 @@ import io.strimzi.systemtest.utils.kafkaUtils.KafkaUserUtils;
 import io.strimzi.systemtest.utils.kafkaUtils.KafkaUtils;
 import io.strimzi.systemtest.utils.kubeUtils.controllers.DeploymentUtils;
 import io.strimzi.systemtest.utils.kubeUtils.objects.PodUtils;
+import io.strimzi.test.TestUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.BeforeAll;
@@ -99,7 +100,6 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.core.StringContains.containsString;
 
 @Tag(REGRESSION)
 class CustomResourceStatusST extends AbstractST {
@@ -269,7 +269,7 @@ class CustomResourceStatusST extends AbstractST {
             .build());
 
         assertKafkaConnectStatus(1, connectUrl);
-        assertKafkaConnectorStatus(CUSTOM_RESOURCE_STATUS_CLUSTER_NAME, 1, "RUNNING|UNASSIGNED", 0, "RUNNING", "source", List.of());
+        assertKafkaConnectorStatus(CUSTOM_RESOURCE_STATUS_CLUSTER_NAME, 1, "RUNNING|UNASSIGNED", 0, "RUNNING", "source", List.of(EXAMPLE_TOPIC_NAME));
 
         KafkaConnectResource.replaceKafkaConnectResource(CUSTOM_RESOURCE_STATUS_CLUSTER_NAME, kb -> kb.getSpec().setResources(new ResourceRequirementsBuilder()
                 .addToRequests("cpu", new Quantity("100000000m"))
@@ -485,12 +485,16 @@ class CustomResourceStatusST extends AbstractST {
             listeners = asList(plain, tls, nodePort);
         }
 
-
         KafkaBuilder kafkaBuilder = KafkaTemplates.kafkaEphemeral(CUSTOM_RESOURCE_STATUS_CLUSTER_NAME, 3, 3)
             .editSpec()
                 .editKafka()
                     .withListeners(listeners)
                 .endKafka()
+                .editEntityOperator()
+                    .editTopicOperator()
+                        .withReconciliationIntervalSeconds(15)
+                    .endTopicOperator()
+                .endEntityOperator()
             .endSpec();
 
         String kafkaClientsName = NAMESPACE + "-shared-" + Constants.KAFKA_CLIENTS;
@@ -569,15 +573,24 @@ class CustomResourceStatusST extends AbstractST {
 
     @SuppressWarnings("unchecked")
     void assertKafkaConnectorStatus(String clusterName, long expectedObservedGeneration, String connectorStates, int taskId, String taskState, String type, List<String> topics) {
-        KafkaConnectorStatus kafkaConnectorStatus = KafkaConnectorResource.kafkaConnectorClient().inNamespace(NAMESPACE).withName(CUSTOM_RESOURCE_STATUS_CLUSTER_NAME).get().getStatus();
-        assertThat(kafkaConnectorStatus.getObservedGeneration(), is(expectedObservedGeneration));
-        Map<String, Object> connectorStatus = kafkaConnectorStatus.getConnectorStatus();
-        String currentState = ((LinkedHashMap<String, String>) connectorStatus.get("connector")).get("state");
-        assertThat(connectorStates, containsString(currentState));
-        assertThat(connectorStatus.get("name"), is(CUSTOM_RESOURCE_STATUS_CLUSTER_NAME));
-        assertThat(connectorStatus.get("type"), is(type));
-        assertThat(connectorStatus.get("tasks"), notNullValue());
-        assertThat(kafkaConnectorStatus.getTopics(), is(topics));
+        TestUtils.waitFor("KafkaConnector has following values", Constants.GLOBAL_POLL_INTERVAL, Constants.GLOBAL_TIMEOUT,
+            () -> {
+                boolean isKafkaConnectorStatusCorrect = false;
+
+                KafkaConnectorStatus kafkaConnectorStatus = KafkaConnectorResource.kafkaConnectorClient().inNamespace(NAMESPACE).withName(CUSTOM_RESOURCE_STATUS_CLUSTER_NAME).get().getStatus();
+                Map<String, Object> connectorStatus = kafkaConnectorStatus.getConnectorStatus();
+                String currentState = ((LinkedHashMap<String, String>) connectorStatus.get("connector")).get("state");
+
+                isKafkaConnectorStatusCorrect =
+                    kafkaConnectorStatus.getObservedGeneration() == expectedObservedGeneration &&
+                        connectorStates.contains(currentState) &&
+                        connectorStatus.get("name").equals(CUSTOM_RESOURCE_STATUS_CLUSTER_NAME) &&
+                        connectorStatus.get("type").equals(type) &&
+                        connectorStatus.get("tasks") != null &&
+                        kafkaConnectorStatus.getTopics().equals(topics);
+
+                return isKafkaConnectorStatusCorrect;
+            });
     }
 
     void assertKafkaTopicStatus(long expectedObservedGeneration, String topicName) {
