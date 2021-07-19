@@ -114,6 +114,10 @@ spec:
             - name: STRIMZI_LABELS_EXCLUSION_PATTERN
               value: {{ .Values.labelsExclusionPattern | quote }}
             {{- end }}
+            {{- if .Values.generateNetworkPolicy }}
+            - name: STRIMZI_NETWORK_POLICY_GENERATION
+              value: {{ .Values.generateNetworkPolicy }}
+            {{- end }}
           livenessProbe:
             httpGet:
               path: /healthy
