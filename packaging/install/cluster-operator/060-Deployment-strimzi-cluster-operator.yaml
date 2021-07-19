@@ -92,8 +92,6 @@ spec:
                   fieldPath: metadata.namespace
             - name: STRIMZI_FEATURE_GATES
               value: ""
-            - name: STRIMZI_NETWORK_POLICY_GENERATION
-              value: true
           livenessProbe:
             httpGet:
               path: /healthy
