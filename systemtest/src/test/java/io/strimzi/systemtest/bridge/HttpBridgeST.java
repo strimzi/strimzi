@@ -4,8 +4,8 @@
  */
 package io.strimzi.systemtest.bridge;
 
+import io.fabric8.kubernetes.api.model.EnvVarBuilder;
 import io.fabric8.kubernetes.api.model.Service;
-import io.fabric8.kubernetes.api.model.rbac.ClusterRoleBinding;
 import io.strimzi.api.kafka.model.KafkaBridge;
 import io.strimzi.api.kafka.model.KafkaBridgeResources;
 import io.strimzi.api.kafka.model.KafkaResources;
@@ -18,13 +18,10 @@ import io.strimzi.systemtest.annotations.ParallelTest;
 import io.strimzi.systemtest.kafkaclients.internalClients.InternalKafkaClient;
 import io.strimzi.systemtest.resources.crd.KafkaBridgeResource;
 import io.strimzi.systemtest.resources.crd.kafkaclients.KafkaBridgeExampleClients;
-import io.strimzi.systemtest.resources.kubernetes.ClusterRoleBindingResource;
-import io.strimzi.systemtest.resources.operator.BundleResource;
 import io.strimzi.systemtest.templates.crd.KafkaBridgeTemplates;
 import io.strimzi.systemtest.templates.crd.KafkaClientsTemplates;
 import io.strimzi.systemtest.templates.crd.KafkaTemplates;
 import io.strimzi.systemtest.templates.crd.KafkaTopicTemplates;
-import io.strimzi.systemtest.templates.kubernetes.ClusterRoleBindingTemplates;
 import io.strimzi.systemtest.utils.ClientUtils;
 import io.strimzi.systemtest.utils.StUtils;
 import io.strimzi.systemtest.utils.kafkaUtils.KafkaBridgeUtils;
@@ -39,6 +36,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.extension.ExtensionContext;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -352,38 +350,23 @@ class HttpBridgeST extends HttpBridgeAbstractST {
 
     @BeforeAll
     void createClassResources(ExtensionContext extensionContext) {
-        install.prepareEnvForOperator(extensionContext, NAMESPACE);
-        // Apply role bindings in CO namespace
-        SetupClusterOperator.applyBindings(extensionContext, NAMESPACE);
-
-        // Create ClusterRoleBindings that grant cluster-wide access to all OpenShift projects
-        List<ClusterRoleBinding> clusterRoleBindingList = ClusterRoleBindingTemplates.clusterRoleBindingsForAllNamespaces(NAMESPACE);
-        clusterRoleBindingList.forEach(clusterRoleBinding ->
-            ClusterRoleBindingResource.clusterRoleBinding(extensionContext, clusterRoleBinding));
-        // deploy CO with service labels and annotations envs
-        resourceManager.createResource(extensionContext,
-            new BundleResource.BundleResourceBuilder()
-                .withName(Constants.STRIMZI_DEPLOYMENT_NAME)
-                .withNamespace(NAMESPACE)
-                .buildBundleInstance()
-                .buildBundleDeployment()
-                .editSpec()
-                    .editTemplate()
-                        .editSpec()
-                            .editFirstContainer()
-                                .addNewEnv()
-                                    .withName("STRIMZI_CUSTOM_KAFKA_BRIDGE_SERVICE_LABELS")
-                                    .withValue("app=bar")
-                                .endEnv()
-                                .addNewEnv()
-                                    .withName("STRIMZI_CUSTOM_KAFKA_BRIDGE_SERVICE_ANNOTATIONS")
-                                    .withValue("bar=app")
-                                .endEnv()
-                            .endContainer()
-                        .endSpec()
-                    .endTemplate()
-                .endSpec()
-                .build());
+        install = new SetupClusterOperator.SetupClusterOperatorBuilder()
+            .withExtensionContext(extensionContext)
+            .withNamespace(NAMESPACE)
+            .withWatchingNamespaces(Constants.WATCH_ALL_NAMESPACES)
+            .withExtraEnvVars(
+                Arrays.asList(
+                    new EnvVarBuilder()
+                        .withName("STRIMZI_CUSTOM_KAFKA_BRIDGE_SERVICE_LABELS")
+                        .withValue("app=bar")
+                        .build(),
+                    new EnvVarBuilder()
+                        .withName("STRIMZI_CUSTOM_KAFKA_BRIDGE_SERVICE_ANNOTATIONS")
+                        .withValue("bar=app")
+                        .build()
+                )
+            ).createInstallation()
+            .runInstallation();
 
         LOGGER.info("Deploy Kafka and KafkaBridge before tests");
         String kafkaClientsName = NAMESPACE + "-shared-" + Constants.KAFKA_CLIENTS;

@@ -19,7 +19,6 @@ import io.strimzi.systemtest.kafkaclients.internalClients.InternalKafkaClient;
 import io.strimzi.systemtest.resources.ResourceManager;
 import io.strimzi.systemtest.resources.crd.KafkaResource;
 import io.strimzi.systemtest.resources.crd.KafkaTopicResource;
-import io.strimzi.systemtest.resources.operator.BundleResource;
 import io.strimzi.systemtest.templates.crd.KafkaClientsTemplates;
 import io.strimzi.systemtest.templates.crd.KafkaTemplates;
 import io.strimzi.systemtest.templates.crd.KafkaTopicTemplates;
@@ -267,17 +266,11 @@ class NamespaceDeletionRecoveryST extends AbstractST {
 
     private void recreateClusterOperator(ExtensionContext extensionContext) {
         // Recreate CO
-
-        install.applyClusterOperatorInstallFiles(NAMESPACE);
-        SetupClusterOperator.applyBindings(extensionContext, NAMESPACE);
-        // 060-Deployment
-        resourceManager.createResource(extensionContext,
-            new BundleResource.BundleResourceBuilder()
-                .withName(Constants.STRIMZI_DEPLOYMENT_NAME)
-                .withNamespace(NAMESPACE)
-                .buildBundleInstance()
-                .buildBundleDeployment()
-                .build());
+        install = new SetupClusterOperator.SetupClusterOperatorBuilder()
+            .withExtensionContext(extensionContext)
+            .withNamespace(NAMESPACE)
+            .createInstallation()
+            .runInstallation();
     }
 
     private void deleteAndRecreateNamespace() {

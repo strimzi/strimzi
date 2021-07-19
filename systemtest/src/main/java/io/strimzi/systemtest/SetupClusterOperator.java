@@ -4,6 +4,7 @@
  */
 package io.strimzi.systemtest;
 
+import io.fabric8.kubernetes.api.model.EnvVar;
 import io.fabric8.kubernetes.api.model.rbac.ClusterRoleBinding;
 import io.strimzi.systemtest.resources.ResourceManager;
 import io.strimzi.systemtest.resources.kubernetes.ClusterRoleBindingResource;
@@ -53,6 +54,7 @@ public class SetupClusterOperator {
     private List<String> bindingsNamespaces;
     private long operationTimeout;
     private long reconciliationInterval;
+    private List<EnvVar> extraEnvVars;
 
     SetupClusterOperator() {}
     SetupClusterOperator(SetupClusterOperatorBuilder builder) {
@@ -63,6 +65,7 @@ public class SetupClusterOperator {
         this.bindingsNamespaces = builder.bindingsNamespaces;
         this.operationTimeout = builder.operationTimeout;
         this.reconciliationInterval = builder.reconciliationInterval;
+        this.extraEnvVars = builder.extraEnvVars;
 
         // assign defaults is something is not specified
         if (this.clusterOperatorName == null || this.clusterOperatorName.isEmpty()) this.clusterOperatorName = Constants.STRIMZI_DEPLOYMENT_NAME;
@@ -140,6 +143,7 @@ public class SetupClusterOperator {
                     .withWatchingNamespaces(namespaceToWatch)
                     .withOperationTimeout(operationTimeout)
                     .withReconciliationInterval(reconciliationInterval)
+                    .withExtraEnvVars(extraEnvVars)
                     .buildBundleInstance()
                     .buildBundleDeployment()
                     .build());
@@ -163,6 +167,7 @@ public class SetupClusterOperator {
         private List<String> bindingsNamespaces;
         private long operationTimeout;
         private long reconciliationInterval;
+        private List<EnvVar> extraEnvVars;
 
         public SetupClusterOperatorBuilder withExtensionContext(ExtensionContext extensionContext) {
             this.extensionContext = extensionContext;
@@ -190,6 +195,12 @@ public class SetupClusterOperator {
         }
         public SetupClusterOperatorBuilder withReconciliationInterval(long reconciliationInterval) {
             this.reconciliationInterval = reconciliationInterval;
+            return self();
+        }
+
+        // currently supported only for Bundle installation
+        public SetupClusterOperatorBuilder withExtraEnvVars(List<EnvVar> envVars) {
+            this.extraEnvVars = envVars;
             return self();
         }
 

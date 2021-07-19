@@ -146,7 +146,8 @@ public class BundleResource implements ResourceType<Deployment> {
             .withNamespace(namespaceInstallTo)
             .withWatchingNamespaces(namespaceToWatch)
             .withOperationTimeout(operationTimeout)
-            .withReconciliationInterval(reconciliationInterval);
+            .withReconciliationInterval(reconciliationInterval)
+            .withExtraEnvVars(extraEnvVars);
     }
 
     public DeploymentBuilder buildBundleDeployment() {
@@ -202,6 +203,8 @@ public class BundleResource implements ResourceType<Deployment> {
             // for kafka
             envVars.add(new EnvVar("STRIMZI_IMAGE_PULL_SECRETS", Environment.SYSTEM_TEST_STRIMZI_IMAGE_PULL_SECRET, null));
         }
+        // adding custom evn vars specified by user in installation
+        if (extraEnvVars != null) envVars.addAll(extraEnvVars);
 
         // Apply updated env variables
         clusterOperator.getSpec().getTemplate().getSpec().getContainers().get(0).setEnv(envVars);

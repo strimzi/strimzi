@@ -12,10 +12,10 @@ import io.strimzi.api.kafka.model.KafkaResources;
 import io.strimzi.api.kafka.model.KafkaTopic;
 import io.strimzi.operator.common.Annotations;
 import io.strimzi.systemtest.AbstractST;
+import io.strimzi.systemtest.Constants;
 import io.strimzi.systemtest.Environment;
 import io.strimzi.systemtest.SetupClusterOperator;
 import io.strimzi.systemtest.resources.crd.kafkaclients.KafkaBasicExampleClients;
-import io.strimzi.systemtest.resources.operator.BundleResource;
 import io.strimzi.systemtest.templates.crd.KafkaTemplates;
 import io.strimzi.systemtest.templates.crd.KafkaTopicTemplates;
 import io.strimzi.systemtest.utils.ClientUtils;
@@ -31,7 +31,6 @@ import org.junit.jupiter.api.extension.ExtensionContext;
 
 import java.time.Duration;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -54,19 +53,6 @@ public class FeatureGatesST extends AbstractST {
     static final String NAMESPACE = "feature-gates-tests";
     private static final Logger LOGGER = LogManager.getLogger(FeatureGatesST.class);
 
-    protected void deployClusterOperatorWithEnvVars(ExtensionContext extensionContext, List<EnvVar> envVars) {
-        install.prepareEnvForOperator(extensionContext, NAMESPACE, Arrays.asList(NAMESPACE, NAMESPACE));
-        SetupClusterOperator.applyBindings(extensionContext, NAMESPACE);
-
-        resourceManager.createResource(extensionContext,
-            new BundleResource.BundleResourceBuilder()
-                .withNamespace(NAMESPACE)
-                .withExtraEnvVars(envVars)
-                .buildBundleInstance()
-                .buildBundleDeployment()
-            .build());
-    }
-
     /**
      * Control Plane Listener
      * https://github.com/strimzi/proposals/blob/main/025-control-plain-listener.md
@@ -85,7 +71,15 @@ public class FeatureGatesST extends AbstractST {
         int kafkaReplicas = 3;
 
         testEnvVars.add(new EnvVar(Environment.STRIMZI_FEATURE_GATES_ENV, "+ControlPlaneListener", null));
-        deployClusterOperatorWithEnvVars(extensionContext, testEnvVars);
+
+        install = new SetupClusterOperator.SetupClusterOperatorBuilder()
+            .withExtensionContext(extensionContext)
+            .withNamespace(NAMESPACE)
+            .withWatchingNamespaces(Constants.WATCH_ALL_NAMESPACES)
+            .withExtraEnvVars(testEnvVars)
+            .createInstallation()
+            .runInstallation();
+
         resourceManager.createResource(extensionContext, KafkaTemplates.kafkaPersistent(clusterName, kafkaReplicas).build());
 
         LOGGER.info("Check for presence of ContainerPort 9090/tcp (tcp-ctrlplane) in first Kafka pod.");

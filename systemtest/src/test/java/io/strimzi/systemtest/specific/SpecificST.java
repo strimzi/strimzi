@@ -491,17 +491,12 @@ public class SpecificST extends AbstractST {
     void setup(ExtensionContext extensionContext) {
         sharedExtensionContext = extensionContext;
 
-
         LOGGER.info(BridgeUtils.getBridgeVersion());
-        install.prepareEnvForOperator(sharedExtensionContext, NAMESPACE);
 
-        SetupClusterOperator.applyBindings(sharedExtensionContext, NAMESPACE);
-        // 060-Deployment
-        resourceManager.createResource(sharedExtensionContext,
-            new BundleResource.BundleResourceBuilder()
-                .withNamespace(NAMESPACE)
-                .buildBundleInstance()
-                .buildBundleDeployment()
-                .build());
+        install = new SetupClusterOperator.SetupClusterOperatorBuilder()
+            .withExtensionContext(sharedExtensionContext)
+            .withNamespace(NAMESPACE)
+            .createInstallation()
+            .runInstallation();
     }
 }
